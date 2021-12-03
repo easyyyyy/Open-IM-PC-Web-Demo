@@ -1,0 +1,45 @@
+@import '@/styles/extends.less';
+
+.wapper:extend(.center_box){
+    padding: 20vh 10vw;
+    .center_container{
+        display: flex;
+        .left_container{
+            text-align: center;
+            width: 354px;
+            margin-right: 72px;
+            .title{
+                font-size: 22px;
+                font-weight: 500;
+                padding-top: 43px;
+            }
+            .sub_title{
+                font-size: 12px;
+                color: #777;
+            }
+            img{
+                width: 100%;
+            }
+        }
+    }
+    .right_container{
+        border-radius: 10px;
+        box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+        padding: 47px 44px;
+        position: relative;
+        .form_title{
+            font-size: 16px;
+            font-weight: 500;
+            padding-top: 0;
+            padding-bottom: 30px;
+        }
+    }
+    &:after{
+        content: '';
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        border: 15px solid @primary-color;
+    }
+}
+

@@ -1,0 +1,4 @@
+export const UPDATEFRIENDCARD = "UPDATEFRIENDCARD"
+export const TOASSIGNCVE = "TOASSIGNCVE"
+export const RESETCVE = "RESETCVE"
+export const UPDATEPIN = "UPDATEPIN"
