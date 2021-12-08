@@ -172,6 +172,7 @@ const Login = () => {
           toggle={toggle}
           type={type}
           finish={finish}
+          num={num}
         />
       </div>
     </div>

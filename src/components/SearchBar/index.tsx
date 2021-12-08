@@ -3,7 +3,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { Input, Dropdown, Button, Menu } from "antd";
-import { useImperativeHandle, useRef, useState } from "react";
+import { useState } from "react";
 import styles from "./index.module.less";
 
 export type SearchBarProps = {
@@ -17,7 +17,6 @@ type menuItem = {
 }
 
 export const SearchBar= ({menus}:SearchBarProps,ref:any) => {
-  const myRef = useRef(null)
   const [searchContext,setSearchContext] = useState('')
 
   const addMenu = () => (
@@ -30,12 +29,8 @@ export const SearchBar= ({menus}:SearchBarProps,ref:any) => {
     </Menu>
   );
 
-  useImperativeHandle(ref, () => ({
-    topRef: myRef
-  }));
-
   return (
-    <div ref={myRef} className={styles.top_tools}>
+    <div className={styles.top_tools}>
       <Input onChange={(v)=>setSearchContext(v.target.value)} placeholder="搜索" prefix={<SearchOutlined />} />
       <Dropdown
         overlay={addMenu}

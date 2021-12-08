@@ -1,0 +1,215 @@
+.ant-drawer-open {
+  margin-right: 42px;
+}
+
+.right_set_drawer {
+  .single_drawer,
+  .group_drawer {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: 100%;
+    .anticon-right {
+      color: #dedfe0;
+    }
+    &_item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 24px;
+      padding: 16px 0;
+      font-size: 13px;
+      border-bottom: 1px solid #dedfe0;
+      &_left {
+        display: flex;
+        align-items: center;
+      }
+      &_title {
+        margin-left: 12px;
+      }
+    }
+    &_btn {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      border-radius: 6px;
+      height: 28px;
+      padding: 0 18px;
+    }
+  }
+  .group_drawer {
+    &_item {
+      &_info {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        .group_drawer_item_title {
+          font-weight: 500;
+        }
+        .group_drawer_item_sub {
+          margin-left: 12px;
+          font-size: 12px;
+          color: #428be5;
+          cursor: pointer;
+        }
+      }
+      &_right {
+        display: flex;
+        align-items: center;
+        .anticon-right {
+          margin-left: 10px;
+        }
+      }
+      .ant-typography {
+        margin-bottom: 0;
+        height: 24px;
+        &-edit-content {
+          margin: 0;
+          textarea.ant-input {
+            min-height: 20px;
+            padding: 0;
+            padding-left: 4px;
+            border-radius: 4px;
+          }
+          &-confirm {
+            display: none;
+          }
+        }
+      }
+      .group_id {
+        color: #999;
+      }
+      &_nbtm {
+        border-bottom: none;
+      }
+    }
+    &_row {
+      display: flex;
+      flex-direction: column;
+      margin: 0 24px;
+      padding: 16px 0;
+      border-bottom: 1px solid #dedfe0;
+      &_title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .num_tip {
+          font-size: 12px;
+          color: #999;
+          margin-right: 4px;
+        }
+      }
+      &_input {
+        margin: 12px 0;
+      }
+      &_icon {
+        display: flex;
+        .ant-avatar {
+          margin-right: 2px;
+        }
+        .anticon-plus,
+        .anticon-minus {
+          width: 32.8px;
+          height: 32.8px;
+          min-width: 32.8px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          color: #999;
+          border: 1px solid rgb(211, 194, 194);
+          border-radius: 6px;
+        }
+        .anticon-plus {
+          margin-right: 2px;
+        }
+      }
+    }
+    &_btns {
+      position: absolute;
+      bottom: 30px;
+      width: 100%;
+      text-align: center;
+      // left: 50%;
+      // transform: translateX(-50%);
+      &_item {
+        border-radius: 6px;
+        height: 28px;
+        padding: 0 16px;
+        &:first-child {
+          margin-right: 12px;
+        }
+      }
+    }
+  }
+  .group_members {
+    &_search {
+      padding: 16px;
+    }
+    &_list {
+      overflow-y: auto;
+      &_item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 16px;
+        .member_info {
+          display: flex;
+          flex-direction: column;
+          margin-left: 12px;
+          .title {
+            display: flex;
+            align-items: center;
+            .owner_tip,
+            .admin_tip {
+              border-radius: 4px;
+              font-size: 12px;
+              transform: scale(0.9);
+              height: 20px;
+              line-height: 20px;
+              padding: 0 4px;
+              margin-left: 12px;
+            }
+            .owner_tip {
+              background-color: #fddfa1;
+              color: #fd9306;
+            }
+            .admin_tip {
+              background-color: #a2c9f8;
+              color: #498fe6;
+            }
+          }
+          .member_status {
+            font-size: 12px;
+            color: #999;
+          }
+        }
+        .anticon-delete {
+          cursor: pointer;
+        }
+        &:hover {
+          background-color: #f0f6fd;
+        }
+      }
+    }
+  }
+  .anticon {
+    color: #999;
+  }
+  .ant-drawer-body {
+    padding: 0;
+  }
+  .ant-drawer-header {
+    padding: 20.5px 24px;
+  }
+  .ant-input-affix-wrapper {
+    padding: 0 11px;
+    border-radius: 6px;
+  }
+  .ant-input {
+    border-radius: 4px;
+    height: 28px;
+    font-size: 13px;
+  }
+}

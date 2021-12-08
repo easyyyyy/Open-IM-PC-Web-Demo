@@ -26,6 +26,7 @@ import { WsResponse } from "open-im-sdk/im";
 import { useReactive } from "ahooks";
 import { CbEvents } from "../../../utils/src";
 import {
+  OPENGROUPMODAL,
   RESETCVE,
   TOASSIGNCVE,
   UPDATEFRIENDCARD,
@@ -129,6 +130,38 @@ const Home = () => {
       });
     });
 
+    im.on(CbEvents.ONMEMBERINVITED, (data) => {
+      reactiveState.groupMemberList = [
+        ...reactiveState.groupMemberList,
+        ...JSON.parse(JSON.parse(data.data).memberList),
+      ];
+    });
+
+    im.on(CbEvents.ONMEMBERKICKED, (data) => {
+      let idxs: number[] = [];
+      const users: GroupMember[] = JSON.parse(JSON.parse(data.data).memberList);
+      users.map((u) => {
+        reactiveState.groupMemberList.map((gm, idx) => {
+          if (u.userId === gm.userId) {
+            idxs.push(idx);
+          }
+        });
+      });
+      idxs.map((i) => reactiveState.groupMemberList.splice(i, i + 1));
+    });
+
+    im.on(CbEvents.ONGROUPINFOCHANGED, (data) => {
+      console.log(JSON.parse(data.data));
+    });
+
+    im.on(CbEvents.ONMEMBERENTER, (data) => {
+      console.log(JSON.parse(data.data));
+    });
+
+    im.on(CbEvents.ONMEMBERLEAVE, (data) => {
+      console.log(JSON.parse(data.data));
+    });
+
     return () => {
       im.off(CbEvents.ONRECVNEWMESSAGE, () => {});
       im.off(CbEvents.ONRECVMESSAGEREVOKED, () => {});
@@ -137,8 +170,8 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    events.on(UPDATEFRIENDCARD, () => {
-      getFriendInfo(reactiveState.curCve!.userID);
+    events.on(UPDATEFRIENDCARD, (id: string) => {
+      getFriendInfo(id);
     });
     events.on(TOASSIGNCVE, (id: string, type: sessionType) => {
       getOneCve(id, type)
@@ -161,7 +194,8 @@ const Home = () => {
 
   const inCurCve = (newServerMsg: Message): boolean => {
     return (
-      newServerMsg.sendID === reactiveState.curCve?.userID ||
+      (newServerMsg.sendID === reactiveState.curCve?.userID &&
+        reactiveState.curCve.groupID === "") ||
       newServerMsg.recvID === reactiveState.curCve?.groupID
     );
   };
@@ -239,7 +273,6 @@ const Home = () => {
   };
 
   const getHistoryMsg = (uid?: string, gid?: string, sMsg?: any) => {
-    console.log("gitMsg");
     reactiveState.loading = true;
 
     const config = {
@@ -372,10 +405,6 @@ const Home = () => {
     });
   };
 
-  // window.onresize = function(){
-  //   //@ts-ignore
-  //   setSearchHeight(compRef.current?.topRef.current.clientHeight)
-  // }
 
   return (
     <>

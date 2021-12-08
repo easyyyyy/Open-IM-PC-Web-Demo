@@ -1,5 +1,5 @@
 import { Dispatch } from "redux";
-import { SelfInfo } from "../../@types/open_im";
+import { UserInfo } from "../../@types/open_im";
 import { im } from "../../utils";
 import {
   SET_SELF_INFO,
@@ -8,7 +8,7 @@ import {
   UserActionTypes,
 } from "../types/user";
 
-export const setSelfInfo = (value: SelfInfo): UserActionTypes => {
+export const setSelfInfo = (value: UserInfo): UserActionTypes => {
   return {
     type: SET_SELF_INFO,
     payload: value,

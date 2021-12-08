@@ -9,7 +9,7 @@ import cons_select from "@/assets/images/cons_select.png";
 import { useResolvedPath, useMatch, useNavigate } from "react-router";
 import { Link } from "react-router-dom";
 import { FC, useEffect, useState } from "react";
-import { SelfInfo } from "../@types/open_im";
+import { UserInfo } from "../@types/open_im";
 import { RightOutlined, UserOutlined } from "@ant-design/icons";
 import { im } from "../utils";
 import { MyAvatar } from "../components/MyAvatar";
@@ -91,7 +91,7 @@ const ToolIcon = ({ tool }: { tool: typeof tools[0] }) => {
 };
 
 type ToolsBarProps = {
-  userInfo: SelfInfo;
+  userInfo: UserInfo;
 };
 
 const ToolsBar: FC<ToolsBarProps> = ({ userInfo }) => {
@@ -197,12 +197,14 @@ const ToolsBar: FC<ToolsBarProps> = ({ userInfo }) => {
           <ToolIcon tool={t} key={idx} />
         ))}
       </div>
-      <UserCard
-        close={closeDragCard}
-        info={userInfo}
-        type="self"
-        draggableCardVisible={draggableCardVisible}
-      />
+      {draggableCardVisible && (
+        <UserCard
+          close={closeDragCard}
+          info={userInfo}
+          type="self"
+          draggableCardVisible={draggableCardVisible}
+        />
+      )}
     </Sider>
   );
 };

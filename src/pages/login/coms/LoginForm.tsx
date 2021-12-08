@@ -73,9 +73,10 @@ type IProps = {
   toggle: (mtype: Itype) => void;
   back: () => void;
   loading: boolean;
+  num:string;
 };
 
-const CodeBox = ({ finish,type,loading }:IProps) => {
+const CodeBox = ({ finish,type,loading,num }:IProps) => {
   const [code,setCode] = useState('')
   const [time,setTime] = useState(60)
   const [interval, setInterval] = useState<number|null>(1000);
@@ -91,7 +92,7 @@ const CodeBox = ({ finish,type,loading }:IProps) => {
           {type == "vericode" ? "验证手机号" : "欢迎使用OpenIM"}
         </div>
         <div className={styles.sub_tip}>
-          请输入发送至<span>+8617396220460</span>的6位验证码，有效期十分钟。
+          请输入发送至<span>+{`86 ${num}`}</span>的6位验证码，有效期十分钟。
         </div>
         <Codebox
           length={6}

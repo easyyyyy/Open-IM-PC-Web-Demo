@@ -1,5 +1,5 @@
 import { UserOutlined } from "@ant-design/icons";
-import { Avatar, Badge, Empty, List } from "antd";
+import { Badge, Empty, List } from "antd";
 import { FC } from "react";
 import { shallowEqual, useSelector } from "react-redux";
 import { Cve, Message } from "../../../@types/open_im";
@@ -56,7 +56,7 @@ const CveItem: FC<CveItemProps> = ({ cve, onClick,curCve,curUid }) => {
       case tipsTypes.INVITETOGROUPNOTICE:
         const invitetip = JSON.parse(pmsg.content).defaultTips
         const inviteIdx = invitetip.indexOf(" invited into the group chat by ")
-        return `${invitetip.slice(32+inviteIdx)}邀请了${invitetip.slice(0,6)}入群`
+        return `${invitetip.slice(32+inviteIdx)}邀请了${invitetip.slice(0,inviteIdx)}入群`
       case tipsTypes.QUITGROUPNOTICE:
         const quitTip = JSON.parse(pmsg.content).defaultTips
         const quitIdx = quitTip.indexOf(" have quit group chat")

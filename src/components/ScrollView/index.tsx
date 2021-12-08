@@ -1,5 +1,6 @@
 import { FC, useEffect, useImperativeHandle } from "react";
 import { scroller, Element } from "react-scroll";
+import { throttle } from "throttle-debounce";
 import { Loading } from "../Loading";
 import styles from "./index.module.less";
 
@@ -43,16 +44,19 @@ const ScrollView: FC<ScrollViewProps> = (
       if (loading) {
         return;
       }
+      
       fetchMoreData();
     }
   };
+
+  const throttleScroll = throttle(150,onScroll)
 
   useImperativeHandle(ref, () => ({
     scrollToBottom: scrollToBottom,
   }));
 
   return (
-    <div onScroll={onScroll} id="scr_container" style={{height:height??"100%"}} className={styles.con}>
+    <div onScroll={throttleScroll} id="scr_container" style={{height:height??"100%"}} className={styles.con}>
       <Element name="msg_btm" />
       {children}
       {hasMore ? (

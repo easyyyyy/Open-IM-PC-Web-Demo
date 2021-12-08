@@ -91,6 +91,12 @@ const Auth = () => {
     im.on(CbEvents.ONMEMBERLEAVE,()=>{
       dispatch(getGroupList())
     })
+    im.on(CbEvents.ONMEMBERINVITED,()=>{
+      dispatch(getGroupList())
+    })
+    im.on(CbEvents.ONMEMBERKICKED,()=>{
+      dispatch(getGroupList())
+    })
 
     im.on(CbEvents.ONRECEIVEJOINAPPLICATION,()=>{
       dispatch(getGroupApplicationList())

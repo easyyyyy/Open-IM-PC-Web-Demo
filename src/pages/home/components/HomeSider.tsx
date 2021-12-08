@@ -12,14 +12,13 @@ import {
   useRef,
   useState,
 } from "react";
-import { GroupItem } from "../../../@types/open_im";
+import { GroupItem, GroupMember } from "../../../@types/open_im";
 import { SearchBar } from "../../../components/SearchBar";
-import { TOASSIGNCVE } from "../../../constants/events";
+import { OPENGROUPMODAL, TOASSIGNCVE } from "../../../constants/events";
 import { events, im } from "../../../utils";
 import GroupCard from "./GroupCard";
+import GroupOpModal from "./GroupOpModal";
 import UserCard from "./UserCard";
-
-const RefSearchBar = forwardRef(SearchBar);
 
 const { Sider } = Layout;
 
@@ -79,14 +78,24 @@ const AddConModal: FC<AddConModalProps> = ({
 
 type HomeSiderProps = {};
 
+type GroupInfoType = {
+  members:GroupMember[]
+  gid:string
+}
+
+export type ModalType = "create"|"invite"|"remove"
+
 const HomeSider: FC<HomeSiderProps> = ({ children }) => {
   const [isAddConsVisible, setIsAddConsVisible] = useState(false);
   const [userCardVisible, setUserCardVisible] = useState(false);
   const [groupCardVisible, setGroupCardVisible] = useState(false);
+  const [groupOpModalVisible, setGroupOpModalVisible] = useState(false);
   const [addConNo, setAddConNo] = useState("");
   const [loading, setLoading] = useState(false);
   const [serchRes, setSerchRes] = useState({});
   const [addType, setAddType] = useState<"friend" | "group">("friend");
+  const [modalType,setModalType] = useState<ModalType>("create")
+  const [groupInfo,setGroupInfo] = useState<GroupInfoType>()
   const compRef = useRef(null);
 
   useEffect(() => {
@@ -95,6 +104,10 @@ const HomeSider: FC<HomeSiderProps> = ({ children }) => {
       setGroupCardVisible(false);
       setIsAddConsVisible(false);
     });
+    events.on(OPENGROUPMODAL,(type:ModalType,members:GroupMember[],gid:string)=>{
+      setGroupInfo({members,gid})
+      setModal(type)
+    })
     return () => {
       events.off(TOASSIGNCVE, () => {});
     };
@@ -109,6 +122,9 @@ const HomeSider: FC<HomeSiderProps> = ({ children }) => {
       case 1:
         setAddType("group");
         setIsAddConsVisible(true);
+        break;
+      case 2:
+        setModal("create")
         break;
       default:
         break;
@@ -188,6 +204,15 @@ const HomeSider: FC<HomeSiderProps> = ({ children }) => {
     setGroupCardVisible(false);
   };
 
+  const closeOpModal = () => {
+    setGroupOpModalVisible(false)
+  }
+
+  const setModal = (type:ModalType) => {
+    setModalType(type)
+    setGroupOpModalVisible(true)
+  }
+
   return (
     <Sider
       width="350"
@@ -195,7 +220,7 @@ const HomeSider: FC<HomeSiderProps> = ({ children }) => {
       style={{ borderRight: "1px solid #DEDFE0" }}
     >
       <div style={{ padding: 0 }}>
-        <RefSearchBar menus={menus} ref={compRef} />
+        <SearchBar menus={menus} />
         {
           //@ts-ignore
           cloneElement(children, { marginTop: 58 })
@@ -225,6 +250,9 @@ const HomeSider: FC<HomeSiderProps> = ({ children }) => {
           draggableCardVisible={groupCardVisible}
         />
       )}
+      {
+        groupOpModalVisible&&<GroupOpModal groupId={groupInfo?.gid} groupMembers={groupInfo?.members} modalType={modalType} visible={groupOpModalVisible} close={closeOpModal}/>
+      }
     </Sider>
   );
 };

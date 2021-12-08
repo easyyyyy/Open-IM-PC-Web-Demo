@@ -1,9 +1,10 @@
 import { UserOutlined } from "@ant-design/icons";
 import { Button, message } from "antd";
-import { shallowEqual, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { FriendApplication, GroupApplication } from "../../../@types/open_im";
 import { MyAvatar } from "../../../components/MyAvatar";
 import { RootState } from "../../../store";
+import { getGroupApplicationList } from "../../../store/actions/contacts";
 import { im } from "../../../utils";
 
 const NewNotice = ({ type }: { type: number }) => {
@@ -21,6 +22,7 @@ const NewNotice = ({ type }: { type: number }) => {
   );
 
   const NoticeItem = ({ap}:{ap:FriendApplication | GroupApplication}) => {
+    const dispatch = useDispatch()
     const acceptApplication = () => {
         if(type===1){
             im.acceptFriendApplication((ap as FriendApplication).uid)
@@ -35,7 +37,8 @@ const NewNotice = ({ type }: { type: number }) => {
             }
             im.acceptGroupApplication(options)
                 .then(res=>{
-                    ap.flag = 1
+                    // ap.flag = 1
+                    dispatch(getGroupApplicationList())
                     message.success("同意入群成功！")
                 }).catch(err=>message.error("操作失败！"))
         }

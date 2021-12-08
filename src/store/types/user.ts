@@ -1,7 +1,7 @@
-import { SelfInfo } from "../../@types/open_im"
+import { UserInfo } from "../../@types/open_im"
 
 export type UserState = {
-    selfInfo:SelfInfo
+    selfInfo:UserInfo
     selfToken:string
     selfInitLoading:boolean
 }
@@ -12,7 +12,7 @@ export const SET_SELF_INIT_LOADING = 'SET_SELF_INIT_LOADING'
 
 type SetSelfInfo = {
     type: typeof SET_SELF_INFO
-    payload: SelfInfo
+    payload: UserInfo
 }
 
 type SetSelfToken = {

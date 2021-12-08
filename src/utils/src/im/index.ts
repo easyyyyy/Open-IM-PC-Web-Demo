@@ -30,7 +30,7 @@ export type LoginParams = {
   token: string;
 };
 
-export type SelfInfo = {
+export type UserInfo = {
   name?: string;
   icon?: string;
   gender?: number;
@@ -414,7 +414,7 @@ export default class OpenIMSDK extends Emitter {
     });
   };
 
-  setSelfInfo = (data: SelfInfo, operationID?: string) => {
+  setSelfInfo = (data: UserInfo, operationID?: string) => {
     return new Promise<WsResponse>((resolve, reject) => {
       const _uuid = operationID || uuid(this.uid as string);
       const args = {

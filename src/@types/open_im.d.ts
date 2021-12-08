@@ -1,6 +1,6 @@
 export type Itype = "login" | "register" | "vericode" | "setPwd" | "setInfo" | "success";
 
-export type SelfInfo = {
+export type UserInfo = {
     birth?:  string;
     email?:  string;
     ex?:     string;

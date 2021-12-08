@@ -14,7 +14,7 @@ import {
 import { FC, useState, useRef, LegacyRef, useEffect } from "react";
 import Draggable, { DraggableEvent, DraggableData } from "react-draggable";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { FriendItem, SelfInfo } from "../../../@types/open_im";
+import { FriendItem, UserInfo } from "../../../@types/open_im";
 import { RootState } from "../../../store";
 import { cosUpload, events, im } from "../../../utils";
 import self_card from "@/assets/images/self_card.png";
@@ -30,7 +30,7 @@ const { Paragraph } = Typography;
 
 type UserCardProps = {
   draggableCardVisible: boolean;
-  info: SelfInfo | FriendItem;
+  info: UserInfo | FriendItem;
   close: () => void;
   type?: "self";
 };
@@ -43,7 +43,7 @@ const UserCard: FC<UserCardProps> = ({
 }) => {
   const [draggDisable, setDraggDisable] = useState(false);
   const [isFriend, setIsFriend] = useState(false);
-  const [drft, setDrft] = useState("");
+  // const [drft, setDrft] = useState("");
   const [step, setStep] = useState<"info" | "send">("info");
   const [bounds, setBounds] = useState({
     left: 0,
@@ -61,22 +61,28 @@ const UserCard: FC<UserCardProps> = ({
   const dispatch = useDispatch();
   const [form] = Form.useForm();
 
-  let selfInfo: SelfInfo = {};
+  let selfInfo: UserInfo = {};
+  let drft = "";
 
   useEffect(() => {
+    if ((info as FriendItem).comment !== undefined) {
+      setIsFriend(true);
+      setStep("info");
+      return;
+    }
+
     if (!type) {
       const idx = friendList.findIndex((f) => f.uid == info.uid);
-      console.log(idx);
 
       if (idx > -1) {
         setIsFriend(true);
-        setStep("info")
+        setStep("info");
       } else {
         setIsFriend(false);
-        setDrft("");
+        drft = ""
       }
     }
-  }, [friendList,draggableCardVisible]);
+  }, [friendList, draggableCardVisible]);
 
   const onStart = (event: DraggableEvent, uiData: DraggableData) => {
     const { clientWidth, clientHeight } = window?.document?.documentElement;
@@ -106,16 +112,17 @@ const UserCard: FC<UserCardProps> = ({
   };
 
   const clickBtn = () => {
-    
     if (isFriend) {
       //TODO to cve
-      events.emit(TOASSIGNCVE,info.uid,sessionType.SINGLECVE)
+      events.emit(TOASSIGNCVE, info.uid, sessionType.SINGLECVE);
     } else {
       setStep("send");
     }
   };
 
   const updateSelfInfo = () => {
+    console.log(selfInfo);
+    
     im.setSelfInfo(selfInfo)
       .then((res) => {
         dispatch(getSelfInfo(selfID!));
@@ -125,21 +132,28 @@ const UserCard: FC<UserCardProps> = ({
   };
 
   const updateComment = () => {
+
     im.setFriendInfo({ uid: info.uid!, comment: drft })
       .then((res) => {
         dispatch(getFriendList());
-        events.emit(UPDATEFRIENDCARD)
+        events.emit(UPDATEFRIENDCARD,info.uid);
         message.success("修改成功！");
       })
       .catch((err) => message.error("修改失败！"));
   };
 
-  const uploadIcon = async (uploadData: UploadRequestOption) => {
-      cosUpload(uploadData).then(res=>{
+  const uploadIcon = (uploadData: UploadRequestOption) => {
+    console.log(uploadData);
+    
+    cosUpload(uploadData)
+      .then((res) => {
+        console.log(res);
+
         selfInfo = {};
-          selfInfo.icon = res.url;
-          updateSelfInfo();
-      }).catch(err=>message.error("图片上传失败！"))
+        selfInfo.icon = res.url;
+        updateSelfInfo();
+      })
+      .catch((err) => message.error("图片上传失败！"));
   };
 
   const goBack = () => {
@@ -149,20 +163,21 @@ const UserCard: FC<UserCardProps> = ({
 
   const myClose = () => {
     close();
-    setDrft("");
+    drft = "";
+    // setDrft("");
     setStep("info");
     form.resetFields();
   };
 
   const genderEnd = () => {
     console.log(drft);
-    
+
     if (drft === "男") {
       selfInfo.gender = 1;
-      updateSelfInfo()
+      updateSelfInfo();
     } else if (drft === "女") {
       selfInfo.gender = 2;
-      updateSelfInfo()
+      updateSelfInfo();
     } else {
       message.warning("请输入正确格式！");
     }
@@ -170,25 +185,33 @@ const UserCard: FC<UserCardProps> = ({
 
   const infoEditConfig = {
     onEnd: updateComment,
-    onChange: (s: string) => setDrft(s),
-    onCancel: () => setDrft(""),
+    onChange: (s: string) => drft=s,
+    onCancel: () => drft='',
     autoSize: { maxRows: 2 },
     maxLength: 15,
   };
 
+  const delContact = () => {
+    im.deleteFromFriendList(info.uid!).then(res=>{
+      message.success("解除好友关系成功！")
+      close()
+    }).catch(err=>message.error("解除好友关系失败！"))
+  }
+
   const InfoTitle = () => (
     <>
       <div className="left_info">
-        <div  className="left_info_title">{info.name}</div>
+        <div className="left_info_title">{info.name}</div>
         <div className="left_info_icon">
           <img width={18} src={self_card} alt="" />
-          {!type && (
-            <img style={{ marginLeft: "8px" }} width={18} src={del_card} />
+          {isFriend && (
+            <img onClick={delContact} style={{ marginLeft: "8px" }} width={18} src={del_card} />
           )}
         </div>
       </div>
       <Upload
-        openFileDialogOnClick={type?true:false}
+        name="self_icon"
+        openFileDialogOnClick={type ? true : false}
         action={""}
         customRequest={(data) => uploadIcon(data)}
         showUploadList={false}
@@ -223,14 +246,12 @@ const UserCard: FC<UserCardProps> = ({
           <Paragraph
             editable={{
               maxLength: 15,
-              onChange: (v) => {
-                setDrft(v);
-              },
+              onChange: (v) => drft = v,
               onEnd: () => {
                 selfInfo = {};
                 selfInfo.name = drft;
               },
-              // onCancel: editCancel,
+              onCancel: ()=>drft = "",
             }}
           >
             {info.name}
@@ -240,11 +261,9 @@ const UserCard: FC<UserCardProps> = ({
           <Paragraph
             editable={{
               maxLength: 1,
-              onChange: (v) => {
-                setDrft(v);
-              },
+              onChange: (v) => drft = v,
               onEnd: genderEnd,
-              // onCancel: editCancel,
+              onCancel: ()=>drft = "",
             }}
           >
             {info.gender === 1 ? "男" : "女"}
