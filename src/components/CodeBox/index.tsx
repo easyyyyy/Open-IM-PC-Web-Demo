@@ -3,7 +3,14 @@ import { Component } from "react";
 import { textSelect, removeDefaultBehavior, isFunction } from "./utils";
 import "./index.less";
 
-export default class extends Component {
+interface CodeBoxProps {
+  validator?: (...args: any[]) => boolean
+  length: number
+  type: string
+  onChange?: (value: string[]) => void
+}
+
+export default class extends Component<CodeBoxProps> {
 
   constructor(props) {
     super(props);
