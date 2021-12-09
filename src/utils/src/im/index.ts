@@ -231,7 +231,7 @@ export default class OpenIMSDK extends Emitter {
   private lock: boolean = false;
   private logoutFlag: boolean = false;
   private timer: number | undefined;
-  private ws2promise: Ws2Promise[] = [];
+  private ws2promise: Record<string, Ws2Promise> = {};
 
   constructor() {
     super();
@@ -1159,29 +1159,26 @@ export default class OpenIMSDK extends Emitter {
     resolve: (value: WsResponse | PromiseLike<WsResponse>) => void,
     reject: (reason?: any) => void
   ) => {
-    if (typeof params.data === "object")
+    if (typeof params.data === "object") {
       params.data = JSON.stringify(params.data);
+    }
 
     const ws2p = {
-      oid: params.operationID,
+      oid: params.operationID || uuid(this.uid as string),
       mname: params.reqFuncName,
       mrsve: resolve,
       mrjet: reject,
       flag: false,
     };
-    this.ws2promise.push(ws2p);
 
-    this.ws2promise = this.ws2promise.filter(wspp=>!wspp.flag)
+    this.ws2promise[ws2p.oid] = ws2p;
+
     const handleMessage = (ev: MessageEvent<string>) => {
       const data = JSON.parse(ev.data);
 
-      if (
-        Object.prototype.hasOwnProperty.call(
-          CbEvents,
-          data.event.toUpperCase()
-        )
-      )
+      if ((CbEvents as Record<string, string>)[data.event.toUpperCase()]) {
         this.emit(data.event, data);
+      }
 
       if (params.reqFuncName === RequestFunc.LOGOUT) {
         this.logoutFlag = true;
@@ -1189,19 +1186,16 @@ export default class OpenIMSDK extends Emitter {
         this.ws = undefined;
       }
 
-      const wspidx = this.ws2promise.findIndex(
-        (wsp) => wsp.oid === data.operationID
-      );
-      if (wspidx === -1) {
+      const callbackJob = this.ws2promise[data.operationID];
+      if (!callbackJob) {
         return
       }
       if (data.errCode === 0) {
-        this.ws2promise[wspidx].mrsve(data);
-        this.ws2promise[wspidx].flag=true;
+        callbackJob.mrsve(data);
       } else {
-        this.ws2promise[wspidx].mrjet(data);
-        this.ws2promise[wspidx].flag=true;
+        callbackJob.mrjet(data);
       }
+      delete this.ws2promise[data.operationID];
     }
 
     if (this.platform == "web") {
@@ -1223,10 +1217,10 @@ export default class OpenIMSDK extends Emitter {
             //@ts-ignore
             this.ws!._callbacks.message = [];
           }
-          //@ts-ignore
-          this.ws!.onMessage(handleMessage);
         },
       });
+      //@ts-ignore
+      this.ws!.onMessage(handleMessage);
     }
   };
 
