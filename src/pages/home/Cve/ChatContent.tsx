@@ -1,105 +1,14 @@
-import { Image } from "antd";
 import { FC, forwardRef, useEffect, useRef, useState } from "react";
 import { useSelector, shallowEqual } from "react-redux";
 import { Cve, Message, PictureElem, UserInfo } from "../../../@types/open_im";
-import { messageTypes, tipsTypes } from "../../../constants/messageContentType";
+import { tipsTypes } from "../../../constants/messageContentType";
 import { RootState } from "../../../store";
-import { events, im, isSingleCve } from "../../../utils";
+import { events, im, isSingleCve, sleep } from "../../../utils";
 import ScrollView from "../../../components/ScrollView";
-import { MyAvatar } from "../../../components/MyAvatar";
 import UserCard from "../components/UserCard";
 import { UPDATEFRIENDCARD } from "../../../constants/events";
+import MsgItem from "./components/MsgItem";
 
-//@ts-ignore
-const RefScrollView = forwardRef(ScrollView);
-
-type MsgItemProps = {
-  msg: Message;
-  selfID: string;
-  imgClick: (el: PictureElem) => void;
-  clickItem: (uid: string) => void;
-  curCve: Cve;
-};
-
-const MsgItem: FC<MsgItemProps> = ({
-  msg,
-  selfID,
-  imgClick,
-  curCve,
-  clickItem,
-}) => {
-  const isSelf = (sendID: string): boolean => {
-    return selfID === sendID;
-  };
-
-  const msgType = (msg: Message) => {
-    switch (msg.contentType) {
-      case messageTypes.TEXTMESSAGE:
-        return <div className="chat_bg_msg_text">{msg.content}</div>;
-      case messageTypes.ATTEXTMESSAGE:
-        let atStr = "";
-        let text = msg.atElem.text;
-        const lastone =
-          msg.atElem.atUserList![msg.atElem.atUserList!.length - 1];
-        msg.atElem.atUserList?.map((u) => (atStr += u + " "));
-        const idx = msg.atElem.text.indexOf(lastone);
-        return (
-          <div className="chat_bg_msg_text">
-            <span>{`@${atStr}`}</span>
-            {text.slice(idx + lastone.length)}
-          </div>
-        );
-      case messageTypes.PICTUREMESSAGE:
-        return (
-          <div>
-            <Image
-              placeholder={true}
-              width={200}
-              src={
-                msg.pictureElem.snapshotPicture.url ??
-                msg.pictureElem.sourcePicture.url
-              }
-              preview={{ visible: false }}
-              onClick={() => imgClick(msg.pictureElem)}
-            />
-          </div>
-        );
-      case messageTypes.VIDEOMESSAGE:
-        return (
-          <div>
-            <video controls width={200} src={msg.videoElem.videoUrl} />
-          </div>
-        );
-      default:
-        return <div className="chat_bg_msg_text">[暂未支持的消息类型]</div>;
-        // console.log(msg);
-        break;
-    }
-  };
-
-  return (
-    <div className={`chat_bg_msg ${isSelf(msg.sendID) ? "chat_bg_omsg" : ""}`}>
-      <div className="cs" onClick={() => clickItem(msg.sendID)}>
-        <MyAvatar
-          className="chat_bg_msg_icon"
-          shape="square"
-          size={42}
-          src={msg.senderFaceUrl}
-        />
-      </div>
-
-      {msgType(msg)}
-      {isSelf(msg.sendID) && isSingleCve(curCve) ? (
-        <div
-          style={{ color: msg.isRead ? "#999" : "#428BE5" }}
-          className="chat_bg_flag"
-        >
-          {msg.isRead ? "已读" : "未读"}
-        </div>
-      ) : null}
-    </div>
-  );
-};
 
 type ChatContentProps = {
   msgList: Message[];
@@ -126,21 +35,20 @@ const ChatContent: FC<ChatContentProps> = ({
     (state: RootState) => state.contacts.friendList,
     shallowEqual
   );
-  const msgsRef = useRef(null);
 
   const tipList = Object.values(tipsTypes);
 
-  useEffect(()=>{
-    events.on(UPDATEFRIENDCARD, async (uid:string) => {
-      const { errCode,data } = await im.getFriendsInfo([uid])
-      if(errCode===0){
+  useEffect(() => {
+    events.on(UPDATEFRIENDCARD, async (uid: string) => {
+      const { errCode, data } = await im.getFriendsInfo([uid]);
+      if (errCode === 0) {
         setUserInfo(JSON.parse(data)[0]);
       }
     });
     return () => {
-      events.off(UPDATEFRIENDCARD,()=>{})
-    }
-  },[])
+      events.off(UPDATEFRIENDCARD, () => {});
+    };
+  }, []);
 
   const parseTip = (msg: Message): string => {
     if (msg.contentType === tipsTypes.REVOKEMESSAGE) {
@@ -182,15 +90,15 @@ const ChatContent: FC<ChatContentProps> = ({
   const clickItem = async (id: string) => {
     if (id === selfID) return;
     const idx = friendList.findIndex((f) => f.uid === id);
-    if (idx>-1) {
-      const { errCode,data } = await im.getFriendsInfo([id])
-      if(errCode===0){
+    if (idx > -1) {
+      const { errCode, data } = await im.getFriendsInfo([id]);
+      if (errCode === 0) {
         setUserInfo(JSON.parse(data)[0]);
         setUserCardVisible(true);
       }
     } else {
-      const { errCode,data } = await im.getUsersInfo([id])
-      if(errCode===0){
+      const { errCode, data } = await im.getUsersInfo([id]);
+      if (errCode === 0) {
         setUserInfo(JSON.parse(data)[0]);
         setUserCardVisible(true);
       }
@@ -204,9 +112,7 @@ const ChatContent: FC<ChatContentProps> = ({
   return (
     <div className="chat_bg">
       {/* @ts-ignore */}
-      <RefScrollView
-        ref={msgsRef}
-        // height={716}
+      <ScrollView
         holdHeight={30}
         loading={loading}
         data={msgList}
@@ -233,7 +139,7 @@ const ChatContent: FC<ChatContentProps> = ({
             );
           }
         })}
-      </RefScrollView>
+      </ScrollView>
       {userCardVisible && (
         <UserCard
           close={closeCard}

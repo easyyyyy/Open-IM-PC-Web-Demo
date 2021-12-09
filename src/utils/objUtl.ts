@@ -76,3 +76,7 @@ export const formatDate = (timestamp:number) => {
 	const str2 = hour + ":" + minute
 	return [year,month,date,str1, str2];
 }
+
+export const sleep = (ms:number) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

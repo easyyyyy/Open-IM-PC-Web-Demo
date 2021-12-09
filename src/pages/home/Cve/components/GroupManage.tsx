@@ -89,7 +89,7 @@ const GroupManage: FC<GroupManageProps> = ({ adminList,groupMembers,gid }) => {
         <Row className="gutter_row" gutter={[16, 0]}>
             {
                 groupMembers.map(m=>(
-                    <Col onClick={()=>warning(m)} span={6}>
+                    <Col key={m.userId} onClick={()=>warning(m)} span={6}>
                         <div className="member_item">
                             <MyAvatar src={m.faceUrl} size={36}/>
                             <span className="member_nick">{m.nickName}</span>

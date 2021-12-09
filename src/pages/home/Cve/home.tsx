@@ -1,6 +1,6 @@
 import { Button, Image, Layout, message, Modal } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { shallowEqual, useSelector } from "react-redux";
 import {
   Cve,
   FriendItem,
@@ -23,15 +23,17 @@ import {
   sessionType,
 } from "../../../constants/messageContentType";
 import { WsResponse } from "open-im-sdk/im";
-import { useReactive } from "ahooks";
+import { useReactive, useRequest } from "ahooks";
 import { CbEvents } from "../../../utils/src";
 import {
+  DELETEMESSAGE,
   OPENGROUPMODAL,
   RESETCVE,
   TOASSIGNCVE,
   UPDATEFRIENDCARD,
   UPDATEPIN,
 } from "../../../constants/events";
+import { scroller,animateScroll } from "react-scroll";
 
 const { Content } = Layout;
 
@@ -41,16 +43,21 @@ type NMsgMap = {
   flag: boolean;
 };
 
-const WelcomeContent = () => (
-  <div className="content_bg">
-    <div className="content_bg_title">创建群组</div>
-    <div className="content_bg_sub">创建群组，立即开启在线办公</div>
-    <img src={home_bg} alt="" />
-    <Button onClick={() => {}} className="content_bg_btn" type="primary">
-      立即创建
-    </Button>
-  </div>
-);
+const WelcomeContent = () => {
+  const createGroup = () => {
+    events.emit(OPENGROUPMODAL,"create")
+  }
+  return (
+    <div className="content_bg">
+      <div className="content_bg_title">创建群组</div>
+      <div className="content_bg_sub">创建群组，立即开启在线办公</div>
+      <img src={home_bg} alt="" />
+      <Button onClick={createGroup} className="content_bg_btn" type="primary">
+        立即创建
+      </Button>
+    </div>
+  );
+}
 
 type ReactiveState = {
   historyMsgList: Message[];
@@ -69,6 +76,7 @@ const Home = () => {
   const cveList = useSelector(selectCveList, shallowEqual);
   const selectCveLoading = (state: RootState) => state.cve.cveInitLoading;
   const cveLoading = useSelector(selectCveLoading, shallowEqual);
+  const selfID = useSelector((state: RootState) => state.user.selfInfo.uid);
   const reactiveState = useReactive<ReactiveState>({
     historyMsgList: [],
     groupMemberList: [],
@@ -79,6 +87,15 @@ const Home = () => {
     loading: false,
   });
   const timer = useRef<NodeJS.Timeout | null>(null);
+  const {
+    loading,
+    run: getMsg,
+    cancel: msgCancel,
+  } = useRequest(im.getHistoryMessageList, {
+    manual:true,
+    onSuccess: handleMsg,
+    onError:(err)=>message.error("获取聊天记录失败！")
+  });
 
   let nMsgMaps: NMsgMap[] = [];
 
@@ -184,6 +201,9 @@ const Home = () => {
     events.on(UPDATEPIN, (flag: number) => {
       reactiveState.curCve!.isPinned = flag;
     });
+    events.on(DELETEMESSAGE, (mid: string) => {
+      deleteMsg(mid);
+    });
     return () => {
       events.off(UPDATEFRIENDCARD, () => {});
       events.off(TOASSIGNCVE, () => {});
@@ -193,9 +213,12 @@ const Home = () => {
   }, []);
 
   const inCurCve = (newServerMsg: Message): boolean => {
+    console.log(newServerMsg);
+    console.log(reactiveState.curCve);
+
     return (
       (newServerMsg.sendID === reactiveState.curCve?.userID &&
-        reactiveState.curCve.groupID === "") ||
+        newServerMsg.recvID === selfID) ||
       newServerMsg.recvID === reactiveState.curCve?.groupID
     );
   };
@@ -203,6 +226,8 @@ const Home = () => {
   const resetCve = () => {
     reactiveState.curCve = null;
   };
+
+  const deleteMsg = (mid: string) => {};
 
   const typingUpdate = () => {
     reactiveState.typing = true;
@@ -214,8 +239,11 @@ const Home = () => {
 
   const clickItem = (cve: Cve) => {
     if (cve.conversationID === reactiveState.curCve?.conversationID) return;
-    reactiveState.historyMsgList = [];
+    reactiveState.historyMsgList.length = 0;
     reactiveState.curCve = cve;
+    reactiveState.hasMore = true;
+    msgCancel()
+    setImgGroup([]);
     getHistoryMsg(cve.userID, cve.groupID);
     markCveHasRead(cve);
     if (!isSingleCve(cve)) {
@@ -282,51 +310,91 @@ const Home = () => {
       startMsg: sMsg ?? null,
     };
 
-    im.getHistoryMessageList(config)
-      .then((res) => {
-        if (JSON.parse(res.data).length === 0) {
-          reactiveState.hasMore = false;
-          return;
-        }
+    getMsg(config);
 
-        if (
-          JSON.stringify(
-            reactiveState.historyMsgList[
-              reactiveState.historyMsgList.length - 1
-            ]
-          ) == JSON.stringify(JSON.parse(res.data).reverse()[0])
-        ) {
-          reactiveState.historyMsgList.pop();
-        }
+    // console.log(msgData);
 
-        if (isSingleCve(reactiveState.curCve!)) {
-          let unReads: string[] = [];
-          (JSON.parse(res.data) as Message[]).map((m) => {
-            if (!m.isRead) {
-              unReads.push(m.clientMsgID);
-            }
-          });
-          markC2CHasRead(reactiveState.curCve?.userID!, unReads);
-        }
+    // im.getHistoryMessageList(config)
+    //   .then((res) => {
+    // if (JSON.parse(res.data).length === 0) {
+    //   reactiveState.hasMore = false;
+    //   return;
+    // }
+    // if (
+    //   JSON.stringify(
+    //     reactiveState.historyMsgList[
+    //       reactiveState.historyMsgList.length - 1
+    //     ]
+    //   ) == JSON.stringify(JSON.parse(res.data).reverse()[0])
+    // ) {
+    //   reactiveState.historyMsgList.pop();
+    // }
 
-        reactiveState.historyMsgList = [
-          ...reactiveState.historyMsgList,
-          ...JSON.parse(res.data).reverse(),
-        ];
-        console.log(reactiveState.historyMsgList);
+    // if (isSingleCve(reactiveState.curCve!)) {
+    //   let unReads: string[] = [];
+    //   (JSON.parse(res.data) as Message[]).map((m) => {
+    //     if (!m.isRead) {
+    //       unReads.push(m.clientMsgID);
+    //     }
+    //   });
+    //   markC2CHasRead(reactiveState.curCve?.userID!, unReads);
+    // }
 
-        if (JSON.parse(res.data).length < 20) {
-          reactiveState.hasMore = false;
-        } else {
-          reactiveState.hasMore = true;
-        }
-        reactiveState.loading = false;
-      })
-      .catch((err) => {
-        message.error("获取历史消息失败！");
-        reactiveState.loading = false;
-      });
+    // reactiveState.historyMsgList = [
+    //   ...reactiveState.historyMsgList,
+    //   ...JSON.parse(res.data).reverse(),
+    // ];
+    // console.log(reactiveState.historyMsgList);
+
+    // if (JSON.parse(res.data).length < 20) {
+    //   reactiveState.hasMore = false;
+    // } else {
+    //   reactiveState.hasMore = true;
+    // }
+    // reactiveState.loading = false;
+    //   })
+    //   .catch((err) => {
+    //     message.error("获取历史消息失败！");
+    //     reactiveState.loading = false;
+    //   });
   };
+
+  function handleMsg(res: WsResponse) {
+    if (JSON.parse(res.data).length === 0) {
+      reactiveState.hasMore = false;
+      return;
+    }
+    if (
+      JSON.stringify(
+        reactiveState.historyMsgList[reactiveState.historyMsgList.length - 1]
+      ) == JSON.stringify(JSON.parse(res.data).reverse()[0])
+    ) {
+      reactiveState.historyMsgList.pop();
+    }
+
+    if (isSingleCve(reactiveState.curCve!)) {
+      let unReads: string[] = [];
+      (JSON.parse(res.data) as Message[]).map((m) => {
+        if (!m.isRead) {
+          unReads.push(m.clientMsgID);
+        }
+      });
+      markC2CHasRead(reactiveState.curCve?.userID!, unReads);
+    }
+
+    reactiveState.historyMsgList = [
+      ...reactiveState.historyMsgList,
+      ...JSON.parse(res.data).reverse(),
+    ];
+    console.log(reactiveState.historyMsgList);
+
+    if (JSON.parse(res.data).length < 20) {
+      reactiveState.hasMore = false;
+    } else {
+      reactiveState.hasMore = true;
+    }
+    reactiveState.loading = false;
+  }
 
   const imgClick = (el: PictureElem) => {
     const url =
@@ -337,9 +405,7 @@ const Home = () => {
       tmpArr.splice(idx, idx + 1);
     }
 
-    tmpArr.unshift(url);
-    console.log(tmpArr);
-
+    tmpArr.push(url);
     setImgGroup(tmpArr);
     setVisible(true);
   };
@@ -349,6 +415,14 @@ const Home = () => {
       (Math.random() * 36).toString(36).slice(2) +
       new Date().getTime().toString()
     );
+  };
+
+  const scrollToBottom = (duration?: number) => {
+    animateScroll.scrollTo(0,{
+      duration: duration ?? 350,
+      smooth: true,
+      containerId: "scr_container",
+    });
   };
 
   const sendMsg = (nMsg: string, type: messageTypes) => {
@@ -364,7 +438,7 @@ const Home = () => {
       JSON.parse(nMsg),
       ...reactiveState.historyMsgList,
     ];
-
+    scrollToBottom();
     const sendOption = {
       recvID: reactiveState.curCve!.userID,
       groupID: reactiveState.curCve!.groupID,
@@ -392,7 +466,6 @@ const Home = () => {
   };
 
   const sendMsgCB = (res: WsResponse, status: number) => {
-    // const tmpHisMsgList = historyMsgList;
     nMsgMaps.map((tn) => {
       if (tn.oid === res.operationID) {
         reactiveState.historyMsgList.map((his) => {
@@ -404,7 +477,6 @@ const Home = () => {
       }
     });
   };
-
 
   return (
     <>
@@ -429,7 +501,7 @@ const Home = () => {
           {reactiveState.curCve ? (
             <ChatContent
               loadMore={getHistoryMsg}
-              loading={reactiveState.loading}
+              loading={loading}
               msgList={reactiveState.historyMsgList}
               imgClick={imgClick}
               hasMore={reactiveState.hasMore}
@@ -440,7 +512,11 @@ const Home = () => {
           )}
           <div style={{ display: "none" }}>
             <Image.PreviewGroup
-              preview={{ visible, onVisibleChange: (vis) => setVisible(vis) }}
+              preview={{
+                visible,
+                onVisibleChange: (vis) => setVisible(vis),
+                current: imgGroup.length - 1,
+              }}
             >
               {imgGroup.map((img) => (
                 <Image key={img} src={img} />

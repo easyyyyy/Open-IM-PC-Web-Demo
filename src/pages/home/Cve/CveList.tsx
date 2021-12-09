@@ -38,12 +38,10 @@ const CveItem: FC<CveItemProps> = ({ cve, onClick,curCve,curUid }) => {
       case messageTypes.REVOKEMESSAGE:  
         return `${pmsg.sendID === curUid?'你':pmsg.senderNickName}撤回了一条消息`
       case messageTypes.CUSTOMMESSAGE:
-        console.log("自定义消息");
-        console.log(pmsg);
+        // console.log("自定义消息");
         return "[自定义消息]"
       case messageTypes.QUOTEMESSAGE:
-        console.log("引用消息");
-        console.log(pmsg);
+        // console.log("引用消息");
         return "[引用消息]"
       case tipsTypes.ACCEPTFRIENDNOTICE:
         return "你们已经是好友啦，开始聊天吧~"
@@ -64,7 +62,6 @@ const CveItem: FC<CveItemProps> = ({ cve, onClick,curCve,curUid }) => {
       default:
         const tip = JSON.parse(pmsg.content)
         if(tip.isDisplay===1){
-          console.log(tip.defaultTips);
           return tip.defaultTips
         }else{
           return "tips"

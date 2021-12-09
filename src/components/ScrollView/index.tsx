@@ -1,5 +1,5 @@
-import { FC, useEffect, useImperativeHandle } from "react";
-import { scroller, Element } from "react-scroll";
+import { FC } from "react";
+import { Element } from "react-scroll";
 import { throttle } from "throttle-debounce";
 import { Loading } from "../Loading";
 import styles from "./index.module.less";
@@ -18,24 +18,6 @@ const ScrollView: FC<ScrollViewProps> = (
   ref
 ) => {
 
-  useEffect(() => {
-    scroller.scrollTo("msg_btm", {
-      duration: 0,
-      delay: 0,
-      smooth: true,
-      containerId: "scr_container",
-    });
-  }, []);
-
-  const scrollToBottom = (duration?: number) => {
-    scroller.scrollTo("msg_btm", {
-      duration: duration ?? 500,
-      delay: 0,
-      smooth: true,
-      containerId: "scr_container",
-    });
-  };
-
   const onScroll = async (e: any) => {
     const loadThreshold = 0 - e.target.scrollHeight + e.target.offsetHeight +(holdHeight??30);
     
@@ -51,13 +33,9 @@ const ScrollView: FC<ScrollViewProps> = (
 
   const throttleScroll = throttle(150,onScroll)
 
-  useImperativeHandle(ref, () => ({
-    scrollToBottom: scrollToBottom,
-  }));
-
   return (
     <div onScroll={throttleScroll} id="scr_container" style={{height:height??"100%"}} className={styles.con}>
-      <Element name="msg_btm" />
+      <Element style={{width:"100%",height:"1px",backgroundColor:"#F0F6FD"}} name="msg_btm" />
       {children}
       {hasMore ? (
         <Loading

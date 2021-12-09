@@ -1,7 +1,7 @@
 import {im,isSingleCve} from './im'
 import request from './request'
 import { cosUpload,cos } from './cos'
-import { findEmptyValue,pySegSort,formatDate } from './objUtl'
+import { findEmptyValue,pySegSort,formatDate,sleep } from './objUtl'
 import events from './events'
 
 export {
@@ -13,5 +13,6 @@ export {
     findEmptyValue,
     pySegSort,
     formatDate,
-    events
+    events,
+    sleep
 }

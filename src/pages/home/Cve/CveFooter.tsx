@@ -1,5 +1,6 @@
 import { PlusCircleOutlined, SmileOutlined } from "@ant-design/icons";
 import { Dropdown, Input, Layout, Menu, message, Tooltip, Upload } from "antd";
+import { debounce, throttle } from "throttle-debounce";
 
 import send_id_card from "@/assets/images/send_id_card.png";
 import send_pic from "@/assets/images/send_pic.png";
@@ -22,6 +23,7 @@ type CveFooterProps = {
 const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   const [text, setText] = useState("");
   const timer = useRef<NodeJS.Timeout | null>(null);
+  const [flag,setFlag] = useState(false)
 
   const getPicInfo = (file: RcFile): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
@@ -228,7 +230,8 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   const sendTextMsg = async () => {
     const { data } = await im.createTextMessage(text);
     sendMsg(data, messageTypes.TEXTMESSAGE);
-    setText("");
+    setText("")
+    setFlag(false)
   };
 
   const typing = () => {
@@ -246,15 +249,21 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
       .catch((err) => {});
   };
 
+  const keyDown = (e:React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && text) {
+      if(flag) return
+      setFlag(true)
+      switchMessage("text")
+    }
+  }
+
+  // const keyDownDebounce = debounce(150,keyDown)
+
   return (
     <Footer className="chat_footer">
       <Input
         value={text}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && text) {
-            switchMessage("text");
-          }
-        }}
+        onKeyDown={keyDown}
         onChange={(e) => {
           setText(e.target.value);
           typing();

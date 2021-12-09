@@ -3,6 +3,7 @@ import { LeftOutlined, UserOutlined } from "@ant-design/icons";
 import { FC, useEffect, useState } from "react";
 import styles from "./login_form.module.less";
 import { Itype } from "../../../@types/open_im";
+//@ts-ignore
 import Codebox from "@/components/CodeBox";
 import { UploadRequestOption } from 'rc-upload/lib/interface'
 import { useInterval, useToggle } from "ahooks";
