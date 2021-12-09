@@ -83,6 +83,7 @@
     "postcss": "^8.3.11",
     "postcss-px-to-viewport": "^1.1.1",
     "postcss-pxtorem": "^5.1.1",
+    "prettier": "^2.5.1",
     "redux-devtools-extension": "^2.13.9",
     "source-map-explorer": "^2.5.2",
     "terser-webpack-plugin": "^4.2.3",
