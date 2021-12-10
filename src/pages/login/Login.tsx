@@ -19,8 +19,13 @@ import { IMURL } from "../../config";
 import { useDispatch } from "react-redux";
 import { getSelfInfo, setSelfInfo } from "../../store/actions/user";
 import { getCveList } from "../../store/actions/cve";
-import { getFriendApplicationList, getFriendList, getGroupApplicationList, getGroupList, getUnReadCount } from "../../store/actions/contacts";
-
+import {
+  getFriendApplicationList,
+  getFriendList,
+  getGroupApplicationList,
+  getGroupList,
+  getUnReadCount,
+} from "../../store/actions/contacts";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -94,22 +99,24 @@ const Login = () => {
       case "setInfo":
         // TODO: set & get info
         toggle("success");
-        setIMInfo(values as InfoField)
+        setIMInfo(values as InfoField);
         break;
       default:
         break;
     }
   };
 
-  const setIMInfo = (values:InfoField) => {
-    im.setSelfInfo(values).then(res=>{
-      dispatch(setSelfInfo(values));
-      navigate("/",{ replace: true });
-    }).catch(err=>{
-      toggle("setInfo")
-      message.error("设置个人信息失败，请稍后再试！")
-    })
-  }
+  const setIMInfo = (values: InfoField) => {
+    im.setSelfInfo(values)
+      .then((res) => {
+        dispatch(setSelfInfo(values));
+        navigate("/", { replace: true });
+      })
+      .catch((err) => {
+        toggle("setInfo");
+        message.error("设置个人信息失败，请稍后再试！");
+      });
+  };
 
   const login = (data: FormField) => {
     loginApi(data.phoneNo, md5(data.password as string))
@@ -123,10 +130,10 @@ const Login = () => {
 
   const imLogin = (uid: string, token: string) => {
     // navigate('/')
-    localStorage.setItem(`${uid}improfile`,token)
-    localStorage.setItem(`curimuid`,uid)
+    localStorage.setItem(`${uid}improfile`, token);
+    localStorage.setItem(`curimuid`, uid);
     //pc
-    localStorage.setItem(`lastimuid`,uid)
+    localStorage.setItem(`lastimuid`, uid);
     const config: InitConfig = {
       uid,
       token,
@@ -142,8 +149,8 @@ const Login = () => {
         dispatch(getGroupList());
         dispatch(getGroupApplicationList());
         dispatch(getUnReadCount());
-        if(type==='login'){
-          navigate("/",{ replace: true });
+        if (type === "login") {
+          navigate("/", { replace: true });
         }
       })
       .catch((err) => loginFailed(err.errMsg));

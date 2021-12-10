@@ -1,3 +1,5 @@
+### 可以免费商用，必须在app启动页加上 (由OpenIM提供技术支持)
+
 # OpenIM Web PC Demo
 
 ## About us
