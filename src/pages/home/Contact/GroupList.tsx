@@ -21,7 +21,7 @@ const GroupList = ({clickItem}:{clickItem:(item:FriendItem|GroupItem,type:sessio
     return (
       <div className="group_bg">
           {
-              groupList.map(gp=><GroupListItem gp={gp}/>)
+              groupList.map(gp=><GroupListItem key={gp.groupID} gp={gp}/>)
           }
       </div>
     )

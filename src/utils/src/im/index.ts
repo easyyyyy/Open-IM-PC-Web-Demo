@@ -1159,6 +1159,16 @@ export default class OpenIMSDK extends Emitter {
     resolve: (value: WsResponse | PromiseLike<WsResponse>) => void,
     reject: (reason?: any) => void
   ) => {
+    if(this.ws===undefined){
+      let errData: WsResponse = {
+        event: params.reqFuncName,
+        errCode: 112,
+        errMsg: "ws conect failed...",
+        data: "",
+        operationID: params.operationID || "",
+      };
+      reject(errData)
+    }
     if (typeof params.data === "object") {
       params.data = JSON.stringify(params.data);
     }

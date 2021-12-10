@@ -33,7 +33,7 @@ import {
   UPDATEFRIENDCARD,
   UPDATEPIN,
 } from "../../../constants/events";
-import { scroller,animateScroll } from "react-scroll";
+import { scroller, animateScroll } from "react-scroll";
 
 const { Content } = Layout;
 
@@ -45,8 +45,8 @@ type NMsgMap = {
 
 const WelcomeContent = () => {
   const createGroup = () => {
-    events.emit(OPENGROUPMODAL,"create")
-  }
+    events.emit(OPENGROUPMODAL, "create");
+  };
   return (
     <div className="content_bg">
       <div className="content_bg_title">创建群组</div>
@@ -57,7 +57,7 @@ const WelcomeContent = () => {
       </Button>
     </div>
   );
-}
+};
 
 type ReactiveState = {
   historyMsgList: Message[];
@@ -92,18 +92,15 @@ const Home = () => {
     run: getMsg,
     cancel: msgCancel,
   } = useRequest(im.getHistoryMessageList, {
-    manual:true,
+    manual: true,
     onSuccess: handleMsg,
-    onError:(err)=>message.error("获取聊天记录失败！")
+    onError: (err) => message.error("获取聊天记录失败！"),
   });
 
   let nMsgMaps: NMsgMap[] = [];
 
   useEffect(() => {
     im.on(CbEvents.ONRECVNEWMESSAGE, (data) => {
-      console.log(reactiveState.curCve);
-      console.log(data);
-
       if (reactiveState.curCve) {
         const newServerMsg: Message = JSON.parse(data.data);
         if (inCurCve(newServerMsg)) {
@@ -114,6 +111,8 @@ const Home = () => {
               newServerMsg,
               ...reactiveState.historyMsgList,
             ];
+            scrollToBottom()
+
             if (isSingleCve(reactiveState.curCve)) {
               markC2CHasRead(reactiveState.curCve.userID, [
                 newServerMsg.clientMsgID,
@@ -126,7 +125,6 @@ const Home = () => {
     });
 
     im.on(CbEvents.ONRECVMESSAGEREVOKED, (data) => {
-      console.log(data);
       const idx = reactiveState.historyMsgList.findIndex(
         (m) => m.clientMsgID === data.data
       );
@@ -213,13 +211,20 @@ const Home = () => {
   }, []);
 
   const inCurCve = (newServerMsg: Message): boolean => {
-    console.log(newServerMsg);
-    console.log(reactiveState.curCve);
+    console.log(
+      (newServerMsg.sendID === reactiveState.curCve?.userID &&
+        newServerMsg.recvID === selfID) ||
+      newServerMsg.recvID === reactiveState.curCve?.groupID ||
+      (newServerMsg.sendID === selfID &&
+        newServerMsg.recvID === reactiveState.curCve?.userID)
+    )
 
     return (
       (newServerMsg.sendID === reactiveState.curCve?.userID &&
         newServerMsg.recvID === selfID) ||
-      newServerMsg.recvID === reactiveState.curCve?.groupID
+      newServerMsg.recvID === reactiveState.curCve?.groupID ||
+      (newServerMsg.sendID === selfID &&
+        newServerMsg.recvID === reactiveState.curCve?.userID)
     );
   };
 
@@ -242,7 +247,7 @@ const Home = () => {
     reactiveState.historyMsgList.length = 0;
     reactiveState.curCve = cve;
     reactiveState.hasMore = true;
-    msgCancel()
+    msgCancel();
     setImgGroup([]);
     getHistoryMsg(cve.userID, cve.groupID);
     markCveHasRead(cve);
@@ -295,6 +300,7 @@ const Home = () => {
   };
 
   const markC2CHasRead = (receiver: string, msgIDList: string[]) => {
+    if(msgIDList.length===0) return;
     im.markC2CMessageAsRead({ receiver, msgIDList })
       .then((res) => console.log(res))
       .catch((err) => console.log(err));
@@ -311,52 +317,6 @@ const Home = () => {
     };
 
     getMsg(config);
-
-    // console.log(msgData);
-
-    // im.getHistoryMessageList(config)
-    //   .then((res) => {
-    // if (JSON.parse(res.data).length === 0) {
-    //   reactiveState.hasMore = false;
-    //   return;
-    // }
-    // if (
-    //   JSON.stringify(
-    //     reactiveState.historyMsgList[
-    //       reactiveState.historyMsgList.length - 1
-    //     ]
-    //   ) == JSON.stringify(JSON.parse(res.data).reverse()[0])
-    // ) {
-    //   reactiveState.historyMsgList.pop();
-    // }
-
-    // if (isSingleCve(reactiveState.curCve!)) {
-    //   let unReads: string[] = [];
-    //   (JSON.parse(res.data) as Message[]).map((m) => {
-    //     if (!m.isRead) {
-    //       unReads.push(m.clientMsgID);
-    //     }
-    //   });
-    //   markC2CHasRead(reactiveState.curCve?.userID!, unReads);
-    // }
-
-    // reactiveState.historyMsgList = [
-    //   ...reactiveState.historyMsgList,
-    //   ...JSON.parse(res.data).reverse(),
-    // ];
-    // console.log(reactiveState.historyMsgList);
-
-    // if (JSON.parse(res.data).length < 20) {
-    //   reactiveState.hasMore = false;
-    // } else {
-    //   reactiveState.hasMore = true;
-    // }
-    // reactiveState.loading = false;
-    //   })
-    //   .catch((err) => {
-    //     message.error("获取历史消息失败！");
-    //     reactiveState.loading = false;
-    //   });
   };
 
   function handleMsg(res: WsResponse) {
@@ -418,7 +378,7 @@ const Home = () => {
   };
 
   const scrollToBottom = (duration?: number) => {
-    animateScroll.scrollTo(0,{
+    animateScroll.scrollTo(0, {
       duration: duration ?? 350,
       smooth: true,
       containerId: "scr_container",

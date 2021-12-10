@@ -29,7 +29,6 @@ const Auth = () => {
   const token = localStorage.getItem(`${curuid??uid}improfile`)!;
 
   useEffect(() => {
-    console.log(123456);
     
     // if (!curuid && token && uid) {
     if (token && uid) {

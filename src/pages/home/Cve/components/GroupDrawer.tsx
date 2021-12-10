@@ -34,6 +34,12 @@ const GroupDrawer: FC<GroupDrawerProps> = ({
   updatePin,
   quitGroup,
 }) => {
+  const toManage = () => {
+    if (role === GroupRole.OWNER) {
+      changeType("group_manage");
+    }
+  };
+
   return (
     <div className="group_drawer">
       <div className="group_drawer_item">
@@ -70,7 +76,7 @@ const GroupDrawer: FC<GroupDrawerProps> = ({
         <div className="group_drawer_row_icon">
           {groupMembers!.length > 0
             ? groupMembers!.map((gm, idx) => {
-                if (idx < (role!==GroupRole.NOMAL?7:6)) {
+                if (idx < (role !== GroupRole.NOMAL ? 7 : 6)) {
                   return (
                     <MyAvatar
                       key={gm.userId}
@@ -84,12 +90,10 @@ const GroupDrawer: FC<GroupDrawerProps> = ({
               })
             : null}
           <PlusOutlined onClick={inviteToGroup} />
-          {
-            (role!==GroupRole.NOMAL)&&<MinusOutlined onClick={delInGroup} />
-          }
+          {role !== GroupRole.NOMAL && <MinusOutlined onClick={delInGroup} />}
         </div>
       </div>
-      <div onClick={()=>changeType("group_manage")} className="group_drawer_item">
+      <div onClick={toManage} className="group_drawer_item">
         <div>群管理</div>
         <RightOutlined />
       </div>

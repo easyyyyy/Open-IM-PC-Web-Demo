@@ -1,6 +1,6 @@
 {
-  "name": "typescript-react-electron-template",
-  "version": "0.1.0",
+  "name": "Open-IM-PC-Web",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
@@ -33,7 +33,7 @@
     "build:main": "craco build && tsc -p electron && electron-builder",
     "test": "craco test",
     "eject": "react-scripts eject",
-    "dev:main": "run-p electron:*",
+    "start:main": "run-p electron:*",
     "electron:run": "wait-on http://localhost:3000 && tsc -p electron && electron .",
     "electron:main": "wait-on http://localhost:3000 && tsc -p electron -w",
     "electron:renderer": "cross-env BROWSER=none npm run start:renderer"

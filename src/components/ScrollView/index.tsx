@@ -1,5 +1,4 @@
 import { FC } from "react";
-import { Element } from "react-scroll";
 import { throttle } from "throttle-debounce";
 import { Loading } from "../Loading";
 import styles from "./index.module.less";
@@ -35,7 +34,6 @@ const ScrollView: FC<ScrollViewProps> = (
 
   return (
     <div onScroll={throttleScroll} id="scr_container" style={{height:height??"100%"}} className={styles.con}>
-      <Element style={{width:"100%",height:"1px",backgroundColor:"#F0F6FD"}} name="msg_btm" />
       {children}
       {hasMore ? (
         <Loading

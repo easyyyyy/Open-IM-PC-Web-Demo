@@ -206,7 +206,7 @@ const MsgItem: FC<MsgItemProps> = ({
           content={PopContent}
           title={null}
           trigger="contextMenu"
-          // visible={true}
+          visible={false}
         >
           {msgType(msg)}
         </Popover>

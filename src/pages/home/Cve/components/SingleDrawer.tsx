@@ -28,13 +28,13 @@ const SingleDrawer: FC<SingleDrawerProps> = ({
         </div>
         <RightOutlined />
       </div>
-      <div className="single_drawer_item">
+      {/* <div className="single_drawer_item">
         <div className="single_drawer_item_left">
           <TeamOutlined />
           <div className="single_drawer_item_title">创建群组</div>
         </div>
         <RightOutlined />
-      </div>
+      </div> */}
       <div className="single_drawer_item">
         <div>添加到置顶</div>
         <Switch

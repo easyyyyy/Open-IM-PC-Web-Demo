@@ -8,7 +8,7 @@ import cons from "@/assets/images/cons.png";
 import cons_select from "@/assets/images/cons_select.png";
 import { useResolvedPath, useMatch, useNavigate } from "react-router";
 import { Link } from "react-router-dom";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { UserInfo } from "../@types/open_im";
 import { RightOutlined, UserOutlined } from "@ant-design/icons";
 import { im } from "../utils";
@@ -16,6 +16,7 @@ import { MyAvatar } from "../components/MyAvatar";
 import UserCard from "../pages/home/components/UserCard";
 import { shallowEqual, useSelector } from "react-redux";
 import { RootState } from "../store";
+import { useClickAway } from "ahooks";
 
 const { Sider } = Layout;
 
@@ -98,6 +99,13 @@ const ToolsBar: FC<ToolsBarProps> = ({ userInfo }) => {
   const [draggableCardVisible, setDraggableCardVisible] = useState(false);
   const [showPop, setShowPop] = useState(false);
   const navigate = useNavigate();
+  const popRef = useRef<any>();
+  const avaRef = useRef<any>();
+
+  useClickAway(() => {
+    if(showPop)setShowPop(false);
+  },[popRef,avaRef]);
+
 
   const clickMenu = (idx: number) => {
     setShowPop(false);
@@ -143,7 +151,7 @@ const ToolsBar: FC<ToolsBarProps> = ({ userInfo }) => {
   ];
 
   const popContent = (
-    <div className={styles.tool_self_menu}>
+    <div ref={popRef} className={styles.tool_self_menu}>
       {popMenus.map((menu) => {
         return (
           <div
@@ -178,13 +186,13 @@ const ToolsBar: FC<ToolsBarProps> = ({ userInfo }) => {
     <Sider width="48" theme="light" className={styles.tool_bar}>
       <div className={styles.tools}>
         <Popover
-          // trigger="click"
+          trigger="click"
           placement="right"
           content={popContent}
           title={popTitle}
           visible={showPop}
         >
-          <div onClick={() => setShowPop(true)}>
+          <div ref={avaRef} onClick={() => setShowPop(true)}>
             <MyAvatar
               className={styles.left_avatar}
               shape="square"
