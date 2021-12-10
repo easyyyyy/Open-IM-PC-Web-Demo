@@ -1,24 +1,40 @@
-import { Input, Button, Checkbox, Form, Select, Avatar, Spin, Upload } from "antd";
+import {
+  Input,
+  Button,
+  Checkbox,
+  Form,
+  Select,
+  Avatar,
+  Spin,
+  Upload,
+} from "antd";
 import { LeftOutlined, UserOutlined } from "@ant-design/icons";
 import { FC, useEffect, useState } from "react";
 import styles from "./login_form.module.less";
 import { Itype } from "../../../@types/open_im";
 //@ts-ignore
 import Codebox from "@/components/CodeBox";
-import { UploadRequestOption } from 'rc-upload/lib/interface'
+import { UploadRequestOption } from "rc-upload/lib/interface";
 import { useInterval, useToggle } from "ahooks";
 import { findEmptyValue } from "../../../utils/objUtl";
 import { cosUpload } from "../../../utils";
 import { MyAvatar } from "../../../components/MyAvatar";
 
-import ic_avatar_01 from "@/assets/images/ic_avatar_01.png"
-import ic_avatar_02 from "@/assets/images/ic_avatar_02.png"
-import ic_avatar_03 from "@/assets/images/ic_avatar_03.png"
-import ic_avatar_04 from "@/assets/images/ic_avatar_04.png"
-import ic_avatar_05 from "@/assets/images/ic_avatar_05.png"
-import ic_avatar_06 from "@/assets/images/ic_avatar_06.png"
+import ic_avatar_01 from "@/assets/images/ic_avatar_01.png";
+import ic_avatar_02 from "@/assets/images/ic_avatar_02.png";
+import ic_avatar_03 from "@/assets/images/ic_avatar_03.png";
+import ic_avatar_04 from "@/assets/images/ic_avatar_04.png";
+import ic_avatar_05 from "@/assets/images/ic_avatar_05.png";
+import ic_avatar_06 from "@/assets/images/ic_avatar_06.png";
 
-const localIconList = [ic_avatar_01,ic_avatar_02,ic_avatar_03,ic_avatar_04,ic_avatar_05,ic_avatar_06]
+const localIconList = [
+  ic_avatar_01,
+  ic_avatar_02,
+  ic_avatar_03,
+  ic_avatar_04,
+  ic_avatar_05,
+  ic_avatar_06,
+];
 
 const { Option } = Select;
 
@@ -63,9 +79,9 @@ export type FormField = {
 };
 
 export type InfoField = {
-  name:string
-  icon:string
-}
+  name: string;
+  icon: string;
+};
 
 type IProps = {
   finish: (values?: FormField | string | InfoField) => void;
@@ -73,67 +89,76 @@ type IProps = {
   toggle: (mtype: Itype) => void;
   back: () => void;
   loading: boolean;
-  num:string;
+  num: string;
 };
 
-const CodeBox = ({ finish,type,loading,num }:IProps) => {
-  const [code,setCode] = useState('')
-  const [time,setTime] = useState(60)
-  const [interval, setInterval] = useState<number|null>(1000);
+const CodeBox = ({ finish, type, loading, num }: IProps) => {
+  const [code, setCode] = useState("");
+  const [time, setTime] = useState(60);
+  const [interval, setInterval] = useState<number | null>(1000);
 
-    useInterval(()=>{
-      setTime(time!-1)
-      if(time===1)setInterval(null)
-    },interval as number,{ immediate: true });
+  useInterval(
+    () => {
+      setTime(time! - 1);
+      if (time === 1) setInterval(null);
+    },
+    interval as number,
+    { immediate: true }
+  );
 
-    return (
-      <>
-        <div className={styles.form_title}>
-          {type == "vericode" ? "验证手机号" : "欢迎使用OpenIM"}
-        </div>
-        <div className={styles.sub_tip}>
-          请输入发送至<span>+{`86 ${num}`}</span>的6位验证码，有效期十分钟。
-        </div>
-        <Codebox
-          length={6}
-          type="text"
-          validator={(input: string) => {
-            return /\d/.test(input);
+  return (
+    <>
+      <div className={styles.form_title}>
+        {type == "vericode" ? "验证手机号" : "欢迎使用OpenIM"}
+      </div>
+      <div className={styles.sub_tip}>
+        请输入发送至<span>+{`86 ${num}`}</span>的6位验证码，有效期十分钟。
+      </div>
+      <Codebox
+        length={6}
+        type="text"
+        validator={(input: string) => {
+          return /\d/.test(input);
+        }}
+        onChange={(v: string[]) => {
+          const vs = v.toString().replace(/,/g, "");
+          setCode(vs);
+          if (vs.length === 6) finish(vs);
+        }}
+      />
+      <div className={styles.sub_tip}>
+        <span>{time}s </span>后{" "}
+        <span
+          onClick={() => {
+            setTime(60);
+            setInterval(1000);
           }}
-          onChange={(v: string[]) => {
-            const vs = v.toString().replace(/,/g, "");
-            setCode(vs)
-            if(vs.length===6) finish(vs)
-          }}
-        />
-        <div className={styles.sub_tip}>
-          <span>{time}s </span>后 <span onClick={()=>{
-            setTime(60)
-            setInterval(1000)
-          }} style={{cursor:time===0?'pointer':''}}>重新获取</span> 验证码
-        </div>
-        <Button
-          loading={loading}
-          style={{ marginTop: "72px" }}
-          type="primary"
-          onClick={() => finish(code)}
+          style={{ cursor: time === 0 ? "pointer" : "" }}
         >
-          下一步
-        </Button>
-      </>
-    )
-  }
-
-
+          重新获取
+        </span>{" "}
+        验证码
+      </div>
+      <Button
+        loading={loading}
+        style={{ marginTop: "72px" }}
+        type="primary"
+        onClick={() => finish(code)}
+      >
+        下一步
+      </Button>
+    </>
+  );
+};
 
 const LoginForm: FC<IProps> = (props) => {
   const [form] = Form.useForm<FormField>();
   const [btmSts, { set: setBtm }] = useToggle();
   const [backSts, { set: setBack }] = useToggle();
-  const [sInfo,setSInfo] = useState<InfoField>({
-    name:"",
-    icon:`ic_avatar_0${parseInt(6*Math.random()+'')}`
-  })
+  const [sInfo, setSInfo] = useState<InfoField>({
+    name: "",
+    icon: `ic_avatar_0${parseInt(6 * Math.random() + "")}`,
+  });
 
   useEffect(() => {
     if (props.type === "login" || props.type === "register") {
@@ -233,8 +258,8 @@ const LoginForm: FC<IProps> = (props) => {
   );
 
   const cusromUpload = (data: UploadRequestOption) => {
-    cosUpload(data).then(res=>setSInfo({...sInfo,icon:res.url}))
-  }
+    cosUpload(data).then((res) => setSInfo({ ...sInfo, icon: res.url }));
+  };
 
   const setInfo = (
     <>
@@ -244,13 +269,20 @@ const LoginForm: FC<IProps> = (props) => {
       </div>
       <div style={{ textAlign: "center" }}>
         <Upload
-          name='avatar'
-          action={''}
-          customRequest={(data)=>cusromUpload(data)}
+          name="avatar"
+          action={""}
+          customRequest={(data) => cusromUpload(data)}
           showUploadList={false}
         >
           <MyAvatar size={72} src={sInfo.icon} icon={<UserOutlined />} />
-          <div style={{ fontSize: "12px", color: "#777", marginTop: "8px",display:sInfo.icon===''?'block':'none' }}>
+          <div
+            style={{
+              fontSize: "12px",
+              color: "#777",
+              marginTop: "8px",
+              display: sInfo.icon === "" ? "block" : "none",
+            }}
+          >
             点击上传头像
           </div>
         </Upload>
@@ -261,10 +293,12 @@ const LoginForm: FC<IProps> = (props) => {
           allowClear={true}
           bordered={false}
           placeholder="请填写真实姓名"
-          onChange={(v)=>setSInfo({
-            ...sInfo,
-            name:v.target.value
-          })}
+          onChange={(v) =>
+            setSInfo({
+              ...sInfo,
+              name: v.target.value,
+            })
+          }
         />
       </div>
       <Button
@@ -272,8 +306,8 @@ const LoginForm: FC<IProps> = (props) => {
         style={{ marginTop: "48px" }}
         type="primary"
         onClick={() => {
-          if(findEmptyValue(sInfo)){
-            props.finish(sInfo)
+          if (findEmptyValue(sInfo)) {
+            props.finish(sInfo);
           }
         }}
       >
@@ -330,7 +364,7 @@ const LoginForm: FC<IProps> = (props) => {
       case "register":
         return inputForm;
       case "vericode":
-        return <CodeBox {...props}/>;
+        return <CodeBox {...props} />;
       case "setPwd":
         return setPwd;
       case "setInfo":
