@@ -27,6 +27,7 @@ import { useReactive, useRequest } from "ahooks";
 import { CbEvents } from "../../../utils/src";
 import {
   DELETEMESSAGE,
+  ISSETDRAFT,
   OPENGROUPMODAL,
   RESETCVE,
   TOASSIGNCVE,
@@ -111,7 +112,7 @@ const Home = () => {
               newServerMsg,
               ...reactiveState.historyMsgList,
             ];
-            scrollToBottom()
+            // scrollToBottom()
 
             if (isSingleCve(reactiveState.curCve)) {
               markC2CHasRead(reactiveState.curCve.userID, [
@@ -162,7 +163,7 @@ const Home = () => {
           }
         });
       });
-      idxs.map((i) => reactiveState.groupMemberList.splice(i, i + 1));
+      idxs.map((i) => reactiveState.groupMemberList.splice(i,1));
     });
 
     im.on(CbEvents.ONGROUPINFOCHANGED, (data) => {
@@ -244,6 +245,10 @@ const Home = () => {
 
   const clickItem = (cve: Cve) => {
     if (cve.conversationID === reactiveState.curCve?.conversationID) return;
+
+    if(reactiveState.curCve){
+      events.emit(ISSETDRAFT,reactiveState.curCve)
+    }
     reactiveState.historyMsgList.length = 0;
     reactiveState.curCve = cve;
     reactiveState.hasMore = true;
@@ -362,7 +367,7 @@ const Home = () => {
     let tmpArr = imgGroup;
     const idx = tmpArr.findIndex((t) => t === url);
     if (idx > -1) {
-      tmpArr.splice(idx, idx + 1);
+      tmpArr.splice(idx,1);
     }
 
     tmpArr.push(url);

@@ -111,7 +111,13 @@ const GroupDrawer: FC<GroupDrawerProps> = ({
       </div>
       <div className="group_drawer_item group_drawer_item_nbtm">
         <div>群聊ID</div>
-        <div className="group_id">{curCve.groupID}</div>
+        <Paragraph
+        copyable
+        ellipsis
+        >
+        {curCve.groupID+curCve.groupID}
+        </Paragraph>
+        {/* <div className="group_id"></div> */}
       </div>
       <div className="group_drawer_item group_drawer_item_nbtm">
         <div>添加到置顶</div>

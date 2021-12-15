@@ -18,6 +18,10 @@ type CveItemProps = {
 const CveItem: FC<CveItemProps> = ({ cve, onClick,curCve,curUid }) => {
   const parseLatestMsg = (lmsg: string): string => {
     const pmsg:Message = JSON.parse(lmsg);
+
+    if(cve.draftText!==""){
+      return "[草稿] "+cve.draftText;
+    }
     switch (pmsg.contentType) {
       case messageTypes.TEXTMESSAGE:
         return pmsg.content

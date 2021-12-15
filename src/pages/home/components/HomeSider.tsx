@@ -217,6 +217,7 @@ const HomeSider: FC<HomeSiderProps> = ({ children }) => {
     <Sider
       width="350"
       theme="light"
+      className="home_sider"
       style={{ borderRight: "1px solid #DEDFE0" }}
     >
       <div style={{ padding: 0 }}>

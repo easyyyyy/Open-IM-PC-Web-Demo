@@ -103,7 +103,7 @@ const GroupOpModal: FC<GroupOpModalProps> = ({ visible, modalType,groupId,groupM
       idx = rs.selectedList.findIndex((s) => (s as SelectFriendItem).uid == (item as SelectFriendItem).uid);
     }
     
-    rs.selectedList.splice(idx, idx + 1);
+    rs.selectedList.splice(idx,1);
     item.check = false;
   };
 
