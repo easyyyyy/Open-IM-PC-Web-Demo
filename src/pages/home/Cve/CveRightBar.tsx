@@ -55,15 +55,17 @@ const CveRightBar: FC<CveRightBarProps> = ({
   }, []);
 
   useEffect(() => {
-    events.on(TOASSIGNCVE, () => {
-      setCurTool(-1);
-      setDraggableCardVisible(false);
-      setVisibleDrawer(false);
-    });
+    events.on(TOASSIGNCVE, assignHandler);
     return () => {
-      events.off(TOASSIGNCVE, () => {});
+      events.off(TOASSIGNCVE, assignHandler);
     };
   }, []);
+
+  const assignHandler = () => {
+    setCurTool(-1);
+    setDraggableCardVisible(false);
+    setVisibleDrawer(false);
+  }
 
   const openCard = () => {
     setDraggableCardVisible(true);

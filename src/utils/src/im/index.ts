@@ -554,6 +554,19 @@ export default class OpenIMSDK extends Emitter {
     });
   };
 
+  createCardMessage = (data:string,operationID?: string) => {
+    return new Promise<WsResponse>((resolve, reject) => {
+      const _uuid = operationID || uuid(this.uid as string);
+      const args = {
+        reqFuncName: RequestFunc.CREATECARDMESSAGE,
+        operationID: _uuid,
+        uid: this.uid,
+        data,
+      };
+      this.wsSend(args, resolve, reject);
+    });
+  }
+
   sendMessage = (data: SendMsgParams, operationID?: string) => {
     return new Promise<WsResponse>((resolve, reject) => {
       const _uuid = operationID || uuid(this.uid as string);

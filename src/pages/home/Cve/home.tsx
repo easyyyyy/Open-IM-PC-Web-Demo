@@ -22,7 +22,6 @@ import {
   notOssMessageTypes,
   sessionType,
 } from "../../../constants/messageContentType";
-import { WsResponse } from "open-im-sdk/im";
 import { useReactive, useRequest } from "ahooks";
 import { CbEvents } from "../../../utils/src";
 import {
@@ -35,6 +34,7 @@ import {
   UPDATEPIN,
 } from "../../../constants/events";
 import { scroller, animateScroll } from "react-scroll";
+import { WsResponse } from "../../../utils/src/im";
 
 const { Content } = Layout;
 
@@ -101,74 +101,15 @@ const Home = () => {
   let nMsgMaps: NMsgMap[] = [];
 
   useEffect(() => {
-    im.on(CbEvents.ONRECVNEWMESSAGE, (data) => {
-      if (reactiveState.curCve) {
-        const newServerMsg: Message = JSON.parse(data.data);
-        if (inCurCve(newServerMsg)) {
-          if (newServerMsg.contentType === messageTypes.TYPINGMESSAGE) {
-            typingUpdate();
-          } else {
-            reactiveState.historyMsgList = [
-              newServerMsg,
-              ...reactiveState.historyMsgList,
-            ];
-            // scrollToBottom()
+    im.on(CbEvents.ONRECVNEWMESSAGE, newMsgHandler);
 
-            if (isSingleCve(reactiveState.curCve)) {
-              markC2CHasRead(reactiveState.curCve.userID, [
-                newServerMsg.clientMsgID,
-              ]);
-            }
-            markCveHasRead(reactiveState.curCve);
-          }
-        }
-      }
-    });
+    im.on(CbEvents.ONRECVMESSAGEREVOKED, revokeMsgHandler);
 
-    im.on(CbEvents.ONRECVMESSAGEREVOKED, (data) => {
-      const idx = reactiveState.historyMsgList.findIndex(
-        (m) => m.clientMsgID === data.data
-      );
-      if (idx > -1) {
-        reactiveState.historyMsgList.splice(idx, 1);
-      }
-    });
+    im.on(CbEvents.ONRECVC2CREADRECEIPT, c2cMsgHandler);
 
-    im.on(CbEvents.ONRECVC2CREADRECEIPT, (data) => {
-      JSON.parse(data.data).map((cr: any) => {
-        cr.msgIDList.map((crt: string) => {
-          reactiveState.historyMsgList.find((hism) => {
-            if (hism.clientMsgID === crt) {
-              hism.isRead = true;
-            }
-          });
-        });
-      });
-    });
+    im.on(CbEvents.ONMEMBERINVITED, memberInviteHandler);
 
-    im.on(CbEvents.ONMEMBERINVITED, (data) => {
-      reactiveState.groupMemberList = [
-        ...reactiveState.groupMemberList,
-        ...JSON.parse(JSON.parse(data.data).memberList),
-      ];
-    });
-
-    im.on(CbEvents.ONMEMBERKICKED, (data) => {
-      let idxs: number[] = [];
-      const users: GroupMember[] = JSON.parse(JSON.parse(data.data).memberList);
-      users.map((u) => {
-        reactiveState.groupMemberList.map((gm, idx) => {
-          if (u.userId === gm.userId) {
-            idxs.push(idx);
-          }
-        });
-      });
-      idxs.map((i) => reactiveState.groupMemberList.splice(i,1));
-    });
-
-    im.on(CbEvents.ONGROUPINFOCHANGED, (data) => {
-      console.log(JSON.parse(data.data));
-    });
+    im.on(CbEvents.ONMEMBERKICKED, memberKickHandler);
 
     im.on(CbEvents.ONMEMBERENTER, (data) => {
       console.log(JSON.parse(data.data));
@@ -179,46 +120,112 @@ const Home = () => {
     });
 
     return () => {
-      im.off(CbEvents.ONRECVNEWMESSAGE, () => {});
-      im.off(CbEvents.ONRECVMESSAGEREVOKED, () => {});
-      im.off(CbEvents.ONRECVC2CREADRECEIPT, () => {});
+      im.off(CbEvents.ONRECVNEWMESSAGE, newMsgHandler);
+      im.off(CbEvents.ONRECVMESSAGEREVOKED, revokeMsgHandler);
+      im.off(CbEvents.ONRECVC2CREADRECEIPT, c2cMsgHandler);
+      im.off(CbEvents.ONMEMBERINVITED, memberInviteHandler);
+      im.off(CbEvents.ONMEMBERKICKED, memberKickHandler);
     };
   }, []);
 
   useEffect(() => {
-    events.on(UPDATEFRIENDCARD, (id: string) => {
-      getFriendInfo(id);
-    });
-    events.on(TOASSIGNCVE, (id: string, type: sessionType) => {
-      getOneCve(id, type)
-        .then((cve) => clickItem(cve))
-        .catch((err) => message.error("获取会话失败！"));
-    });
-    events.on(RESETCVE, () => {
-      resetCve();
-    });
-    events.on(UPDATEPIN, (flag: number) => {
-      reactiveState.curCve!.isPinned = flag;
-    });
-    events.on(DELETEMESSAGE, (mid: string) => {
-      deleteMsg(mid);
-    });
+    events.on(UPDATEFRIENDCARD, updateCardHandler);
+    events.on(TOASSIGNCVE, assignHandler);
+    events.on(RESETCVE, resetCve);
+    events.on(UPDATEPIN, updatePinHandler);
+    events.on(DELETEMESSAGE, deleteMsg);
     return () => {
-      events.off(UPDATEFRIENDCARD, () => {});
-      events.off(TOASSIGNCVE, () => {});
-      events.off(RESETCVE, () => {});
-      events.off(UPDATEPIN, () => {});
+      events.off(UPDATEFRIENDCARD, updateCardHandler);
+      events.off(TOASSIGNCVE, assignHandler);
+      events.off(RESETCVE, resetCve);
+      events.off(UPDATEPIN, updatePinHandler);
+      events.off(DELETEMESSAGE,deleteMsg)
     };
   }, []);
 
+  //  event hander
+  const updateCardHandler = (id: string) => {
+    getFriendInfo(id);
+  }
+
+  const assignHandler = (id: string, type: sessionType) => {
+    getOneCve(id, type)
+      .then((cve) => clickItem(cve))
+      .catch((err) => message.error("获取会话失败！"));
+  }
+
+  const updatePinHandler = (flag: number) => {
+    reactiveState.curCve!.isPinned = flag;
+  }
+
+  //  im hander
+  const newMsgHandler = (data:WsResponse) => {
+    if (reactiveState.curCve) {
+      const newServerMsg: Message = JSON.parse(data.data);
+      if (inCurCve(newServerMsg)) {
+        if (newServerMsg.contentType === messageTypes.TYPINGMESSAGE) {
+          typingUpdate();
+        } else {
+          reactiveState.historyMsgList = [
+            newServerMsg,
+            ...reactiveState.historyMsgList,
+          ];
+          // scrollToBottom()
+
+          if (isSingleCve(reactiveState.curCve)) {
+            markC2CHasRead(reactiveState.curCve.userID, [
+              newServerMsg.clientMsgID,
+            ]);
+          }
+          
+          markCveHasRead(reactiveState.curCve,1);
+        }
+      }
+    }
+  }
+
+  const revokeMsgHandler = (data:WsResponse) => {
+    const idx = reactiveState.historyMsgList.findIndex(
+      (m) => m.clientMsgID === data.data
+    );
+    if (idx > -1) {
+      reactiveState.historyMsgList.splice(idx, 1);
+    }
+  }
+
+  const c2cMsgHandler = (data:WsResponse) => {
+    JSON.parse(data.data).map((cr: any) => {
+      cr.msgIDList.map((crt: string) => {
+        reactiveState.historyMsgList.find((hism) => {
+          if (hism.clientMsgID === crt) {
+            hism.isRead = true;
+          }
+        });
+      });
+    });
+  }
+
+  const memberInviteHandler = (data:WsResponse) => {
+    reactiveState.groupMemberList = [
+      ...reactiveState.groupMemberList,
+      ...JSON.parse(JSON.parse(data.data).memberList),
+    ];
+  }
+
+  const memberKickHandler = (data:WsResponse) => {
+    let idxs: number[] = [];
+    const users: GroupMember[] = JSON.parse(JSON.parse(data.data).memberList);
+    users.map((u) => {
+      reactiveState.groupMemberList.map((gm, idx) => {
+        if (u.userId === gm.userId) {
+          idxs.push(idx);
+        }
+      });
+    });
+    idxs.map((i) => reactiveState.groupMemberList.splice(i,1));
+  }
+
   const inCurCve = (newServerMsg: Message): boolean => {
-    console.log(
-      (newServerMsg.sendID === reactiveState.curCve?.userID &&
-        newServerMsg.recvID === selfID) ||
-      newServerMsg.recvID === reactiveState.curCve?.groupID ||
-      (newServerMsg.sendID === selfID &&
-        newServerMsg.recvID === reactiveState.curCve?.userID)
-    )
 
     return (
       (newServerMsg.sendID === reactiveState.curCve?.userID &&
@@ -263,7 +270,9 @@ const Home = () => {
     }
   };
 
-  const markCveHasRead = (cve: Cve) => {
+  const markCveHasRead = (cve: Cve,type?:number) => {
+    if(cve.unreadCount===0&&!type) return
+    
     if (isSingleCve(cve)) {
       im.markSingleMessageHasRead(cve.userID)
         .then((res) => {})
@@ -340,7 +349,7 @@ const Home = () => {
     if (isSingleCve(reactiveState.curCve!)) {
       let unReads: string[] = [];
       (JSON.parse(res.data) as Message[]).map((m) => {
-        if (!m.isRead) {
+        if (!m.isRead&&m.recvID===selfID) {
           unReads.push(m.clientMsgID);
         }
       });
@@ -352,7 +361,7 @@ const Home = () => {
       ...JSON.parse(res.data).reverse(),
     ];
     console.log(reactiveState.historyMsgList);
-
+    
     if (JSON.parse(res.data).length < 20) {
       reactiveState.hasMore = false;
     } else {

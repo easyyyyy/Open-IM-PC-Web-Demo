@@ -26,18 +26,24 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   const timer = useRef<NodeJS.Timeout | null>(null);
   const [flag, setFlag] = useState(false);
 
+  useEffect(()=>{
+    if(curCve.draftText!==''){
+      inputRef.current.state.value = curCve.draftText
+    }else{
+      inputRef.current.state.value = ''
+    }
+  },[curCve])
+
   useEffect(() => {
-    events.on(ISSETDRAFT, (cve: Cve) => {
-      setDraft(cve);
-    });
+    events.on(ISSETDRAFT, setDraft);
     return () => {
-      events.off(ISSETDRAFT, () => {});
+      events.off(ISSETDRAFT, setDraft);
     };
   }, []);
 
   const setDraft = (cve: Cve) => {
     if (inputRef.current.state.value || (cve.draftText !== "" && !inputRef.current.state.value)) {
-      console.log("set");
+      console.log(inputRef);
       
       im.setConversationDraft({ conversationID: cve.conversationID, draftText: inputRef.current.state.value??"" })
         .then((res) => {})

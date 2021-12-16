@@ -21,8 +21,57 @@
   }
 }
 
+.global_loading{
+  .ant-modal-content{
+    background-color: transparent;
+    box-shadow: none;
+  }
+}
+
 .home_sider{
   border-right: 1px solid #DEDFE0;
   overflow: auto;
   resize: horizontal;
+}
+
+.profile{
+  &_header{
+    background-color: #fff;
+    border-bottom: 1px solid #dedfe0;
+    padding: 0 16px;
+  }
+  &_sider{
+    border-right: 1px solid #dedfe0;
+    &_menu{
+      &_item{
+        padding: 16px;
+        &:hover{
+          background-color: #f0f6fd;
+        }
+      }
+    }
+  }
+  &_content{
+    background-color: #fff;
+    &_bl{
+      overflow-y: auto;
+      &_item{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        padding-right: 48px;
+        .item_left{
+          display: flex;
+          align-items: center;
+          .nick{
+            margin-left: 12px;
+          }
+        }
+        &:hover{
+          background-color: #f0f6fd;
+        }
+      }
+    }
+  }
 }

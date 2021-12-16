@@ -30,20 +30,18 @@ const MsgItem: FC<MsgItemProps> = ({
   clickItem,
 }) => {
   const textRef = useRef<HTMLDivElement>(null);
-  let sty = useRef<CSSProperties | null>(null);
+  const [sty,setSty] = useState<CSSProperties>({
+    paddingRight:"40px"
+  })
   const [isSingle,setIsSingle] = useState(false);
 
   useEffect(()=>{
-    // console.log(textRef);
     setIsSingle(isSingleCve(curCve))
     if(textRef.current?.clientHeight!>42){
-      sty.current = {
-        paddingBottom:"16px"
-      }
-    }else{
-      sty.current = {
-        paddingRight:"40px"
-      }
+      setSty({
+          paddingBottom:"16px",
+          paddingRight:"8px"
+      })
     }
   },[])
   const isSelf = (sendID: string): boolean => {
@@ -56,17 +54,16 @@ const MsgItem: FC<MsgItemProps> = ({
   }
 
   const msgType = (msg: Message) => {
-    // console.log(sty.current);
     
     switch (msg.contentType) {
       case messageTypes.TEXTMESSAGE:
         return (
-          <>
-            <div ref={textRef} style={sty.current!} className={`chat_bg_msg_content_text ${!isSingle?'nick_magin':''}`}>{msg.content}</div>
+          <div>
+            <div ref={textRef} style={sty} className={`chat_bg_msg_content_text ${!isSingle?'nick_magin':''}`}>{msg.content}</div>
             <Tooltip overlayClassName="msg_time_tip" placement="bottom" title={parseTime(0)}>
               <div className="chat_bg_msg_content_time">{parseTime(1)}</div>
             </Tooltip>
-          </>
+          </div>
         );
       case messageTypes.ATTEXTMESSAGE:
         let atStr = "";
@@ -246,7 +243,7 @@ const MsgItem: FC<MsgItemProps> = ({
           content={PopContent}
           title={null}
           trigger="contextMenu"
-          visible={false}
+          // visible={true}
         >
           {msgType(msg)}
         </Popover>

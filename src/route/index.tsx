@@ -3,14 +3,15 @@ import Mylayout from "../layout/MyLayout";
 import Login from "../pages/login/Login";
 import Home from "../pages/home/Cve/home";
 import Contacts from "../pages/home/Contact/contacts";
-import { useEffect } from "react";
+import Profile from "../pages/home/Profile/Profile";
+import { useEffect, useState } from "react";
 import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { RootState } from "../store";
 import { im } from "../utils";
 import { IMURL } from "../config";
-import { message } from "antd";
+import { message, Modal, Spin } from "antd";
 import { getCveList, setCveList } from "../store/actions/cve";
-import { getFriendApplicationList, getFriendList, getGroupApplicationList, getGroupList, getUnReadCount, setUnReadCount } from "../store/actions/contacts";
+import { getBlackList, getFriendApplicationList, getFriendList, getGroupApplicationList, getGroupList, getUnReadCount, setUnReadCount } from "../store/actions/contacts";
 import { getSelfInfo } from "../store/actions/user";
 import Test from "../pages/Test";
 import { CbEvents } from "../utils/src";
@@ -22,13 +23,15 @@ const Auth = () => {
   const curuid = localStorage.getItem("curimuid")!;
   const uid = localStorage.getItem("lastimuid")!;
   const token = localStorage.getItem(`${curuid ?? uid}improfile`)!;
+  const [golbalLoading,setGolbalLoading] = useState(false)
   const cves = useSelector((state: RootState) => state.cve.cves, shallowEqual);
 
   useEffect(() => {
     // if (!curuid && token && uid) {
     if (token && uid) {
+      setGolbalLoading(true)
       im.getLoginStatus()
-        .then((res) => {})
+        .then((res) => setGolbalLoading(false))
         .catch((err) => {
           if (token && uid) {
             imLogin();
@@ -79,6 +82,14 @@ const Auth = () => {
     im.on(CbEvents.ONFRIENDLISTDELETED, () => {
       dispatch(getFriendList());
     });
+
+    im.on(CbEvents.ONBLACKLISTADD,()=>{
+      dispatch(getBlackList())
+    })
+
+    im.on(CbEvents.ONBLACKLISTDELETED,()=>{
+      dispatch(getBlackList())
+    })
 
     im.on(CbEvents.ONFRIENDAPPLICATIONLISTADDED, () => {
       dispatch(getFriendApplicationList());
@@ -139,6 +150,8 @@ const Auth = () => {
           dispatch(getGroupList());
           dispatch(getGroupApplicationList());
           dispatch(getUnReadCount());
+          dispatch(getBlackList())
+          setGolbalLoading(false)
         }
       })
       .catch((err) => {
@@ -147,6 +160,7 @@ const Auth = () => {
   };
 
   const invalid = () => {
+    setGolbalLoading(false)
     message.warning("登录失效，请重新登录！");
     localStorage.removeItem(`${uid}improfile`);
     // localStorage.removeItem('lastimuid')
@@ -183,7 +197,29 @@ const Auth = () => {
     });
   };
 
-  return token ? <Mylayout /> : <Navigate to="/login" />;
+  return (
+    <>
+    {
+      token ? <Mylayout /> : <Navigate to="/login" />
+    }
+    <Modal
+    footer={null}
+    visible={golbalLoading}
+    closable={false}
+    centered
+    className="global_loading"
+    maskStyle={{
+      backgroundColor:"transparent"
+    }}
+    bodyStyle={{
+      padding:0,
+      textAlign:"center"
+    }}
+    >
+      <Spin tip="login..." size="large" />
+    </Modal>
+    </>
+  );
 };
 
 const MyRoute = () => {
@@ -203,6 +239,7 @@ const MyRoute = () => {
         <Route path="/" element={<Auth />}>
           <Route index element={<Home />} />
           <Route path="contacts" element={<Contacts />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/test" element={<Test />}></Route>

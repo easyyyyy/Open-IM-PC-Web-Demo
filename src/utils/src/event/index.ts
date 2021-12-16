@@ -26,6 +26,7 @@ class Emitter {
     on(event:CbEvents, fn:Cbfn) {
       if (this.events[event]) this.events[event].push(fn);
       else this.events[event] = [fn];
+      
       return this;
     }
   
