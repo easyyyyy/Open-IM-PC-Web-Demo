@@ -8,22 +8,22 @@ module.exports = {
     alias: {
       "@": path.join(__dirname, "./src"),
     },
-    plugins: [
-      // new TerserPlugin({
-      //   sourceMap: false,
-      //   terserOptions: {
-      //     ecma: undefined,
-      //     warnings: false,
-      //     parse: {},
-      //     compress: {
-      //       drop_console: process.env.NODE_ENV === "production",
-      //       drop_debugger: false,
-      //       pure_funcs:
-      //         process.env.NODE_ENV === "production" ? ["console.log"] : "",
-      //     },
-      //   },
-      // }),
-    ],
+    // plugins: [
+    //   new TerserPlugin({
+    //     sourceMap: false,
+    //     terserOptions: {
+    //       ecma: undefined,
+    //       warnings: false,
+    //       parse: {},
+    //       compress: {
+    //         drop_console: process.env.NODE_ENV === "production",
+    //         drop_debugger: false,
+    //         pure_funcs:
+    //           process.env.NODE_ENV === "production" ? ["console.log"] : "",
+    //       },
+    //     },
+    //   }),
+    // ],
     // configure: (webpackConfig, { env, paths }) => {
     //     webpackConfig.externals = {
     //       react: "React",

@@ -1,4 +1,4 @@
-import { Avatar, Badge, Layout, Popover, Tooltip } from "antd";
+import { Avatar, Badge, Layout, Modal, Popover, Tooltip } from "antd";
 
 import styles from "./layout.module.less";
 
@@ -113,8 +113,26 @@ const ToolsBar: FC<ToolsBarProps> = ({ userInfo }) => {
       case 0:
         setDraggableCardVisible(true);
         break;
+      case 1:
+        navigate('/profile',{
+          state:{
+            type:'set'
+          }
+        })
+        break;
+      case 2:
+        navigate('/profile',{
+          state:{
+            type:'about'
+          }
+        })
+        break;
       case 3:
-        logout();
+        Modal.confirm({
+          title:"退出登录",
+          content:"您确定要退出登录吗？",
+          onOk:logout
+        })
         break;
       default:
         break;

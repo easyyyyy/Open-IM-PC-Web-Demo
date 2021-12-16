@@ -50,7 +50,7 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
   const [type, setType] = useState<DrawerType>("set");
   const selfID = useSelector((state: RootState) => state.user.selfInfo.uid);
   const [adminList, setAdminList] = useState<GroupMember[]>([]);
-  const [role, setRole] = useState<GroupRole>();
+  const [role, setRole] = useState<GroupRole>(GroupRole.NOMAL);
 
   useEffect(() => {
     if (!isSingleCve(curCve)) {

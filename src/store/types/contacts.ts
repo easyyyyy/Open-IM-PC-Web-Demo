@@ -1,9 +1,10 @@
-import { FriendApplication, FriendItem, GroupApplication, GroupItem } from "../../@types/open_im"
+import { FriendApplication, FriendItem, GroupApplication, GroupItem, UserInfo } from "../../@types/open_im"
 
 export type ContactState = {
     friendList:FriendItem[]
     originList:FriendItem[]
     groupList:GroupItem[]
+    blackList:UserInfo[]
     friendApplicationList:FriendApplication[]
     groupApplicationList:GroupApplication[]
     unReadCount:number
@@ -12,6 +13,7 @@ export type ContactState = {
 export const SET_FRIEND_LIST = 'SET_FRIEND_LIST'
 export const SET_ORIGIN_LIST = 'SET_ORIGIN_LIST'
 export const SET_GROUP_LIST = 'SET_GROUP_LIST'
+export const SET_BLACK_LIST = 'SET_BLACK_LIST'
 export const SET_FRIEND_APPLICATION_LIST = 'SET_FRIEND_APPLICATION_LIST'
 export const SET_GROUP_APPLICATION_LIST = 'SET_GROUP_APPLICATION_LIST'
 export const SET_UNREAD_COUNT = 'SET_UNREAD_COUNT'
@@ -36,6 +38,11 @@ type SetGroupList = {
     payload: GroupItem[]
 }
 
+type SetbBlackList = {
+    type: typeof SET_BLACK_LIST
+    payload: UserInfo[]
+}
+
 type SetGroupApplicationList = {
     type: typeof SET_GROUP_APPLICATION_LIST
     payload: GroupApplication[]
@@ -46,4 +53,4 @@ type SetUnReadCount = {
     payload: number
 }
 
-export type ContactActionTypes = SetFriendList | SetOriginList | SetFriendApplicationList | SetGroupList | SetGroupApplicationList | SetUnReadCount
+export type ContactActionTypes = SetFriendList | SetOriginList | SetFriendApplicationList | SetGroupList | SetGroupApplicationList | SetUnReadCount | SetbBlackList

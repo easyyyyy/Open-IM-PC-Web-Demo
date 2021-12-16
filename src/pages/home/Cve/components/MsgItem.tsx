@@ -1,10 +1,10 @@
 import { LoadingOutlined, ExclamationCircleFilled } from "@ant-design/icons";
-import { Spin, Popover,Image } from "antd";
-import { FC } from "react";
+import { Spin, Popover,Image, Tooltip } from "antd";
+import { CSSProperties, FC, useEffect, useRef, useState } from "react";
 import { Message, PictureElem, Cve } from "../../../../@types/open_im";
 import { MyAvatar } from "../../../../components/MyAvatar";
 import { messageTypes } from "../../../../constants/messageContentType";
-import { isSingleCve } from "../../../../utils";
+import { formatDate, isSingleCve } from "../../../../utils";
 
 import ts_msg from "@/assets/images/ts_msg.png";
 import re_msg from "@/assets/images/re_msg.png";
@@ -29,14 +29,42 @@ const MsgItem: FC<MsgItemProps> = ({
   curCve,
   clickItem,
 }) => {
+  const textRef = useRef<HTMLDivElement>(null);
+  const [sty,setSty] = useState<CSSProperties>({
+    paddingRight:"40px"
+  })
+  const [isSingle,setIsSingle] = useState(false);
+
+  useEffect(()=>{
+    setIsSingle(isSingleCve(curCve))
+    if(textRef.current?.clientHeight!>42){
+      setSty({
+          paddingBottom:"16px",
+          paddingRight:"8px"
+      })
+    }
+  },[])
   const isSelf = (sendID: string): boolean => {
     return selfID === sendID;
   };
 
+  const parseTime = (type:0|1) => {
+    const arr = formatDate(msg.sendTime/1000000)
+    return type ? arr[4] : arr[3]+' '+arr[4]
+  }
+
   const msgType = (msg: Message) => {
+    
     switch (msg.contentType) {
       case messageTypes.TEXTMESSAGE:
-        return <div className="chat_bg_msg_content_text">{msg.content}</div>;
+        return (
+          <div>
+            <div ref={textRef} style={sty} className={`chat_bg_msg_content_text ${!isSingle?'nick_magin':''}`}>{msg.content}</div>
+            <Tooltip overlayClassName="msg_time_tip" placement="bottom" title={parseTime(0)}>
+              <div className="chat_bg_msg_content_time">{parseTime(1)}</div>
+            </Tooltip>
+          </div>
+        );
       case messageTypes.ATTEXTMESSAGE:
         let atStr = "";
         let text = msg.atElem.text;
@@ -45,14 +73,14 @@ const MsgItem: FC<MsgItemProps> = ({
         msg.atElem.atUserList?.map((u) => (atStr += u + " "));
         const idx = msg.atElem.text.indexOf(lastone);
         return (
-          <div className="chat_bg_msg_content_text">
+          <div className={`chat_bg_msg_content_text ${!isSingle?'nick_magin':''}`}>
             <span>{`@${atStr}`}</span>
             {text.slice(idx + lastone.length)}
           </div>
         );
       case messageTypes.PICTUREMESSAGE:
         return (
-          <div>
+          <div className={`chat_bg_msg_content_pic ${!isSingle?'nick_magin':''}`}>
             <Image
               placeholder={true}
               width={200}
@@ -63,17 +91,23 @@ const MsgItem: FC<MsgItemProps> = ({
               preview={{ visible: false }}
               onClick={() => imgClick(msg.pictureElem)}
             />
+            <Tooltip overlayClassName="msg_time_tip" placement="bottom" title={parseTime(0)}>
+              <div className="pic_msg_time">{parseTime(1)}</div>
+            </Tooltip>
           </div>
         );
       case messageTypes.VIDEOMESSAGE:
         return (
-          <div>
+          <div className={`chat_bg_msg_content_video ${!isSingle?'nick_magin':''}`}>
             <video controls width={200} src={msg.videoElem.videoUrl} />
+            <Tooltip overlayClassName="msg_time_tip" placement="bottom" title={parseTime(0)}>
+              <div className="pic_msg_time">{parseTime(1)}</div>
+            </Tooltip>
           </div>
         );
       default:
         return (
-          <div className="chat_bg_msg_content_text">[暂未支持的消息类型]</div>
+          <div className={`chat_bg_msg_content_text ${!isSingle?'nick_magin':''}`}>[暂未支持的消息类型]</div>
         );
         // console.log(msg);
         break;
@@ -200,13 +234,16 @@ const MsgItem: FC<MsgItemProps> = ({
       </div>
 
       <div className="chat_bg_msg_content">
+        {
+          !isSingleCve(curCve)&&<span className="nick">{msg.senderNickName}</span>
+        }
         <Popover
           overlayClassName="msg_item_menu"
           key={msg.clientMsgID}
           content={PopContent}
           title={null}
           trigger="contextMenu"
-          visible={false}
+          // visible={true}
         >
           {msgType(msg)}
         </Popover>

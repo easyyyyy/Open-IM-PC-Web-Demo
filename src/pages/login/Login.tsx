@@ -1,7 +1,7 @@
 import { message } from "antd";
 import styles from "./login.module.less";
 import login_bg from "@/assets/images/login_bg.png";
-import LoginForm, { FormField, InfoField } from "./coms/LoginForm";
+import LoginForm, { FormField, InfoField } from "./components/LoginForm";
 import { useState } from "react";
 import { Itype } from "../../@types/open_im";
 import { useHistoryTravel } from "ahooks";
@@ -20,6 +20,7 @@ import { useDispatch } from "react-redux";
 import { getSelfInfo, setSelfInfo } from "../../store/actions/user";
 import { getCveList } from "../../store/actions/cve";
 import {
+  getBlackList,
   getFriendApplicationList,
   getFriendList,
   getGroupApplicationList,
@@ -149,6 +150,7 @@ const Login = () => {
         dispatch(getGroupList());
         dispatch(getGroupApplicationList());
         dispatch(getUnReadCount());
+        dispatch(getBlackList())
         if (type === "login") {
           navigate("/", { replace: true });
         }

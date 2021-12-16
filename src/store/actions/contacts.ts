@@ -1,8 +1,9 @@
 import { Dispatch } from "redux";
-import { FriendApplication, FriendItem, GroupApplication, GroupItem } from "../../@types/open_im";
+import { FriendApplication, FriendItem, GroupApplication, GroupItem, UserInfo } from "../../@types/open_im";
 import { im } from "../../utils";
 import {
   ContactActionTypes,
+  SET_BLACK_LIST,
   SET_FRIEND_APPLICATION_LIST,
   SET_FRIEND_LIST,
   SET_GROUP_APPLICATION_LIST,
@@ -29,6 +30,13 @@ export const setGroupList = (value: GroupItem[]): ContactActionTypes => {
   
   return {
     type: SET_GROUP_LIST,
+    payload: value,
+  };
+};
+
+export const setBlackList = (value: UserInfo[]): ContactActionTypes => {
+  return {
+    type: SET_BLACK_LIST,
     payload: value,
   };
 };
@@ -68,6 +76,14 @@ export const getGroupList = () => {
   return (dispatch: Dispatch) => {
     im.getJoinedGroupList().then((res) =>
       dispatch(setGroupList(JSON.parse(res.data)))
+    );
+  };
+};
+
+export const getBlackList = () => {
+  return (dispatch: Dispatch) => {
+    im.getBlackList().then((res) =>
+      dispatch(setBlackList(JSON.parse(res.data)))
     );
   };
 };

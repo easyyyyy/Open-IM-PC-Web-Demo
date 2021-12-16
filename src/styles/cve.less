@@ -1,5 +1,4 @@
 .cve_list {
-  user-select: none;
   .cve_list_scroll {
     overflow-y: scroll;
     &::-webkit-scrollbar {
@@ -95,16 +94,64 @@
       }
       &_content {
         max-width: 80%;
+        position: relative;
         &_text {
+          // margin-top: 24px;
           padding: 10px 8px;
+          // padding-bottom: 16px;
           border-radius: 4px;
           background-color: #f2f2f2;
           word-break: break-all;
+          // user-select: text;
+          // min-width: 52px;
           span {
             color: #428be5;
           }
         }
+        &_time{
+          position: absolute;
+          right: 4px;
+          bottom: 0;
+          font-size: 12px;
+          transform: scale(.9);
+          color: #999;
+        }
+        .nick_magin{
+          margin-top: 24px;
+        }
+        // &_pic{
+        //   margin-top: 24px;
+        // }
+        // &_video{
+        //   margin-top: 24px;
+        // }
         .ant-image-img {
+          border-radius: 4px;
+        }
+        .nick{
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 240px;
+          color: #999;
+          font-size: 12px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          word-break: break-all;
+          overflow: hidden;
+        }
+        .pic_msg_time{
+          position: absolute;
+          bottom: 11px;
+          right: 8px;
+          height: 20px;
+          line-height: 20px;
+          font-size: 12px;
+          transform: scale(.9);
+          width: 42px;
+          color: #fff;
+          background-color: rgba(0, 0, 0, 0.4);
+          text-align: center;
           border-radius: 4px;
         }
       }
@@ -114,6 +161,11 @@
       .chat_bg_msg_icon {
         margin-right: 0;
         margin-left: 12px;
+      }
+      .nick{
+        left: auto;
+        right: 0;
+        text-align: right
       }
     }
     &_tips {
@@ -236,7 +288,6 @@
 }
 
 .right_bar {
-  user-select: none;
   background-color: #eff4f5 !important;
   &_col {
     display: flex;
@@ -307,5 +358,17 @@
       font-size: 18px;
       color: #999;
     }
+  }
+}
+
+
+
+.msg_time_tip{
+  .ant-tooltip-inner{
+    min-height: auto;
+    min-width: auto;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 12px;
   }
 }

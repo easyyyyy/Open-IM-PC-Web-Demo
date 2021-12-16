@@ -1,17 +1,6 @@
-import {
-  UserAddOutlined,
-  MessageOutlined,
-  UsergroupAddOutlined,
-} from "@ant-design/icons";
+import { UserAddOutlined, MessageOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import { Layout, Modal, Input, Button, message } from "antd";
-import {
-  cloneElement,
-  FC,
-  forwardRef,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { cloneElement, FC, forwardRef, useEffect, useRef, useState } from "react";
 import { GroupItem, GroupMember } from "../../../@types/open_im";
 import { SearchBar } from "../../../components/SearchBar";
 import { OPENGROUPMODAL, TOASSIGNCVE } from "../../../constants/events";
@@ -31,14 +20,7 @@ type AddConModalProps = {
   type: "friend" | "group";
 };
 
-const AddConModal: FC<AddConModalProps> = ({
-  isAddConsVisible,
-  loading,
-  searchCons,
-  cancleSearch,
-  getNo,
-  type,
-}) => (
+const AddConModal: FC<AddConModalProps> = ({ isAddConsVisible, loading, searchCons, cancleSearch, getNo, type }) => (
   <Modal
     key="AddConModal"
     className="add_cons_modal"
@@ -49,41 +31,26 @@ const AddConModal: FC<AddConModalProps> = ({
     width={360}
     onCancel={cancleSearch}
     footer={[
-      <Button
-        key="comfirmBtn"
-        loading={loading}
-        onClick={searchCons}
-        className="add_cons_modal_btn"
-        type="primary"
-      >
+      <Button key="comfirmBtn" loading={loading} onClick={searchCons} className="add_cons_modal_btn" type="primary">
         确定
       </Button>,
-      <Button
-        key="cancelBtn"
-        onClick={cancleSearch}
-        className="add_cons_modal_btn"
-        type="default"
-      >
+      <Button key="cancelBtn" onClick={cancleSearch} className="add_cons_modal_btn" type="default">
         取消
       </Button>,
     ]}
   >
-    <Input
-      allowClear
-      placeholder={`请输入${type === "friend" ? "用户" : "群聊"}ID`}
-      onChange={(v) => getNo(v.target.value)}
-    />
+    <Input allowClear placeholder={`请输入${type === "friend" ? "用户" : "群聊"}ID`} onChange={(v) => getNo(v.target.value)} />
   </Modal>
 );
 
 type HomeSiderProps = {};
 
 type GroupInfoType = {
-  members:GroupMember[]
-  gid:string
-}
+  members: GroupMember[];
+  gid: string;
+};
 
-export type ModalType = "create"|"invite"|"remove"
+export type ModalType = "create" | "invite" | "remove";
 
 const HomeSider: FC<HomeSiderProps> = ({ children }) => {
   const [isAddConsVisible, setIsAddConsVisible] = useState(false);
@@ -94,24 +61,29 @@ const HomeSider: FC<HomeSiderProps> = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [serchRes, setSerchRes] = useState({});
   const [addType, setAddType] = useState<"friend" | "group">("friend");
-  const [modalType,setModalType] = useState<ModalType>("create")
-  const [groupInfo,setGroupInfo] = useState<GroupInfoType>()
+  const [modalType, setModalType] = useState<ModalType>("create");
+  const [groupInfo, setGroupInfo] = useState<GroupInfoType>();
   const compRef = useRef(null);
 
   useEffect(() => {
-    events.on(TOASSIGNCVE, () => {
-      setUserCardVisible(false);
-      setGroupCardVisible(false);
-      setIsAddConsVisible(false);
-    });
-    events.on(OPENGROUPMODAL,(type:ModalType,members:GroupMember[],gid:string)=>{
-      setGroupInfo({members,gid})
-      setModal(type)
-    })
+    events.on(TOASSIGNCVE, assignHandler);
+    events.on(OPENGROUPMODAL, openModalHandler);
     return () => {
-      events.off(TOASSIGNCVE, () => {});
+      events.off(TOASSIGNCVE, assignHandler);
+      events.off(OPENGROUPMODAL, openModalHandler);
     };
   }, []);
+
+  const assignHandler = () => {
+    setUserCardVisible(false);
+    setGroupCardVisible(false);
+    setIsAddConsVisible(false);
+  };
+
+  const openModalHandler = (type: ModalType, members: GroupMember[], gid: string) => {
+    setGroupInfo({ members, gid });
+    setModal(type);
+  };
 
   const clickMenuItem = (idx: number) => {
     switch (idx) {
@@ -124,7 +96,7 @@ const HomeSider: FC<HomeSiderProps> = ({ children }) => {
         setIsAddConsVisible(true);
         break;
       case 2:
-        setModal("create")
+        setModal("create");
         break;
       default:
         break;
@@ -143,9 +115,7 @@ const HomeSider: FC<HomeSiderProps> = ({ children }) => {
     },
     {
       title: "添加群聊",
-      icon: (
-        <UsergroupAddOutlined style={{ fontSize: "16px", color: "#fff" }} />
-      ),
+      icon: <UsergroupAddOutlined style={{ fontSize: "16px", color: "#fff" }} />,
       method: clickMenuItem,
     },
     {
@@ -205,20 +175,16 @@ const HomeSider: FC<HomeSiderProps> = ({ children }) => {
   };
 
   const closeOpModal = () => {
-    setGroupOpModalVisible(false)
-  }
+    setGroupOpModalVisible(false);
+  };
 
-  const setModal = (type:ModalType) => {
-    setModalType(type)
-    setGroupOpModalVisible(true)
-  }
+  const setModal = (type: ModalType) => {
+    setModalType(type);
+    setGroupOpModalVisible(true);
+  };
 
   return (
-    <Sider
-      width="350"
-      theme="light"
-      style={{ borderRight: "1px solid #DEDFE0" }}
-    >
+    <Sider width="350" theme="light" className="home_sider" style={{ borderRight: "1px solid #DEDFE0" }}>
       <div style={{ padding: 0 }}>
         <SearchBar menus={menus} />
         {
@@ -226,33 +192,10 @@ const HomeSider: FC<HomeSiderProps> = ({ children }) => {
           cloneElement(children, { marginTop: 58 })
         }
       </div>
-      {isAddConsVisible && (
-        <AddConModal
-          isAddConsVisible={isAddConsVisible}
-          loading={loading}
-          searchCons={searchCons}
-          cancleSearch={cancleSearch}
-          getNo={getNo}
-          type={addType}
-        />
-      )}
-      {userCardVisible && (
-        <UserCard
-          close={closeDragCard}
-          info={serchRes}
-          draggableCardVisible={userCardVisible}
-        />
-      )}
-      {groupCardVisible && (
-        <GroupCard
-          close={closeDragCard}
-          info={serchRes as GroupItem}
-          draggableCardVisible={groupCardVisible}
-        />
-      )}
-      {
-        groupOpModalVisible&&<GroupOpModal groupId={groupInfo?.gid} groupMembers={groupInfo?.members} modalType={modalType} visible={groupOpModalVisible} close={closeOpModal}/>
-      }
+      {isAddConsVisible && <AddConModal isAddConsVisible={isAddConsVisible} loading={loading} searchCons={searchCons} cancleSearch={cancleSearch} getNo={getNo} type={addType} />}
+      {userCardVisible && <UserCard close={closeDragCard} info={serchRes} draggableCardVisible={userCardVisible} />}
+      {groupCardVisible && <GroupCard close={closeDragCard} info={serchRes as GroupItem} draggableCardVisible={groupCardVisible} />}
+      {groupOpModalVisible && <GroupOpModal groupId={groupInfo?.gid} groupMembers={groupInfo?.members} modalType={modalType} visible={groupOpModalVisible} close={closeOpModal} />}
     </Sider>
   );
 };

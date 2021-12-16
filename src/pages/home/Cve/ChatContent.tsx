@@ -39,16 +39,18 @@ const ChatContent: FC<ChatContentProps> = ({
   const tipList = Object.values(tipsTypes);
 
   useEffect(() => {
-    events.on(UPDATEFRIENDCARD, async (uid: string) => {
-      const { errCode, data } = await im.getFriendsInfo([uid]);
-      if (errCode === 0) {
-        setUserInfo(JSON.parse(data)[0]);
-      }
-    });
+    events.on(UPDATEFRIENDCARD, updateCardHandler);
     return () => {
-      events.off(UPDATEFRIENDCARD, () => {});
+      events.off(UPDATEFRIENDCARD, updateCardHandler);
     };
   }, []);
+
+  const updateCardHandler = async (uid: string) => {
+    const { errCode, data } = await im.getFriendsInfo([uid]);
+    if (errCode === 0) {
+      setUserInfo(JSON.parse(data)[0]);
+    }
+  }
 
   const parseTip = (msg: Message): string => {
     if (msg.contentType === tipsTypes.REVOKEMESSAGE) {
