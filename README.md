@@ -19,15 +19,27 @@ Open im includes instant messaging and real-time audio and video server and clie
   ```
 
 
-- Run and preview at local
+- Run and preview at local (web)
 
   ```
   npm run start:renderer
 
-- Build
+- Run and preview at local (electron)
+
+  ```bash
+  npm run start:main
+  ```
+
+- Build (web)
 
   ```
   npm run build:renderer
+  ```
+
+- Build (electron)
+
+  ```bash
+  npm run build:main
   ```
 
   
