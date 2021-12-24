@@ -1,62 +1,58 @@
-import { FC, forwardRef, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useSelector, shallowEqual } from "react-redux";
-import { Cve, Message, PictureElem, UserInfo } from "../../../@types/open_im";
+import { Cve, MergeElem, Message, PictureElem, UserInfo } from "../../../@types/open_im";
 import { tipsTypes } from "../../../constants/messageContentType";
 import { RootState } from "../../../store";
-import { events, im, isSingleCve, sleep } from "../../../utils";
+import { events, im } from "../../../utils";
 import ScrollView from "../../../components/ScrollView";
 import UserCard from "../components/UserCard";
-import { UPDATEFRIENDCARD } from "../../../constants/events";
+import { MUTILMSG, UPDATEFRIENDCARD } from "../../../constants/events";
 import MsgItem from "./components/MsgItem";
-
+import MerModal from "./components/MerModal";
 
 type ChatContentProps = {
   msgList: Message[];
   imgClick: (el: PictureElem) => void;
   loadMore: (uid?: string, gid?: string, sMsg?: any) => void;
   hasMore: boolean;
-  curCve: Cve;
+  curCve?: Cve;
   loading: boolean;
+  merID?:string;
 };
 
-const ChatContent: FC<ChatContentProps> = ({
-  msgList,
-  imgClick,
-  loadMore,
-  hasMore,
-  curCve,
-  loading,
-}) => {
+const ChatContent: FC<ChatContentProps> = ({ merID,msgList, imgClick, loadMore, hasMore, curCve, loading }) => {
   const [userInfo, setUserInfo] = useState<UserInfo>();
   const [userCardVisible, setUserCardVisible] = useState(false);
+  const [mutilSelect, setMutilSelect] = useState(false);
   const selectValue = (state: RootState) => state.user.selfInfo;
   const selfID = useSelector(selectValue, shallowEqual).uid!;
-  const friendList = useSelector(
-    (state: RootState) => state.contacts.friendList,
-    shallowEqual
-  );
+  const originFriendList = useSelector((state: RootState) => state.contacts.friendList, shallowEqual);
 
   const tipList = Object.values(tipsTypes);
 
   useEffect(() => {
     events.on(UPDATEFRIENDCARD, updateCardHandler);
+    events.on(MUTILMSG, mutilHandler);
     return () => {
       events.off(UPDATEFRIENDCARD, updateCardHandler);
+      events.off(MUTILMSG, mutilHandler);
     };
   }, []);
+
+  const mutilHandler = (flag: boolean) => {
+    setMutilSelect(flag);
+  };
 
   const updateCardHandler = async (uid: string) => {
     const { errCode, data } = await im.getFriendsInfo([uid]);
     if (errCode === 0) {
       setUserInfo(JSON.parse(data)[0]);
     }
-  }
+  };
 
   const parseTip = (msg: Message): string => {
     if (msg.contentType === tipsTypes.REVOKEMESSAGE) {
-      return `${
-        msg.sendID === selfID ? "你" : msg.senderNickName
-      }撤回了一条消息`;
+      return `${msg.sendID === selfID ? "你" : msg.senderNickName}撤回了一条消息`;
     }
     switch (msg.contentType) {
       case tipsTypes.ACCEPTFRIENDNOTICE:
@@ -70,10 +66,7 @@ const ChatContent: FC<ChatContentProps> = ({
       case tipsTypes.INVITETOGROUPNOTICE:
         const invitetip = JSON.parse(msg.content).defaultTips;
         const inviteIdx = invitetip.indexOf(" invited into the group chat by ");
-        return `${invitetip.slice(32 + inviteIdx)}邀请了${invitetip.slice(
-          0,
-          inviteIdx
-        )}入群`;
+        return `${invitetip.slice(32 + inviteIdx)}邀请了${invitetip.slice(0, inviteIdx)}入群`;
       case tipsTypes.QUITGROUPNOTICE:
         const quitTip = JSON.parse(msg.content).defaultTips;
         const quitIdx = quitTip.indexOf(" have quit group chat");
@@ -86,12 +79,12 @@ const ChatContent: FC<ChatContentProps> = ({
   const nextFuc = () => {
     console.log("nextFuc");
     // change tab update bug
-    loadMore(curCve.userID, curCve.groupID, msgList[msgList.length - 1]);
+    loadMore(curCve?.userID, curCve?.groupID, msgList[msgList.length - 1]);
   };
 
   const clickItem = async (id: string) => {
     if (id === selfID) return;
-    const idx = friendList.findIndex((f) => f.uid === id);
+    const idx = originFriendList.findIndex((f) => f.uid === id);
     if (idx > -1) {
       const { errCode, data } = await im.getFriendsInfo([id]);
       if (errCode === 0) {
@@ -113,14 +106,7 @@ const ChatContent: FC<ChatContentProps> = ({
 
   return (
     <div className="chat_bg">
-      {/* @ts-ignore */}
-      <ScrollView
-        holdHeight={30}
-        loading={loading}
-        data={msgList}
-        fetchMoreData={nextFuc}
-        hasMore={hasMore}
-      >
+      <ScrollView holdHeight={30} loading={loading} data={msgList} fetchMoreData={nextFuc} hasMore={hasMore}>
         {msgList?.map((msg) => {
           if (tipList.includes(msg.contentType)) {
             return (
@@ -129,26 +115,11 @@ const ChatContent: FC<ChatContentProps> = ({
               </div>
             );
           } else {
-            return (
-              <MsgItem
-                key={msg.clientMsgID}
-                msg={msg}
-                imgClick={imgClick}
-                selfID={selfID}
-                curCve={curCve}
-                clickItem={clickItem}
-              />
-            );
+            return <MsgItem key={msg.clientMsgID} mutilSelect={mutilSelect} msg={msg} imgClick={imgClick} selfID={merID??selfID} curCve={curCve} clickItem={clickItem} />;
           }
         })}
       </ScrollView>
-      {userCardVisible && (
-        <UserCard
-          close={closeCard}
-          info={userInfo!}
-          draggableCardVisible={userCardVisible}
-        />
-      )}
+      {userCardVisible && <UserCard close={closeCard} info={userInfo!} draggableCardVisible={userCardVisible} />}
     </div>
   );
 };

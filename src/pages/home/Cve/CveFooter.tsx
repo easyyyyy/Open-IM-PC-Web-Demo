@@ -1,18 +1,18 @@
-import { PlusCircleOutlined, SmileOutlined } from "@ant-design/icons";
-import { Dropdown, Input, Layout, Menu, message, Tooltip, Upload } from "antd";
+import { CloseCircleFilled, CloseCircleOutlined, CloseOutlined, PlusCircleOutlined, SmileOutlined } from "@ant-design/icons";
+import { Button, Dropdown, Input, Layout, Menu, message, Tooltip, Upload } from "antd";
 import { debounce, throttle } from "throttle-debounce";
 
 import send_id_card from "@/assets/images/send_id_card.png";
 import send_pic from "@/assets/images/send_pic.png";
 import send_video from "@/assets/images/send_video.png";
 import { FC, useEffect, useRef, useState } from "react";
-import { cosUpload, events, im } from "../../../utils";
-import { Cve } from "../../../@types/open_im";
+import { cosUpload, events, im, isSingleCve } from "../../../utils";
+import { Cve, Message } from "../../../@types/open_im";
 import { UploadRequestOption } from "rc-upload/lib/interface";
 import { RcFile } from "antd/lib/upload";
 import { PICMESSAGETHUMOPTION } from "../../../config";
 import { messageTypes } from "../../../constants/messageContentType";
-import { ISSETDRAFT } from "../../../constants/events";
+import { FORWARDANDMERMSG, ISSETDRAFT, MUTILMSG, MUTILMSGCHANGE, REPLAYMSG } from "../../../constants/events";
 
 const { Footer } = Layout;
 
@@ -25,14 +25,36 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   const inputRef = useRef<any>(null);
   const timer = useRef<NodeJS.Timeout | null>(null);
   const [flag, setFlag] = useState(false);
+  const [replyMsg, setReplyMsg] = useState<Message>();
+  const [mutilSelect, setMutilSelect] = useState(false);
+  const [mutilMsg, setMutilMsg] = useState<Message[]>([]);
 
-  useEffect(()=>{
-    if(curCve.draftText!==''){
-      inputRef.current.state.value = curCve.draftText
-    }else{
-      inputRef.current.state.value = ''
+  useEffect(() => {
+    events.on(REPLAYMSG, replyHandler);
+    events.on(MUTILMSG, mutilHandler);
+
+    return () => {
+      events.off(REPLAYMSG, replyHandler);
+      events.off(MUTILMSG, mutilHandler);
+    };
+  }, []);
+
+  useEffect(() => {
+    events.on(MUTILMSGCHANGE, mutilMsgChangeHandler);
+    return () => {
+      events.off(MUTILMSGCHANGE, mutilMsgChangeHandler);
+    };
+  }, [mutilMsg]);
+
+  useEffect(() => {
+    if (!inputRef.current) return;
+
+    if (curCve.draftText !== "") {
+      inputRef.current.state.value = curCve.draftText;
+    } else {
+      inputRef.current.state.value = "";
     }
-  },[curCve])
+  }, [curCve]);
 
   useEffect(() => {
     events.on(ISSETDRAFT, setDraft);
@@ -41,14 +63,32 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     };
   }, []);
 
+  const mutilHandler = (flag: boolean) => {
+    setMutilSelect(flag);
+  };
+
+  const mutilMsgChangeHandler = (checked: boolean, msg: Message) => {
+    let tms = [...mutilMsg];
+    if (checked) {
+      tms = [...tms, msg];
+    } else {
+      const idx = tms.findIndex((t) => t.clientMsgID === msg.clientMsgID);
+      tms.splice(idx, 1);
+    }
+    console.log(tms);
+    setMutilMsg(tms);
+  };
+
+  const replyHandler = (msg: Message) => {
+    setReplyMsg(msg);
+  };
+
   const setDraft = (cve: Cve) => {
-    if (inputRef.current.state.value || (cve.draftText !== "" && !inputRef.current.state.value)) {
-      console.log(inputRef);
-      
-      im.setConversationDraft({ conversationID: cve.conversationID, draftText: inputRef.current.state.value??"" })
+    if ((inputRef.current && inputRef.current.state.value) || (cve.draftText !== "" && !inputRef.current.state.value)) {
+      im.setConversationDraft({ conversationID: cve.conversationID, draftText: inputRef.current.state.value ?? "" })
         .then((res) => {})
         .catch((err) => {})
-        .finally(()=>inputRef.current.state.value="")
+        .finally(() => (inputRef.current.state.value = ""));
     }
   };
 
@@ -63,18 +103,6 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     });
   };
 
-  const getFileFromBase64 = (base64URL: string, filename: string) => {
-    var arr = base64URL.split(","),
-      mime = arr[0].match(/:(.*?);/)![1],
-      bstr = atob(arr[1]),
-      n = bstr.length,
-      u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], filename, { type: "image/png" });
-  };
-
   const getVideoInfo = (file: RcFile): Promise<number> => {
     return new Promise((resolve, reject) => {
       const Url = URL.createObjectURL(file);
@@ -85,32 +113,30 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     });
   };
 
-  // const getVideoInfo = (file: RcFile): Promise<Array<any>> => {
-  //   return new Promise((resolve, reject) => {
-  //     const Url = URL.createObjectURL(file);
-  //     const vel = document.createElement("video");
-  //     vel.style.display = "none";
-  //     vel.src = Url;
-  //     vel.onloadedmetadata = function (e) {
-  //       const canvas = document.createElement("canvas");
-  //       canvas.width = vel.videoWidth * 0.8;
-  //       canvas.height = vel.videoHeight * 0.8;
-  //       canvas
-  //         .getContext("2d")
-  //         ?.drawImage(vel, 0, 0, canvas.width, canvas.height);
-  //       const imgfile = getFileFromBase64(
-  //         canvas.toDataURL("image/png"),
-  //         file.uid + ".png"
-  //       );
-  //       thumUpload(imgfile)
-  //         .then((res) => {
-  //           console.log(res);
-  //           resolve([vel.duration, res.url]);
-  //         })
-  //         .catch((err) => console.log(err));
-  //     };
-  //   });
-  // };
+  const parseMsg = (msg: Message) => {
+    switch (msg.contentType) {
+      case messageTypes.TEXTMESSAGE:
+        return msg.content;
+      case messageTypes.ATTEXTMESSAGE:
+        return `${msg.senderNickName + " " + msg.atElem.text}`;
+      case messageTypes.PICTUREMESSAGE:
+        return "[图片消息]";
+      case messageTypes.VIDEOMESSAGE:
+        return "[视频消息]";
+      case messageTypes.VOICEMESSAGE:
+        return "[语音消息]";
+      case messageTypes.LOCATIONMESSAGE:
+        return "[位置消息]";
+      case messageTypes.MERGERMESSAGE:
+        return "[合并转发消息]";
+      case messageTypes.FILEMESSAGE:
+        return "[文件消息]";
+      case messageTypes.QUOTEMESSAGE:
+        return "[引用消息]";
+      default:
+        break;
+    }
+  };
 
   const sendCosMsg = async (uploadData: UploadRequestOption, type: string) => {
     console.log(uploadData);
@@ -174,6 +200,13 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     sendMsg(data, messageTypes.VIDEOMESSAGE);
   };
 
+  const quoteMsg = async () => {
+    const { data } = await im.createQuoteMessage({ text: inputRef.current.state.value, message: JSON.stringify(replyMsg) });
+    sendMsg(data, messageTypes.QUOTEMESSAGE);
+    inputRef.current.state.value = "";
+    setFlag(false);
+  };
+
   const menus = [
     {
       title: "发送名片",
@@ -234,12 +267,23 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     </>
   );
 
+  const prefix = () => (
+    <div className="reply">
+      <CloseCircleFilled onClick={() => setReplyMsg(undefined)} />
+      <div className="reply_text">
+        回复 <span>{replyMsg?.senderNickName}:</span> {parseMsg(replyMsg!)}
+      </div>
+    </div>
+  );
+
   const switchMessage = (type: string) => {
     switch (type) {
       case "text":
         sendTextMsg();
         break;
-
+      case "quote":
+        quoteMsg();
+        break;
       default:
         break;
     }
@@ -248,7 +292,8 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   const sendTextMsg = async () => {
     const { data } = await im.createTextMessage(inputRef.current.state.value);
     sendMsg(data, messageTypes.TEXTMESSAGE);
-    inputRef.current.state.value = ""
+    inputRef.current.state.value = "";
+    setReplyMsg(undefined)
     setFlag(false);
   };
 
@@ -271,24 +316,62 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     if (e.key === "Enter" && inputRef.current.state.value) {
       if (flag) return;
       setFlag(true);
-      switchMessage("text");
+      switchMessage(replyMsg?"quote":"text");
     }
   };
 
   // const keyDownDebounce = debounce(150,keyDown)
 
+  const cancelMutil = () => {
+    setMutilMsg([]);
+    events.emit(MUTILMSG, false);
+  };
+
+  const selectRec = async () => {
+    if (mutilMsg.length === 0) return;
+
+    let tmm: string[] = [];
+    mutilMsg.map((m) => {
+      const obj = {
+        name: m.senderNickName,
+        content: parseMsg(m),
+      };
+      tmm.push(JSON.stringify(obj));
+    });
+    const options = {
+      messageList: [...mutilMsg],
+      title: isSingleCve(curCve) ? `与${curCve.showName}的聊天记录` : `群聊${curCve.showName}的聊天记录`,
+      summaryList: tmm,
+    };
+
+    events.emit(FORWARDANDMERMSG, "merge", JSON.stringify(options));
+  };
+
   return (
     <Footer className="chat_footer">
-      <Input
-        ref={inputRef}
-        // value={inputRef?.current.value}
-        onKeyDown={keyDown}
-        onChange={(e) => {
-          typing();
-        }}
-        placeholder={`发送给 ${curCve.showName}`}
-        suffix={suffix}
-      />
+      {mutilSelect ? (
+        <div className="footer_mutil">
+          <CloseOutlined onClick={cancelMutil} />
+          <Button onClick={selectRec} type="primary" shape="round">
+            合并转发
+          </Button>
+        </div>
+      ) : (
+        <Input
+          style={{
+            paddingTop: replyMsg ? "32px" : "4px",
+          }}
+          prefix={replyMsg ? prefix() : null}
+          ref={inputRef}
+          // value={inputRef?.current.value}
+          onKeyDown={keyDown}
+          onChange={(e) => {
+            typing();
+          }}
+          placeholder={`发送给 ${curCve.showName}`}
+          suffix={suffix}
+        />
+      )}
     </Footer>
   );
 };

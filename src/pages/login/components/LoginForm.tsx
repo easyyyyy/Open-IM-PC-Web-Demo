@@ -16,7 +16,7 @@ import { Itype } from "../../../@types/open_im";
 import Codebox from "@/components/CodeBox";
 import { UploadRequestOption } from "rc-upload/lib/interface";
 import { useInterval, useToggle } from "ahooks";
-import { findEmptyValue } from "../../../utils/objUtl";
+import { findEmptyValue } from "../../../utils/common";
 import { cosUpload } from "../../../utils";
 import { MyAvatar } from "../../../components/MyAvatar";
 

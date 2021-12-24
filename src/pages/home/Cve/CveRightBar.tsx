@@ -152,6 +152,7 @@ const CveRightBar: FC<CveRightBarProps> = ({
           visible={visibleDrawer}
           curCve={curCve}
           groupMembers={groupMembers}
+          friendInfo={friendInfo}
           onClose={onClose}
           openCard={openCard}
         />

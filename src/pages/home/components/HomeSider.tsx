@@ -1,12 +1,12 @@
 import { UserAddOutlined, MessageOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import { Layout, Modal, Input, Button, message } from "antd";
 import { cloneElement, FC, forwardRef, useEffect, useRef, useState } from "react";
-import { GroupItem, GroupMember } from "../../../@types/open_im";
+import { GroupItem, GroupMember, Message } from "../../../@types/open_im";
 import { SearchBar } from "../../../components/SearchBar";
-import { OPENGROUPMODAL, TOASSIGNCVE } from "../../../constants/events";
+import { FORWARDANDMERMSG, OPENGROUPMODAL, TOASSIGNCVE } from "../../../constants/events";
 import { events, im } from "../../../utils";
 import GroupCard from "./GroupCard";
-import GroupOpModal from "./GroupOpModal";
+import GroupOpModal, { ModalType } from "./GroupOpModal";
 import UserCard from "./UserCard";
 
 const { Sider } = Layout;
@@ -50,29 +50,35 @@ type GroupInfoType = {
   gid: string;
 };
 
-export type ModalType = "create" | "invite" | "remove";
-
 const HomeSider: FC<HomeSiderProps> = ({ children }) => {
   const [isAddConsVisible, setIsAddConsVisible] = useState(false);
   const [userCardVisible, setUserCardVisible] = useState(false);
   const [groupCardVisible, setGroupCardVisible] = useState(false);
   const [groupOpModalVisible, setGroupOpModalVisible] = useState(false);
+  const [forwardMsg,setForwardMsg] = useState('')
   const [addConNo, setAddConNo] = useState("");
   const [loading, setLoading] = useState(false);
   const [serchRes, setSerchRes] = useState({});
   const [addType, setAddType] = useState<"friend" | "group">("friend");
   const [modalType, setModalType] = useState<ModalType>("create");
   const [groupInfo, setGroupInfo] = useState<GroupInfoType>();
-  const compRef = useRef(null);
 
   useEffect(() => {
     events.on(TOASSIGNCVE, assignHandler);
     events.on(OPENGROUPMODAL, openModalHandler);
+    events.on(FORWARDANDMERMSG,forwardMsgHandler)
     return () => {
       events.off(TOASSIGNCVE, assignHandler);
       events.off(OPENGROUPMODAL, openModalHandler);
+      events.off(FORWARDANDMERMSG,forwardMsgHandler)
     };
   }, []);
+
+  const forwardMsgHandler = (type:string,options:string) => {
+    setModal("forward")
+    setForwardMsg(options);
+    setGroupOpModalVisible(true)
+  }
 
   const assignHandler = () => {
     setUserCardVisible(false);
@@ -195,7 +201,7 @@ const HomeSider: FC<HomeSiderProps> = ({ children }) => {
       {isAddConsVisible && <AddConModal isAddConsVisible={isAddConsVisible} loading={loading} searchCons={searchCons} cancleSearch={cancleSearch} getNo={getNo} type={addType} />}
       {userCardVisible && <UserCard close={closeDragCard} info={serchRes} draggableCardVisible={userCardVisible} />}
       {groupCardVisible && <GroupCard close={closeDragCard} info={serchRes as GroupItem} draggableCardVisible={groupCardVisible} />}
-      {groupOpModalVisible && <GroupOpModal groupId={groupInfo?.gid} groupMembers={groupInfo?.members} modalType={modalType} visible={groupOpModalVisible} close={closeOpModal} />}
+      {groupOpModalVisible && <GroupOpModal options={forwardMsg} groupId={groupInfo?.gid} groupMembers={groupInfo?.members} modalType={modalType} visible={groupOpModalVisible} close={closeOpModal} />}
     </Sider>
   );
 };

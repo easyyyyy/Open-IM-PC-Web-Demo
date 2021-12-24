@@ -2,7 +2,7 @@ import { message } from "antd";
 import styles from "./login.module.less";
 import login_bg from "@/assets/images/login_bg.png";
 import LoginForm, { FormField, InfoField } from "./components/LoginForm";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Itype } from "../../@types/open_im";
 import { useHistoryTravel } from "ahooks";
 import { useNavigate } from "react-router";
@@ -13,7 +13,7 @@ import {
   sendSms,
   verifyCode,
 } from "../../api/login";
-import { im } from "../../utils";
+import { getUserIP, im, inElectron } from "../../utils";
 import { InitConfig } from "open-im-sdk/im";
 import { IMURL } from "../../config";
 import { useDispatch } from "react-redux";
@@ -28,6 +28,7 @@ import {
   getUnReadCount,
 } from "../../store/actions/contacts";
 
+
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -39,6 +40,7 @@ const Login = () => {
     setValue: setType,
     back,
   } = useHistoryTravel<Itype>("login");
+
 
   const finish = (values?: FormField | string | InfoField) => {
     switch (type) {
@@ -129,17 +131,29 @@ const Login = () => {
       });
   };
 
-  const imLogin = (uid: string, token: string) => {
+  const imLogin = async (uid: string, token: string) => {
     // navigate('/')
     localStorage.setItem(`${uid}improfile`, token);
     localStorage.setItem(`curimuid`, uid);
     //pc
     localStorage.setItem(`lastimuid`, uid);
+
+    let url = IMURL;
+    let platformID = 5;
+    if(inElectron()){
+      const ip = await getUserIP()
+      url = `ws://${ip}:7788`
+      // if(window.process.platform==="darwin"){
+      //   platformID = 4
+      // }else if(window.process.platform==="win32"){
+      //   platformID = 3
+      // }
+    }
     const config: InitConfig = {
       uid,
       token,
-      url: IMURL,
-      platformID: 5,
+      url,
+      platformID
     };
     im.login(config)
       .then((res) => {

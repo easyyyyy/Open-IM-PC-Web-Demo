@@ -7,8 +7,8 @@ import {
   Typography,
 } from "antd";
 import { FC, useEffect, useState } from "react";
-import { Cve, GroupItem, GroupMember } from "../../../@types/open_im";
-import { OPENGROUPMODAL, RESETCVE, UPDATEPIN } from "../../../constants/events";
+import { Cve, FriendItem, GroupItem, GroupMember } from "../../../@types/open_im";
+import { OPENGROUPMODAL, RESETCVE } from "../../../constants/events";
 import { events, im, isSingleCve } from "../../../utils";
 import SingleDrawer from "./components/SingleDrawer";
 import GroupDrawer from "./components/GroupDrawer";
@@ -23,6 +23,7 @@ type CveRightDrawerProps = {
   curCve: Cve;
   visible: boolean;
   groupMembers: GroupMember[];
+  friendInfo?:FriendItem;
   onClose: () => void;
   openCard: () => void;
 };
@@ -43,6 +44,7 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
   curCve,
   visible,
   groupMembers,
+  friendInfo,
   onClose,
   openCard,
 }) => {
@@ -102,7 +104,7 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
     im.pinConversation(options)
       .then((res) => {
         message.success(curCve.isPinned === 0 ? "置顶成功!" : "取消置顶成功!");
-        events.emit(UPDATEPIN, curCve.isPinned === 0 ? 1 : 0);
+        curCve.isPinned = curCve.isPinned === 0 ? 1 : 0
       })
       .catch((err) => {});
   };
@@ -162,6 +164,7 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
         return (
           <SingleDrawer
             curCve={curCve}
+            info={friendInfo!}
             openCard={openCard}
             updatePin={updatePin}
             delFriend={delFriend}

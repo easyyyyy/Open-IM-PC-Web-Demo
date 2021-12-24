@@ -92,10 +92,117 @@ export type FileMsgParams = {
 };
 
 export type MergerMsgParams = {
-  messageList: string[];
+  messageList: Message[];
   title: string;
   summaryList: string[];
 };
+
+export type Message = {
+  clientMsgID:    string;
+  serverMsgID:    string;
+  createTime:     number;
+  sendTime:       number;
+  sessionType:    number;
+  sendID:         string;
+  recvID:         string;
+  msgFrom:        number;
+  contentType:    number;
+  platformID:     number;
+  forceList:      string | null;
+  senderNickName: string;
+  senderFaceUrl:  string;
+  groupID:        string;
+  content:        string;
+  seq:            number;
+  isRead:         boolean;
+  status:         number;
+  remark:         string;
+  pictureElem:    PictureElem;
+  soundElem:      SoundElem;
+  videoElem:      VideoElem;
+  fileElem:       FileElem;
+  mergeElem:      MergeElem;
+  atElem:         AtElem;
+  locationElem:   LocationElem;
+  customElem:     CustomElem;
+  quoteElem:      QuoteElem;
+}
+
+export type AtElem = {
+  text:       string;
+  atUserList: string[]|null;
+  isAtSelf:   boolean;
+}
+
+export type CustomElem = {
+  data:        string;
+  description: string;
+  extension:   string;
+}
+
+export type FileElem = {
+  filePath:  string;
+  uuid:      string;
+  sourceUrl: string;
+  fileName:  string;
+  fileSize:  number;
+}
+
+export type LocationElem = {
+  description: string;
+  longitude:   number;
+  latitude:    number;
+}
+
+export type MergeElem = {
+  title:        string;
+  abstractList: string[]|null;
+  multiMessage: Message[];
+}
+
+export type PictureElem = {
+  sourcePath:      string;
+  sourcePicture:   Picture;
+  bigPicture:      Picture;
+  snapshotPicture: Picture;
+}
+
+export type Picture = {
+  uuid:   string;
+  type:   string;
+  size:   number;
+  width:  number;
+  height: number;
+  url:    string;
+}
+
+export type QuoteElem = {
+  quoteMessage: Message;
+  text: string;
+}
+
+export type SoundElem = {
+  uuid:      string;
+  soundPath: string;
+  sourceUrl: string;
+  dataSize:  number;
+  duration:  number;
+}
+
+export type VideoElem = {
+  videoPath:      string;
+  videoUUID:      string;
+  videoUrl:       string;
+  videoType:      string;
+  videoSize:      number;
+  duration:       number;
+  snapshotPath:   string;
+  snapshotUUID:   string;
+  snapshotSize:   number;
+  snapshotUrl:    string;
+  snapshotWidth:  number;
+  snapshotHeight: number;
+}
 
 export type LocationMsgParams = {
   description: string;
@@ -125,7 +232,7 @@ export type GetHistoryMsgParams = {
   userID: string;
   groupID: string;
   count: number;
-  startMsg: any;
+  startMsg: Message | null;
 };
 
 export type InsertSingleMsgParams = {

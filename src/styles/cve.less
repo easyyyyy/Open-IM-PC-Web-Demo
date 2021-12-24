@@ -96,14 +96,11 @@
         max-width: 80%;
         position: relative;
         &_text {
-          // margin-top: 24px;
           padding: 10px 8px;
-          // padding-bottom: 16px;
           border-radius: 4px;
+          // font-size: 13px;
           background-color: #f2f2f2;
           word-break: break-all;
-          // user-select: text;
-          // min-width: 52px;
           span {
             color: #428be5;
           }
@@ -125,6 +122,41 @@
         // &_video{
         //   margin-top: 24px;
         // }
+        &_qute{
+          display: flex;
+          flex-direction: column;
+          padding: 10px 14px;
+          .qute_content{
+            padding-left: 8px;
+            margin-bottom: 12px;
+            border-left: 1px solid #D4DBE0;
+            color: #999999;
+            font-size: 13px;
+            .content{
+              display: -webkit-box;
+              -webkit-box-orient: vertical;
+              -webkit-line-clamp: 2;
+              overflow: hidden;
+              word-break: break-all;
+            }
+          }
+        }
+        &_mer{
+          display: flex;
+          flex-direction: column;
+          padding-left: 12px;
+          font-size: 13px;
+          padding: 10px 14px;
+          // padding-right: 48px;
+          .title{
+            border-bottom: 2px solid #428BE5;
+            margin-bottom: 4px;
+          }
+          .item{
+            font-size: 12px;
+            color: #999;
+          }
+        }
         .ant-image-img {
           border-radius: 4px;
         }
@@ -155,6 +187,9 @@
           border-radius: 4px;
         }
       }
+      &_check {
+        margin-top: 10px;
+      }
     }
     &_omsg {
       flex-direction: row-reverse;
@@ -166,6 +201,12 @@
         left: auto;
         right: 0;
         text-align: right
+      }
+      .chat_bg_msg_content_text{
+        background-color: #E7F4FD;
+      }
+      .chat_bg_msg_content_mer{
+        padding-right: 48px;
       }
     }
     &_tips {
@@ -354,9 +395,53 @@
   padding: 22px !important;
   .ant-input-affix-wrapper {
     border-radius: 6px;
+    // padding-top: 32px;
+    position: relative;
+    .ant-input-prefix{
+      line-height: 24px;
+      height: 24px;
+      font-size: 12px;
+      color: #999;
+      position: absolute;
+      top: 5px;
+      left: 11px;
+      right: 11px;
+      background-color: #F5F5F5;
+      padding: 0px 4px;
+      border-radius: 4px;
+      .reply{
+        display: flex;
+        align-items: center;
+        width: 100%;
+        .reply_text{
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          word-break: break-all;
+          overflow: hidden;
+        }
+        .anticon{
+          color: #ddd;
+          font-size: 12px;
+          margin-right: 4px;
+        }
+      }
+    }
     .anticon {
       font-size: 18px;
       color: #999;
+    }
+  }
+  .footer_mutil{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    .anticon{
+      position: absolute;
+      right: 0;
+      top: -12px;
+      color: #999;
+      cursor: pointer;
     }
   }
 }

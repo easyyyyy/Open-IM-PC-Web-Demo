@@ -3,7 +3,7 @@ import { Anchor, Avatar, Empty } from "antd";
 import { FC, useEffect, useState } from "react";
 import { FriendItem } from "../../@types/open_im";
 import { sessionType } from "../../constants/messageContentType";
-import { pySegSort } from "../../utils/objUtl";
+import { pySegSort } from "../../utils/common";
 import { MyAvatar } from "../MyAvatar";
 import styles from "./contact.module.less";
 
@@ -64,17 +64,22 @@ const ContactList: FC<ContactListProps> = ({ contactList,clickItem }) => {
     }
   }, [contactList]);
 
+  const clickAuthor = (id:string) => {
+    const el = document.getElementById(id);
+    el?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  }
+
   const ListView = () => (
     <>
       {cons?.map((con) => (
         <ConSection clickItem={clickItem} key={con.initial} section={con.initial} items={con.data} />
       ))}
       <div className={styles.right_index}>
-        <Anchor>
+        <div className={styles.right_con}>
           {sections.map((s, idx) => (
-            <Link key={idx} title={s} href={`#${s}`} />
+            <div onClick={()=>clickAuthor(s)} key={idx} title={s} id={`con${s}`}>{s}</div>
           ))}
-        </Anchor>
+        </div>
       </div>
     </>
   );

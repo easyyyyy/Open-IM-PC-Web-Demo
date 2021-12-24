@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, HashRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import Mylayout from "../layout/MyLayout";
 import Login from "../pages/login/Login";
 import Home from "../pages/home/Cve/home";
@@ -7,7 +7,7 @@ import Profile from "../pages/home/Profile/Profile";
 import { useEffect, useState } from "react";
 import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { RootState } from "../store";
-import { im } from "../utils";
+import { getUserIP, im, inElectron } from "../utils";
 import { IMURL } from "../config";
 import { message, Modal, Spin } from "antd";
 import { getCveList, setCveList } from "../store/actions/cve";
@@ -130,13 +130,25 @@ const Auth = () => {
       dispatch(getGroupApplicationList());
     });
   }, []);
+  //@ts-ignore
 
-  const imLogin = () => {
+  const imLogin = async () => {
+    let url = IMURL;
+    let platformID = 5;
+    if(inElectron()){
+      const ip = await getUserIP()
+      url = `ws://${ip}:7788`
+      // if(window.process.platform==="darwin"){
+      //   platformID = 4
+      // }else if(window.process.platform==="win32"){
+      //   platformID = 3
+      // }
+    }
     const config = {
       uid,
       token,
-      url: IMURL,
-      platformID: 5,
+      url,
+      platformID
     };
     im.login(config)
       .then((res) => {
@@ -234,7 +246,7 @@ const MyRoute = () => {
   };
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<Auth />}>
           <Route index element={<Home />} />
@@ -244,7 +256,7 @@ const MyRoute = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/test" element={<Test />}></Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 

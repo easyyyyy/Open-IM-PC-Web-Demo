@@ -112,7 +112,7 @@ export type LocationElem = {
 export type MergeElem = {
     title:        string;
     abstractList: string[]|null;
-    multiMessage: string[]|null;
+    multiMessage: Message[];
 }
 
 export type PictureElem = {
@@ -132,7 +132,8 @@ export type Picture = {
 }
 
 export type QuoteElem = {
-    quoteMessage: string[];
+    quoteMessage: Message;
+    text: string;
 }
 
 export type SoundElem = {

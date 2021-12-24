@@ -25,3 +25,28 @@
     }
   }
 }
+
+.cve_item_menu{
+  .ant-popover-content {
+    .ant-popover-arrow {
+      display: none;
+    }
+    .ant-popover-inner {
+      border-radius: 8px;
+      &-content {
+        padding: 4px 0;
+        .item {
+          padding: 6px 12px ;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 13px;
+          display: flex;
+          align-items: center;
+          &:hover {
+            background-color: #eaeaea;
+          }
+        }
+      }
+    }
+  }
+}

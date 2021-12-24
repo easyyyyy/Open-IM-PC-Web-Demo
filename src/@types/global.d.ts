@@ -1,5 +1,8 @@
-import type { API, APIKey } from './api';
-
 declare global {
-  interface Window extends Record<APIKey, API> {}
+	interface Window {
+	  require: (module: 'electron') => {
+		ipcRenderer: IpcRenderer
+	  };
+		// electron:any
+	}
 }
