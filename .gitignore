@@ -25,3 +25,6 @@ yarn-error.log*
 
 # electron output
 /dist
+
+# db
+OpenIM_*

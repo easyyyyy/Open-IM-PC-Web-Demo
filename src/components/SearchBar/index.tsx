@@ -7,7 +7,8 @@ import { useState } from "react";
 import styles from "./index.module.less";
 
 export type SearchBarProps = {
-  menus:menuItem[]
+  menus:menuItem[];
+  searchCb:(value:string)=>void;
 }
 
 type menuItem = {
@@ -16,8 +17,8 @@ type menuItem = {
   method:(idx:number)=>void
 }
 
-export const SearchBar= ({menus}:SearchBarProps,ref:any) => {
-  const [searchContext,setSearchContext] = useState('')
+export const SearchBar= ({menus,searchCb}:SearchBarProps) => {
+  const [text,setText] = useState("")
 
   const addMenu = () => (
     <Menu className={styles.btn_menu}>
@@ -29,9 +30,16 @@ export const SearchBar= ({menus}:SearchBarProps,ref:any) => {
     </Menu>
   );
 
+  const onChanged = (v:string) => {
+    if(v===""){
+      searchCb("")
+    }
+    setText(v)
+  }
+
   return (
     <div className={styles.top_tools}>
-      <Input onChange={(v)=>setSearchContext(v.target.value)} placeholder="搜索" prefix={<SearchOutlined />} />
+      <Input allowClear onPressEnter={()=>searchCb(text)} onChange={(v)=>onChanged(v.target.value)} placeholder="搜索" prefix={<SearchOutlined />} />
       <Dropdown
         overlay={addMenu}
         placement="bottomCenter"

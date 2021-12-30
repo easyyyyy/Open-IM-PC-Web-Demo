@@ -11,5 +11,5 @@
     "outDir": "../build/electron",
     "typeRoots": ["node_modules/@types"]
   },
-  "include": ["./*.ts"]
+  "include": ["./*.ts", "preload/api.ts"]
 }

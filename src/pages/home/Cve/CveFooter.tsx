@@ -7,12 +7,13 @@ import send_pic from "@/assets/images/send_pic.png";
 import send_video from "@/assets/images/send_video.png";
 import { FC, useEffect, useRef, useState } from "react";
 import { cosUpload, events, im, isSingleCve } from "../../../utils";
-import { Cve, Message } from "../../../@types/open_im";
+import { Cve, FriendItem, Message } from "../../../@types/open_im";
 import { UploadRequestOption } from "rc-upload/lib/interface";
 import { RcFile } from "antd/lib/upload";
 import { PICMESSAGETHUMOPTION } from "../../../config";
 import { messageTypes } from "../../../constants/messageContentType";
 import { FORWARDANDMERMSG, ISSETDRAFT, MUTILMSG, MUTILMSGCHANGE, REPLAYMSG } from "../../../constants/events";
+import CardMsgModal from "./components/CardMsgModal";
 
 const { Footer } = Layout;
 
@@ -27,6 +28,7 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   const [flag, setFlag] = useState(false);
   const [replyMsg, setReplyMsg] = useState<Message>();
   const [mutilSelect, setMutilSelect] = useState(false);
+  const [crardSeVis,setCrardSeVis] = useState(false);
   const [mutilMsg, setMutilMsg] = useState<Message[]>([]);
 
   useEffect(() => {
@@ -152,6 +154,10 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
       .catch((err) => message.error("上传失败！"));
   };
 
+  const ChoseCard = () => {
+    setCrardSeVis(true)
+  }
+
   const imgMsg = async (file: RcFile, url: string) => {
     const { width, height } = await getPicInfo(file);
     const sourcePicture = {
@@ -211,7 +217,7 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     {
       title: "发送名片",
       icon: send_id_card,
-      method: () => {},
+      method: ChoseCard,
       type: "card",
     },
     {
@@ -329,6 +335,10 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
 
   const selectRec = async () => {
     if (mutilMsg.length === 0) return;
+    if(mutilMsg.length>1){
+      message.info("当前仅支持转发一条文字消息~")
+      return;
+    }
 
     let tmm: string[] = [];
     mutilMsg.map((m) => {
@@ -346,6 +356,15 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
 
     events.emit(FORWARDANDMERMSG, "merge", JSON.stringify(options));
   };
+
+  const close = () => {
+    setCrardSeVis(false)
+  }
+
+  const sendCardMsg = async (sf:FriendItem) => {
+    const { data } = await im.createCardMessage(JSON.stringify(sf))
+    sendMsg(data,messageTypes.CARDMESSAGE);
+  }
 
   return (
     <Footer className="chat_footer">
@@ -372,6 +391,9 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
           suffix={suffix}
         />
       )}
+      {
+        crardSeVis&&<CardMsgModal cb={sendCardMsg} visible={crardSeVis} close={close}/>
+      }
     </Footer>
   );
 };

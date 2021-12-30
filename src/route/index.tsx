@@ -7,7 +7,7 @@ import Profile from "../pages/home/Profile/Profile";
 import { useEffect, useState } from "react";
 import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { RootState } from "../store";
-import { getUserIP, im, inElectron } from "../utils";
+import { im } from "../utils";
 import { IMURL } from "../config";
 import { message, Modal, Spin } from "antd";
 import { getCveList, setCveList } from "../store/actions/cve";
@@ -135,8 +135,8 @@ const Auth = () => {
   const imLogin = async () => {
     let url = IMURL;
     let platformID = 5;
-    if(inElectron()){
-      const ip = await getUserIP()
+    if(window.electron){
+      const ip = await window.electron.getIP()
       url = `ws://${ip}:7788`
       // if(window.process.platform==="darwin"){
       //   platformID = 4
@@ -246,7 +246,7 @@ const MyRoute = () => {
   };
 
   return (
-    <HashRouter>
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<Auth />}>
           <Route index element={<Home />} />
@@ -256,7 +256,7 @@ const MyRoute = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/test" element={<Test />}></Route>
       </Routes>
-    </HashRouter>
+    </BrowserRouter>
   );
 };
 

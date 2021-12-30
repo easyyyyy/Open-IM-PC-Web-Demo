@@ -251,6 +251,7 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
         setType("set");
         onClose();
       }}
+      closable={type==="set"}
       visible={visible}
       getContainer={document.getElementById("chat_main")!}
     >

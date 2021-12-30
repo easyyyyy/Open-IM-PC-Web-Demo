@@ -135,8 +135,3 @@ export const getUserIP = (): Promise<string> => {
     }
   });
 };
-
-export const inElectron = ():boolean => {
-  //@ts-ignore
-  return window && window.process && window.process.versions && window.process.versions['electron']
-}

@@ -65,8 +65,15 @@
             }
           }
           .title {
-            font-style: 12px;
+            display: inline-block;
+            font-size: 12px;
             margin-left: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-all;
+            white-space: nowrap;
+            max-width: 120px;
+            transform: translateY(4px);
           }
         }
       }
@@ -163,6 +170,60 @@
     border-radius: 4px;
     .ant-modal-body{
       padding: 24px 0;
+    }
+  }
+}
+
+.card_cons_se{
+  .ant-modal-content{
+    border-radius: 4px;
+  }
+  .ant-modal-header{
+    border: none;
+    border-radius:4px 4px 0 0;
+  }
+  .ant-modal-body{
+    padding: 0;
+    padding-bottom: 4px;
+    .top_ctx{
+      padding: 0 24px;
+      .ant-input-affix-wrapper{
+        padding: 3px 6px;
+        border-radius: 4px;
+      }
+    }
+    .btm_ctx{
+      .title{
+        padding: 12px 24px;
+      }
+      .cons_list{
+        height: 40vh;
+        overflow-y: auto;
+        &_item{
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 24px;
+          &_left{
+            display: flex;
+            align-items: center;
+            .nick{
+              margin-left: 12px;
+              max-width: 160px;
+              white-space: nowrap;
+              word-break: break-all;
+              text-overflow: ellipsis;
+              overflow: hidden;
+            }
+          }
+          .ant-btn{
+            border-radius: 4px;
+          }
+          &:hover{
+            background-color: #F0F6FD;
+          }
+        }
+      }
     }
   }
 }

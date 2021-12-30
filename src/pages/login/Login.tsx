@@ -13,7 +13,7 @@ import {
   sendSms,
   verifyCode,
 } from "../../api/login";
-import { getUserIP, im, inElectron } from "../../utils";
+import { im } from "../../utils";
 import { InitConfig } from "open-im-sdk/im";
 import { IMURL } from "../../config";
 import { useDispatch } from "react-redux";
@@ -140,8 +140,8 @@ const Login = () => {
 
     let url = IMURL;
     let platformID = 5;
-    if(inElectron()){
-      const ip = await getUserIP()
+    if(window.electron){
+      const ip = await window.electron.getIP()
       url = `ws://${ip}:7788`
       // if(window.process.platform==="darwin"){
       //   platformID = 4

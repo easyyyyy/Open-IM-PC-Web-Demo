@@ -1,9 +1,9 @@
 import { UserAddOutlined, MessageOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import { Layout, Modal, Input, Button, message } from "antd";
 import { cloneElement, FC, forwardRef, useEffect, useRef, useState } from "react";
-import { GroupItem, GroupMember, Message } from "../../../@types/open_im";
+import { FriendItem, GroupItem, GroupMember, Message, UserInfo } from "../../../@types/open_im";
 import { SearchBar } from "../../../components/SearchBar";
-import { FORWARDANDMERMSG, OPENGROUPMODAL, TOASSIGNCVE } from "../../../constants/events";
+import { FORWARDANDMERMSG, OPENGROUPMODAL, OPENSINGLEMODAL, TOASSIGNCVE } from "../../../constants/events";
 import { events, im } from "../../../utils";
 import GroupCard from "./GroupCard";
 import GroupOpModal, { ModalType } from "./GroupOpModal";
@@ -43,14 +43,16 @@ const AddConModal: FC<AddConModalProps> = ({ isAddConsVisible, loading, searchCo
   </Modal>
 );
 
-type HomeSiderProps = {};
+type HomeSiderProps = {
+  searchCb:(value:string)=>void
+};
 
 type GroupInfoType = {
   members: GroupMember[];
   gid: string;
 };
 
-const HomeSider: FC<HomeSiderProps> = ({ children }) => {
+const HomeSider: FC<HomeSiderProps> = ({ children,searchCb }) => {
   const [isAddConsVisible, setIsAddConsVisible] = useState(false);
   const [userCardVisible, setUserCardVisible] = useState(false);
   const [groupCardVisible, setGroupCardVisible] = useState(false);
@@ -65,11 +67,13 @@ const HomeSider: FC<HomeSiderProps> = ({ children }) => {
 
   useEffect(() => {
     events.on(TOASSIGNCVE, assignHandler);
-    events.on(OPENGROUPMODAL, openModalHandler);
+    events.on(OPENSINGLEMODAL, openSingleModalHandler);
+    events.on(OPENGROUPMODAL, openGroupModalHandler);
     events.on(FORWARDANDMERMSG,forwardMsgHandler)
     return () => {
       events.off(TOASSIGNCVE, assignHandler);
-      events.off(OPENGROUPMODAL, openModalHandler);
+      events.off(OPENSINGLEMODAL, openSingleModalHandler);
+      events.off(OPENGROUPMODAL, openGroupModalHandler);
       events.off(FORWARDANDMERMSG,forwardMsgHandler)
     };
   }, []);
@@ -86,7 +90,12 @@ const HomeSider: FC<HomeSiderProps> = ({ children }) => {
     setIsAddConsVisible(false);
   };
 
-  const openModalHandler = (type: ModalType, members: GroupMember[], gid: string) => {
+  const openSingleModalHandler = (info:FriendItem|UserInfo) => {
+    setSerchRes(info);
+    setUserCardVisible(true);
+  }
+
+  const openGroupModalHandler = (type: ModalType, members: GroupMember[], gid: string) => {
     setGroupInfo({ members, gid });
     setModal(type);
   };
@@ -189,10 +198,12 @@ const HomeSider: FC<HomeSiderProps> = ({ children }) => {
     setGroupOpModalVisible(true);
   };
 
+  
+
   return (
     <Sider width="350" theme="light" className="home_sider" style={{ borderRight: "1px solid #DEDFE0" }}>
       <div style={{ padding: 0 }}>
-        <SearchBar menus={menus} />
+        <SearchBar searchCb={searchCb} menus={menus} />
         {
           //@ts-ignore
           cloneElement(children, { marginTop: 58 })

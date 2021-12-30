@@ -1,4 +1,4 @@
-import { inElectron, request } from "../utils";
+import { request } from "../utils";
 
 export const sendSms = (phoneNumber:string):Promise<unknown> => request.post('/auth/code',JSON.stringify({phoneNumber}))
 
@@ -8,7 +8,7 @@ export const register = (phoneNumber:string,verificationCode:string,password:str
 
 export const login = (phoneNumber:string,password:string) => {
     let platform = 5
-    // if(inElectron()){
+    // if(window.electron){
     //     if(window.process.platform==="darwin"){
     //       platform = 4
     //     }else if(window.process.platform==="win32"){

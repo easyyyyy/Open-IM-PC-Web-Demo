@@ -1,14 +1,12 @@
 import { FC, useEffect, useState } from "react";
 import { useSelector, shallowEqual } from "react-redux";
-import { Cve, MergeElem, Message, PictureElem, UserInfo } from "../../../@types/open_im";
+import { Cve, Message, PictureElem, UserInfo } from "../../../@types/open_im";
 import { tipsTypes } from "../../../constants/messageContentType";
 import { RootState } from "../../../store";
 import { events, im } from "../../../utils";
 import ScrollView from "../../../components/ScrollView";
-import UserCard from "../components/UserCard";
-import { MUTILMSG, UPDATEFRIENDCARD } from "../../../constants/events";
+import { MUTILMSG, OPENSINGLEMODAL, UPDATEFRIENDCARD } from "../../../constants/events";
 import MsgItem from "./components/MsgItem";
-import MerModal from "./components/MerModal";
 
 type ChatContentProps = {
   msgList: Message[];
@@ -77,27 +75,25 @@ const ChatContent: FC<ChatContentProps> = ({ merID,msgList, imgClick, loadMore, 
   };
 
   const nextFuc = () => {
-    console.log("nextFuc");
-    // change tab update bug
     loadMore(curCve?.userID, curCve?.groupID, msgList[msgList.length - 1]);
   };
 
   const clickItem = async (id: string) => {
     if (id === selfID) return;
+    let info;
     const idx = originFriendList.findIndex((f) => f.uid === id);
     if (idx > -1) {
       const { errCode, data } = await im.getFriendsInfo([id]);
       if (errCode === 0) {
-        setUserInfo(JSON.parse(data)[0]);
-        setUserCardVisible(true);
+        info = JSON.parse(data)[0]
       }
     } else {
       const { errCode, data } = await im.getUsersInfo([id]);
       if (errCode === 0) {
-        setUserInfo(JSON.parse(data)[0]);
-        setUserCardVisible(true);
+        info = JSON.parse(data)[0]
       }
     }
+    events.emit(OPENSINGLEMODAL,info);
   };
 
   const closeCard = () => {
@@ -119,7 +115,6 @@ const ChatContent: FC<ChatContentProps> = ({ merID,msgList, imgClick, loadMore, 
           }
         })}
       </ScrollView>
-      {userCardVisible && <UserCard close={closeCard} info={userInfo!} draggableCardVisible={userCardVisible} />}
     </div>
   );
 };

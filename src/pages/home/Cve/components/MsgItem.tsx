@@ -71,6 +71,10 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
     events.emit(MERMSGMODAL,el,sender)
   }
 
+  const timeTip = (className:string="chat_bg_msg_content_time") =>(<Tooltip overlayClassName="msg_time_tip" placement="bottom" title={parseTime(0)}>
+              <div className={className}>{parseTime(1)}</div>
+            </Tooltip>)
+
   const msgType = (msg: Message) => {
     switch (msg.contentType) {
       case messageTypes.TEXTMESSAGE:
@@ -79,9 +83,7 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
             <div ref={textRef} style={sty} className={`chat_bg_msg_content_text ${!isSingle ? "nick_magin" : ""}`}>
               {msg.content}
             </div>
-            <Tooltip overlayClassName="msg_time_tip" placement="bottom" title={parseTime(0)}>
-              <div className="chat_bg_msg_content_time">{parseTime(1)}</div>
-            </Tooltip>
+            {timeTip()}
           </div>
         );
       case messageTypes.ATTEXTMESSAGE:
@@ -94,9 +96,7 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
           <div style={sty} className={`chat_bg_msg_content_text ${!isSingle ? "nick_magin" : ""}`}>
             <span>{`@${atStr}`}</span>
             {text.slice(idx + lastone.length)}
-            <Tooltip overlayClassName="msg_time_tip" placement="bottom" title={parseTime(0)}>
-              <div className="chat_bg_msg_content_time">{parseTime(1)}</div>
-            </Tooltip>
+            {timeTip()}
           </div>
         );
       case messageTypes.PICTUREMESSAGE:
@@ -104,23 +104,20 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
           <div className={`chat_bg_msg_content_pic ${!isSingle ? "nick_magin" : ""}`}>
             <Image
               placeholder={true}
-              width={200}
+              // width={200}
+              height={200}
               src={msg.pictureElem.snapshotPicture.url ?? msg.pictureElem.sourcePicture.url}
               preview={{ visible: false }}
               onClick={() => imgClick(msg.pictureElem)}
             />
-            <Tooltip overlayClassName="msg_time_tip" placement="bottom" title={parseTime(0)}>
-              <div className="pic_msg_time">{parseTime(1)}</div>
-            </Tooltip>
+            {timeTip("pic_msg_time")}
           </div>
         );
       case messageTypes.VIDEOMESSAGE:
         return (
           <div className={`chat_bg_msg_content_video ${!isSingle ? "nick_magin" : ""}`}>
             <video controls width={200} src={msg.videoElem.videoUrl} />
-            <Tooltip overlayClassName="msg_time_tip" placement="bottom" title={parseTime(0)}>
-              <div className="pic_msg_time">{parseTime(1)}</div>
-            </Tooltip>
+            {timeTip("pic_msg_time")}
           </div>
         );
       case messageTypes.QUOTEMESSAGE:
@@ -131,9 +128,9 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
               <div className="content">{msg.quoteElem.quoteMessage.content}</div>
             </div>
             <div>{msg.quoteElem.text}</div>
-            <Tooltip overlayClassName="msg_time_tip" placement="bottom" title={parseTime(0)}>
-              <div className="chat_bg_msg_content_time">{parseTime(1)}</div>
-            </Tooltip>
+            {
+              timeTip()
+            }
           </div>
         );
       case messageTypes.MERGERMESSAGE:
@@ -146,12 +143,22 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
                 <div key={idx} className="item">{`${JSON.parse(m).name}: ${JSON.parse(m).content}`}</div>
               ))}
             </div>
-            <Tooltip overlayClassName="msg_time_tip" placement="bottom" title={parseTime(0)}>
-              <div className="chat_bg_msg_content_time">{parseTime(1)}</div>
-            </Tooltip>
+            {timeTip()}
           </div>
         );
-      default:
+      case messageTypes.CARDMESSAGE:
+        const ctx = JSON.parse(msg.content)
+        return (
+          <div onClick={()=>clickItem(ctx.uid)} style={sty} className={`chat_bg_msg_content_text chat_bg_msg_content_card ${!isSingle ? "nick_magin" : ""}`}>
+            <div className="title">名片</div>
+              <div className="desc">
+                <MyAvatar src={ctx.icon} size={32}/>
+                <div className="card_nick">{ctx.name}</div>
+              </div>
+              {timeTip()}
+          </div>
+        )
+        default:
         return <div className={`chat_bg_msg_content_text ${!isSingle ? "nick_magin" : ""}`}>[暂未支持的消息类型]</div>;
         // console.log(msg);
         break;

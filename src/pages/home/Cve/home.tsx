@@ -53,7 +53,9 @@ type ReactiveState = {
   hasMore: boolean;
   loading: boolean;
   merModal: boolean;
-  merData: MergeElem & {sender:string} | undefined;
+  merData: (MergeElem & { sender: string }) | undefined;
+  searchStatus: boolean;
+  searchCve: Cve[];
 };
 
 const Home = () => {
@@ -74,6 +76,8 @@ const Home = () => {
     loading: false,
     merModal: false,
     merData: undefined,
+    searchStatus: false,
+    searchCve: [],
   });
   const timer = useRef<NodeJS.Timeout | null>(null);
   const {
@@ -123,7 +127,7 @@ const Home = () => {
     events.on(DELETEMESSAGE, deleteMsg);
     events.on(REVOKEMSG, revokeMyMsgHandler);
     events.on(MERMSGMODAL, merModalHandler);
-    events.on(SENDFORWARDMSG,sendForwardHandler)
+    events.on(SENDFORWARDMSG, sendForwardHandler);
     return () => {
       events.off(UPDATEFRIENDCARD, updateCardHandler);
       events.off(TOASSIGNCVE, assignHandler);
@@ -131,7 +135,7 @@ const Home = () => {
       events.off(DELETEMESSAGE, deleteMsg);
       events.off(REVOKEMSG, revokeMyMsgHandler);
       events.off(MERMSGMODAL, merModalHandler);
-      events.off(SENDFORWARDMSG,sendForwardHandler)
+      events.off(SENDFORWARDMSG, sendForwardHandler);
     };
   }, []);
 
@@ -140,8 +144,8 @@ const Home = () => {
     getFriendInfo(id);
   };
 
-  const merModalHandler = (el: MergeElem,sender:string) => {
-    rs.merData = {...el,sender};
+  const merModalHandler = (el: MergeElem, sender: string) => {
+    rs.merData = { ...el, sender };
     rs.merModal = true;
   };
 
@@ -151,20 +155,19 @@ const Home = () => {
       .catch((err) => message.error("获取会话失败！"));
   };
 
-
-  const sendForwardHandler = (options:string| MergerMsgParams,type:messageTypes, list:SelectType[]) => {
-    list.map(async s => {
+  const sendForwardHandler = (options: string | MergerMsgParams, type: messageTypes, list: SelectType[]) => {
+    list.map(async (s) => {
       const uid = (s as FriendItem).uid;
       const gid = (s as GroupItem).groupID;
       let data;
-      if(type===messageTypes.MERGERMESSAGE){
-        data = await im.createMergerMessage(options as MergerMsgParams)
-      }else{
-        data = await im.createForwardMessage(options as string)
+      if (type === messageTypes.MERGERMESSAGE) {
+        data = await im.createMergerMessage(options as MergerMsgParams);
+      } else {
+        data = await im.createForwardMessage(options as string);
       }
-      sendMsg(data.data,type,uid,gid)
-    })
-  }
+      sendMsg(data.data, type, uid, gid);
+    });
+  };
 
   //  im hander
   const newMsgHandler = (data: WsResponse) => {
@@ -338,7 +341,6 @@ const Home = () => {
   };
 
   function handleMsg(res: WsResponse) {
-    
     if (JSON.parse(res.data).length === 0) {
       rs.hasMore = false;
       return;
@@ -393,22 +395,22 @@ const Home = () => {
     });
   };
 
-  const sendMsg = (nMsg: string, type: messageTypes, uid?:string, gid?:string) => {
+  const sendMsg = (nMsg: string, type: messageTypes, uid?: string, gid?: string) => {
     const operationID = uuid();
-    if((uid&&rs.curCve?.userID===uid)||(gid&&rs.curCve?.groupID===gid)||(!uid&&!gid)){
+    if ((uid && rs.curCve?.userID === uid) || (gid && rs.curCve?.groupID === gid) || (!uid && !gid)) {
       const tMsgMap = {
         oid: operationID,
         mid: JSON.parse(nMsg).clientMsgID,
         flag: false,
       };
       nMsgMaps = [...nMsgMaps, tMsgMap];
-  
+
       rs.historyMsgList = [JSON.parse(nMsg), ...rs.historyMsgList];
       scrollToBottom();
     }
     const sendOption = {
-      recvID: uid??rs.curCve!.userID,
-      groupID: gid??rs.curCve!.groupID,
+      recvID: uid ?? rs.curCve!.userID,
+      groupID: gid ?? rs.curCve!.groupID,
       onlineUserOnly: false,
       message: nMsg,
     };
@@ -449,10 +451,22 @@ const Home = () => {
     rs.merModal = false;
   };
 
+  const siderSearch = (value: string) => {
+    console.log(value);
+
+    if (value) {
+      rs.searchStatus = true;
+      rs.searchCve = cveList.filter((c) => c.conversationID.indexOf(value) > -1 || c.showName.indexOf(value) > -1);
+    } else {
+      rs.searchCve = [];
+      rs.searchStatus = false;
+    }
+  };
+
   return (
     <>
-      <HomeSider>
-        <CveList curCve={rs.curCve} loading={cveLoading} cveList={cveList} clickItem={clickItem} />
+      <HomeSider searchCb={siderSearch}>
+        <CveList curCve={rs.curCve} loading={cveLoading} cveList={rs.searchStatus ? rs.searchCve : cveList } clickItem={clickItem} />
       </HomeSider>
       <Layout>
         {rs.curCve && <HomeHeader typing={rs.typing} curCve={rs.curCve} type="chat" />}

@@ -115,6 +115,7 @@ const UserCard: FC<UserCardProps> = ({
     if (isFriend) {
       //TODO to cve
       events.emit(TOASSIGNCVE, info.uid, sessionType.SINGLECVE);
+      close()
     } else {
       setStep("send");
     }

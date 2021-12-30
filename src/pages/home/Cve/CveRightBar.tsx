@@ -1,8 +1,4 @@
-import {
-  Layout,
-  message,
-  Tooltip,
-} from "antd";
+import { Layout, message, Tooltip } from "antd";
 import right_file from "@/assets/images/right_file.png";
 import right_file_se from "@/assets/images/right_file_se.png";
 import right_search from "@/assets/images/right_search.png";
@@ -12,17 +8,9 @@ import right_setting_se from "@/assets/images/right_setting_se.png";
 import right_notice from "@/assets/images/right_notice.png";
 import right_notice_se from "@/assets/images/right_notice_se.png";
 import { FC, useEffect, useState } from "react";
-import {
-  Cve,
-  FriendItem,
-  GroupItem,
-  GroupMember,
-} from "../../../@types/open_im";
+import { Cve, FriendItem, GroupItem, GroupMember } from "../../../@types/open_im";
 import { events, im, isSingleCve } from "../../../utils";
-import UserCard from "../components/UserCard";
-import {
-  TOASSIGNCVE,
-} from "../../../constants/events";
+import { OPENSINGLEMODAL, TOASSIGNCVE } from "../../../constants/events";
 import CveRightDrawer from "./CveRightDrawer";
 
 const { Sider } = Layout;
@@ -33,13 +21,8 @@ type CveRightBarProps = {
   friendInfo?: FriendItem;
 };
 
-const CveRightBar: FC<CveRightBarProps> = ({
-  curCve,
-  groupMembers,
-  friendInfo,
-}) => {
+const CveRightBar: FC<CveRightBarProps> = ({ curCve, groupMembers, friendInfo }) => {
   const [visibleDrawer, setVisibleDrawer] = useState(false);
-  const [draggableCardVisible, setDraggableCardVisible] = useState(false);
   const [curTool, setCurTool] = useState(-1);
   const [groupInfo, setGroupInfo] = useState<GroupItem>();
   const [type, setType] = useState<"set" | "edit_group_info">("set");
@@ -62,22 +45,20 @@ const CveRightBar: FC<CveRightBarProps> = ({
   }, []);
 
   const assignHandler = () => {
-    setCurTool(-1);
-    setDraggableCardVisible(false);
-    setVisibleDrawer(false);
-  }
+    if (visibleDrawer) {
+      setCurTool(-1);
+      setVisibleDrawer(false);
+    }
+  };
 
   const openCard = () => {
-    setDraggableCardVisible(true);
+    // setDraggableCardVisible(true);
+    events.emit(OPENSINGLEMODAL, friendInfo);
   };
 
   const onClose = () => {
     setVisibleDrawer(false);
     setCurTool(-1);
-  };
-
-  const closeDragCard = () => {
-    setDraggableCardVisible(false);
   };
 
   const clickItem = (idx: number) => {
@@ -99,10 +80,7 @@ const CveRightBar: FC<CveRightBarProps> = ({
     if (tool.tip === "群公告") return null;
     return (
       <Tooltip key={tool.tip} placement="right" title={tool.tip}>
-        <div
-          className="right_bar_col_icon"
-          onClick={() => tool.method(tool.idx)}
-        >
+        <div className="right_bar_col_icon" onClick={() => tool.method(tool.idx)}>
           <img
             // width="20px"
             // height="20px"
@@ -147,23 +125,7 @@ const CveRightBar: FC<CveRightBarProps> = ({
   return (
     <Sider width="42" theme="light" className="right_bar">
       <div className="right_bar_col">{tools.map((t) => toolIcon(t))}</div>
-      {visibleDrawer && (
-        <CveRightDrawer
-          visible={visibleDrawer}
-          curCve={curCve}
-          groupMembers={groupMembers}
-          friendInfo={friendInfo}
-          onClose={onClose}
-          openCard={openCard}
-        />
-      )}
-      {draggableCardVisible && (
-        <UserCard
-          close={closeDragCard}
-          info={friendInfo!}
-          draggableCardVisible={draggableCardVisible}
-        />
-      )}
+      {visibleDrawer && <CveRightDrawer visible={visibleDrawer} curCve={curCve} groupMembers={groupMembers} friendInfo={friendInfo} onClose={onClose} openCard={openCard} />}
     </Sider>
   );
 };

@@ -77,7 +77,7 @@ const Contacts = () => {
 
   return (
     <>
-      <HomeSider>
+      <HomeSider searchCb={()=>{}}>
         <ContactMenuList
           curTab={menu.title}
           menusClick={clickMenuItem}

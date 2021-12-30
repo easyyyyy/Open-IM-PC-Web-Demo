@@ -49,6 +49,8 @@ const CveItem: FC<CveItemProps> = ({ cve, onClick, curCve, curUid,cveList }) => 
         return "[语音消息]";
       case messageTypes.LOCATIONMESSAGE:
         return "[位置消息]";
+      case messageTypes.CARDMESSAGE:
+        return "[名片信息]";
       case messageTypes.MERGERMESSAGE:
         return "[合并转发消息]";
       case messageTypes.FILEMESSAGE:
