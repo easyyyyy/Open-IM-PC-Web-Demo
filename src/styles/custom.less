@@ -1,4 +1,4 @@
-.drop_box {
+.msg_type_drop {
   .ant-dropdown-arrow {
     border-color: #353940 !important;
   }
@@ -17,6 +17,29 @@
     }
     .ant-dropdown-menu-item-active {
       background-color: #4f545d;
+    }
+  }
+}
+
+.face_type_drop{
+  .ant-dropdown-arrow{
+    display: none;
+  }
+  .face_container{
+    background-color: #fff;
+    border-radius: 4px;
+    padding: 8px;
+    display: flex;
+    width: 270px;
+    flex-wrap: wrap;
+    .face_item{
+      display: flex;
+      align-items: center;
+      border-radius: 2px;
+      padding: 6px;
+      &:hover{
+        background-color: #eaeaea;
+      }
     }
   }
 }

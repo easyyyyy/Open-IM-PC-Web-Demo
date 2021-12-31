@@ -4,7 +4,7 @@ import Login from "../pages/login/Login";
 import Home from "../pages/home/Cve/home";
 import Contacts from "../pages/home/Contact/contacts";
 import Profile from "../pages/home/Profile/Profile";
-import { useEffect, useState } from "react";
+import { FC, ReactNode, useEffect, useState } from "react";
 import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { RootState } from "../store";
 import { im } from "../utils";
@@ -23,13 +23,13 @@ const Auth = () => {
   const curuid = localStorage.getItem("curimuid")!;
   const uid = localStorage.getItem("lastimuid")!;
   const token = localStorage.getItem(`${curuid ?? uid}improfile`)!;
-  const [golbalLoading,setGolbalLoading] = useState(false)
+  const [golbalLoading, setGolbalLoading] = useState(false);
   const cves = useSelector((state: RootState) => state.cve.cves, shallowEqual);
 
   useEffect(() => {
     // if (!curuid && token && uid) {
     if (token && uid) {
-      setGolbalLoading(true)
+      setGolbalLoading(true);
       im.getLoginStatus()
         .then((res) => setGolbalLoading(false))
         .catch((err) => {
@@ -47,8 +47,8 @@ const Auth = () => {
       let tmpCves = cves;
       const changes: Cve[] = JSON.parse(data.data);
 
-      const chids = changes.map(ch => ch.conversationID)
-      tmpCves = tmpCves.filter(tc => !chids.includes(tc.conversationID))
+      const chids = changes.map((ch) => ch.conversationID);
+      tmpCves = tmpCves.filter((tc) => !chids.includes(tc.conversationID));
       tmpCves = [...changes, ...tmpCves];
       cveSort(tmpCves);
       dispatch(setCveList(tmpCves));
@@ -83,13 +83,13 @@ const Auth = () => {
       dispatch(getFriendList());
     });
 
-    im.on(CbEvents.ONBLACKLISTADD,()=>{
-      dispatch(getBlackList())
-    })
+    im.on(CbEvents.ONBLACKLISTADD, () => {
+      dispatch(getBlackList());
+    });
 
-    im.on(CbEvents.ONBLACKLISTDELETED,()=>{
-      dispatch(getBlackList())
-    })
+    im.on(CbEvents.ONBLACKLISTDELETED, () => {
+      dispatch(getBlackList());
+    });
 
     im.on(CbEvents.ONFRIENDAPPLICATIONLISTADDED, () => {
       dispatch(getFriendApplicationList());
@@ -135,9 +135,9 @@ const Auth = () => {
   const imLogin = async () => {
     let url = IMURL;
     let platformID = 5;
-    if(window.electron){
-      const ip = await window.electron.getIP()
-      url = `ws://${ip}:7788`
+    if (window.electron) {
+      const ip = await window.electron.getIP();
+      url = `ws://${ip}:7788`;
       // if(window.process.platform==="darwin"){
       //   platformID = 4
       // }else if(window.process.platform==="win32"){
@@ -148,7 +148,7 @@ const Auth = () => {
       uid,
       token,
       url,
-      platformID
+      platformID,
     };
     im.login(config)
       .then((res) => {
@@ -162,8 +162,8 @@ const Auth = () => {
           dispatch(getGroupList());
           dispatch(getGroupApplicationList());
           dispatch(getUnReadCount());
-          dispatch(getBlackList())
-          setGolbalLoading(false)
+          dispatch(getBlackList());
+          setGolbalLoading(false);
         }
       })
       .catch((err) => {
@@ -172,7 +172,7 @@ const Auth = () => {
   };
 
   const invalid = () => {
-    setGolbalLoading(false)
+    setGolbalLoading(false);
     message.warning("登录失效，请重新登录！");
     localStorage.removeItem(`${uid}improfile`);
     // localStorage.removeItem('lastimuid')
@@ -211,27 +211,29 @@ const Auth = () => {
 
   return (
     <>
-    {
-      token ? <Mylayout /> : <Navigate to="/login" />
-    }
-    <Modal
-    footer={null}
-    visible={golbalLoading}
-    closable={false}
-    centered
-    className="global_loading"
-    maskStyle={{
-      backgroundColor:"transparent"
-    }}
-    bodyStyle={{
-      padding:0,
-      textAlign:"center"
-    }}
-    >
-      <Spin tip="login..." size="large" />
-    </Modal>
+      {token ? <Mylayout /> : <Navigate to="/login" />}
+      <Modal
+        footer={null}
+        visible={golbalLoading}
+        closable={false}
+        centered
+        className="global_loading"
+        maskStyle={{
+          backgroundColor: "transparent",
+        }}
+        bodyStyle={{
+          padding: 0,
+          textAlign: "center",
+        }}
+      >
+        <Spin tip="login..." size="large" />
+      </Modal>
     </>
   );
+};
+
+const RouterWrapper = ({ children }: { children: ReactNode }) => {
+  return window.electron ? <HashRouter>{children}</HashRouter> : <BrowserRouter>{children}</BrowserRouter>;
 };
 
 const MyRoute = () => {
@@ -246,7 +248,7 @@ const MyRoute = () => {
   };
 
   return (
-    <BrowserRouter>
+    <RouterWrapper>
       <Routes>
         <Route path="/" element={<Auth />}>
           <Route index element={<Home />} />
@@ -256,7 +258,7 @@ const MyRoute = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/test" element={<Test />}></Route>
       </Routes>
-    </BrowserRouter>
+    </RouterWrapper>
   );
 };
 

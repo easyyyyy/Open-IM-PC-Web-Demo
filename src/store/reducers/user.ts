@@ -18,7 +18,7 @@ let initialState: UserState = {
   ): UserState => {
     switch (action.type) {
       case SET_SELF_INFO:
-        return { ...state, selfInfo: action.payload };
+        return { ...state, selfInfo: {...state.selfInfo,...action.payload} };
       case SET_SELF_TOKEN:
         return { ...state, selfToken: action.payload };
       case SET_SELF_INIT_LOADING:

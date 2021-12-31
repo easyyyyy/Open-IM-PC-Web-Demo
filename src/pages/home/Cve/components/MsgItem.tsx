@@ -16,6 +16,7 @@ import del_msg from "@/assets/images/del_msg.png";
 import cp_msg from "@/assets/images/cp_msg.png";
 import { DELETEMESSAGE, FORWARDANDMERMSG, MERMSGMODAL, MUTILMSG, MUTILMSGCHANGE, REPLAYMSG, REVOKEMSG } from "../../../../constants/events";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import { faceMap } from "../../../../constants/faceType";
 
 type MsgItemProps = {
   msg: Message;
@@ -44,7 +45,7 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
     } else {
       setIsSingle(false);
     }
-    if (textRef.current?.clientHeight! > 42) {
+    if (textRef.current?.clientHeight! > 60) {
       setSty({
         paddingBottom: "16px",
         paddingRight: "8px",
@@ -75,13 +76,25 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
               <div className={className}>{parseTime(1)}</div>
             </Tooltip>)
 
+  const parseEmojiFace = (mstr:string) => {
+    faceMap.map(f=>{
+      const idx = mstr.indexOf(f.context)
+      if(idx>-1){
+        mstr = mstr.replaceAll(f.context,`<img style="padding-right:2px" width="24px" src=${f.src} />`)
+      }
+    })
+    return mstr;
+  }
+
   const msgType = (msg: Message) => {
     switch (msg.contentType) {
       case messageTypes.TEXTMESSAGE:
+        let mstr = msg.content;
+        mstr = parseEmojiFace(mstr);
         return (
           <div>
             <div ref={textRef} style={sty} className={`chat_bg_msg_content_text ${!isSingle ? "nick_magin" : ""}`}>
-              {msg.content}
+              <div dangerouslySetInnerHTML={{__html:mstr}}></div>
             </div>
             {timeTip()}
           </div>
@@ -92,10 +105,12 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
         const lastone = msg.atElem.atUserList![msg.atElem.atUserList!.length - 1];
         msg.atElem.atUserList?.map((u) => (atStr += u + " "));
         const idx = msg.atElem.text.indexOf(lastone);
+        let atMsg = text.slice(idx + lastone.length)
+        atMsg = parseEmojiFace(atMsg);
         return (
           <div style={sty} className={`chat_bg_msg_content_text ${!isSingle ? "nick_magin" : ""}`}>
             <span>{`@${atStr}`}</span>
-            {text.slice(idx + lastone.length)}
+            <div style={{display:"inline-block"}} dangerouslySetInnerHTML={{__html:atMsg}}></div>
             {timeTip()}
           </div>
         );
@@ -121,13 +136,15 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
           </div>
         );
       case messageTypes.QUOTEMESSAGE:
+        let quoteMsg = msg.quoteElem.text;
+        quoteMsg = parseEmojiFace(quoteMsg);
         return (
           <div style={sty} className={`chat_bg_msg_content_text chat_bg_msg_content_qute ${!isSingle ? "nick_magin" : ""}`}>
             <div className="qute_content">
               <div>{`回复${msg.quoteElem.quoteMessage.senderNickName}:`}</div>
               <div className="content">{msg.quoteElem.quoteMessage.content}</div>
             </div>
-            <div>{msg.quoteElem.text}</div>
+            <div dangerouslySetInnerHTML={{__html:quoteMsg}}></div>
             {
               timeTip()
             }

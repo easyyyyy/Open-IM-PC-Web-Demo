@@ -1,10 +1,6 @@
 import { CloseCircleFilled, CloseCircleOutlined, CloseOutlined, PlusCircleOutlined, SmileOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Input, Layout, Menu, message, Tooltip, Upload } from "antd";
+import { Button, Dropdown, Image as AntdImage, Input, Layout, Menu, message, Tooltip, Upload } from "antd";
 import { debounce, throttle } from "throttle-debounce";
-
-import send_id_card from "@/assets/images/send_id_card.png";
-import send_pic from "@/assets/images/send_pic.png";
-import send_video from "@/assets/images/send_video.png";
 import { FC, useEffect, useRef, useState } from "react";
 import { cosUpload, events, im, isSingleCve } from "../../../utils";
 import { Cve, FriendItem, Message } from "../../../@types/open_im";
@@ -14,6 +10,11 @@ import { PICMESSAGETHUMOPTION } from "../../../config";
 import { messageTypes } from "../../../constants/messageContentType";
 import { FORWARDANDMERMSG, ISSETDRAFT, MUTILMSG, MUTILMSGCHANGE, REPLAYMSG } from "../../../constants/events";
 import CardMsgModal from "./components/CardMsgModal";
+import { faceMap } from "../../../constants/faceType";
+
+import send_id_card from "@/assets/images/send_id_card.png";
+import send_pic from "@/assets/images/send_pic.png";
+import send_video from "@/assets/images/send_video.png";
 
 const { Footer } = Layout;
 
@@ -28,8 +29,9 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   const [flag, setFlag] = useState(false);
   const [replyMsg, setReplyMsg] = useState<Message>();
   const [mutilSelect, setMutilSelect] = useState(false);
-  const [crardSeVis,setCrardSeVis] = useState(false);
+  const [crardSeVis, setCrardSeVis] = useState(false);
   const [mutilMsg, setMutilMsg] = useState<Message[]>([]);
+  const [faceUpdate,setFaceUpdate] = useState(false);
 
   useEffect(() => {
     events.on(REPLAYMSG, replyHandler);
@@ -155,8 +157,8 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   };
 
   const ChoseCard = () => {
-    setCrardSeVis(true)
-  }
+    setCrardSeVis(true);
+  };
 
   const imgMsg = async (file: RcFile, url: string) => {
     const { width, height } = await getPicInfo(file);
@@ -234,7 +236,7 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     },
   ];
 
-  const menu = (
+  const MsgType = () => (
     <Menu className="input_menu">
       {menus.map((m: any) => {
         if (m.type === "card") {
@@ -262,12 +264,30 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     </Menu>
   );
 
+  const faceClick = (face:typeof faceMap[0]) => {
+    inputRef.current.state.value += face.context
+    setFaceUpdate(v=>!v)
+  }
+
+  const FaceType = () => (
+    <div style={{boxShadow:"0px 4px 25px rgb(0 0 0 / 16%)"}} className="face_container">
+      {faceMap.map((face) => (
+        <div key={face.context} onClick={()=>faceClick(face)} className="face_item">
+          <AntdImage preview={false} width={24} src={face.src} />
+        </div>
+      ))}
+    </div>
+  );
+
   const suffix = (
     <>
-      <Tooltip title="表情">
+      <Dropdown overlayClassName="face_type_drop" overlay={FaceType} placement="topLeft" arrow>
+        {/* <Tooltip title="表情"> */}
         <SmileOutlined style={{ paddingRight: "8px" }} />
-      </Tooltip>
-      <Dropdown overlayClassName="drop_box" overlay={menu} placement="topCenter" arrow>
+        {/* </Tooltip> */}
+      </Dropdown>
+
+      <Dropdown overlayClassName="msg_type_drop" overlay={MsgType} placement="topCenter" arrow>
         <PlusCircleOutlined />
       </Dropdown>
     </>
@@ -299,7 +319,7 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     const { data } = await im.createTextMessage(inputRef.current.state.value);
     sendMsg(data, messageTypes.TEXTMESSAGE);
     inputRef.current.state.value = "";
-    setReplyMsg(undefined)
+    setReplyMsg(undefined);
     setFlag(false);
   };
 
@@ -322,7 +342,7 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     if (e.key === "Enter" && inputRef.current.state.value) {
       if (flag) return;
       setFlag(true);
-      switchMessage(replyMsg?"quote":"text");
+      switchMessage(replyMsg ? "quote" : "text");
     }
   };
 
@@ -335,8 +355,8 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
 
   const selectRec = async () => {
     if (mutilMsg.length === 0) return;
-    if(mutilMsg.length>1){
-      message.info("当前仅支持转发一条文字消息~")
+    if (mutilMsg.length > 1) {
+      message.info("当前仅支持转发一条文字消息~");
       return;
     }
 
@@ -358,13 +378,13 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   };
 
   const close = () => {
-    setCrardSeVis(false)
-  }
+    setCrardSeVis(false);
+  };
 
-  const sendCardMsg = async (sf:FriendItem) => {
-    const { data } = await im.createCardMessage(JSON.stringify(sf))
-    sendMsg(data,messageTypes.CARDMESSAGE);
-  }
+  const sendCardMsg = async (sf: FriendItem) => {
+    const { data } = await im.createCardMessage(JSON.stringify(sf));
+    sendMsg(data, messageTypes.CARDMESSAGE);
+  };
 
   return (
     <Footer className="chat_footer">
@@ -391,9 +411,7 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
           suffix={suffix}
         />
       )}
-      {
-        crardSeVis&&<CardMsgModal cb={sendCardMsg} visible={crardSeVis} close={close}/>
-      }
+      {crardSeVis && <CardMsgModal cb={sendCardMsg} visible={crardSeVis} close={close} />}
     </Footer>
   );
 };
