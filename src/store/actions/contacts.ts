@@ -1,6 +1,7 @@
 import { Dispatch } from "redux";
-import { FriendApplication, FriendItem, GroupApplication, GroupItem, UserInfo } from "../../@types/open_im";
+import { FriendApplication, FriendItem, GroupApplication, GroupItem, GroupMember, MemberMapType, UserInfo } from "../../@types/open_im";
 import { im } from "../../utils";
+import { GetGroupMemberParams } from "../../utils/src/im";
 import {
   ContactActionTypes,
   SET_BLACK_LIST,
@@ -8,6 +9,8 @@ import {
   SET_FRIEND_LIST,
   SET_GROUP_APPLICATION_LIST,
   SET_GROUP_LIST,
+  SET_GROUP_MEMBER_LIST,
+  SET_MEMBER2STATUS,
   SET_ORIGIN_LIST,
   SET_UNREAD_COUNT,
 } from "../types/contacts";
@@ -57,6 +60,20 @@ export const setGroupApplicationList = (value: GroupApplication[]): ContactActio
   };
 };
 
+export const setGroupMemberList = (value: GroupMember[]): ContactActionTypes => {
+  return {
+    type: SET_GROUP_MEMBER_LIST,
+    payload: value,
+  };
+};
+
+export const setMember2Status = (value: MemberMapType): ContactActionTypes => {
+  return {
+    type: SET_MEMBER2STATUS,
+    payload: value,
+  };
+};
+
 export const setUnReadCount = (value: number): ContactActionTypes => {
   return {
     type: SET_UNREAD_COUNT,
@@ -101,6 +118,14 @@ export const getGroupApplicationList = () => {
     im.getGroupApplicationList().then((res) =>
       dispatch(setGroupApplicationList(JSON.parse(res.data).user))
     );
+  };
+};
+
+export const getGroupMemberList = (options:GetGroupMemberParams) => {
+  return (dispatch: Dispatch) => {
+    im.getGroupMemberList(options).then((res) => {
+      dispatch(setGroupMemberList(JSON.parse(res.data).data))
+    });
   };
 };
 

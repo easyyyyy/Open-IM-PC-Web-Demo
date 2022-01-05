@@ -290,10 +290,10 @@ export type GetGroupMemberParams = {
 
 export type CreateGroupParams = {
   gInfo: Omit<GroupInfo, "groupId">;
-  memberList: member[];
+  memberList: Member[];
 };
 
-export type member = {
+export type Member = {
   uid: string;
   setRole: number;
 };
@@ -306,7 +306,7 @@ export type GroupInfo = {
   faceUrl: string;
 };
 
-export type joinGroupParams = {
+export type JoinGroupParams = {
   groupId: string;
   message: string;
 };
@@ -1194,7 +1194,7 @@ export default class OpenIMSDK extends Emitter {
     });
   };
 
-  joinGroup = (data: joinGroupParams, operationID?: string) => {
+  joinGroup = (data: JoinGroupParams, operationID?: string) => {
     return new Promise<WsResponse>((resolve, reject) => {
       const _uuid = operationID || uuid(this.uid as string);
       const args = {

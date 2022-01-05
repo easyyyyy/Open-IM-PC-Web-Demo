@@ -3,24 +3,31 @@ import { Button, Dropdown, Image as AntdImage, Input, Layout, Menu, message, Too
 import { debounce, throttle } from "throttle-debounce";
 import { FC, useEffect, useRef, useState } from "react";
 import { cosUpload, events, im, isSingleCve } from "../../../utils";
-import { Cve, FriendItem, Message } from "../../../@types/open_im";
+import { Cve, FriendItem, Message, StringMapType } from "../../../@types/open_im";
 import { UploadRequestOption } from "rc-upload/lib/interface";
 import { RcFile } from "antd/lib/upload";
 import { PICMESSAGETHUMOPTION } from "../../../config";
 import { messageTypes } from "../../../constants/messageContentType";
-import { FORWARDANDMERMSG, ISSETDRAFT, MUTILMSG, MUTILMSGCHANGE, REPLAYMSG } from "../../../constants/events";
+import { ATSTATEUPDATE, FORWARDANDMERMSG, ISSETDRAFT, MUTILMSG, MUTILMSGCHANGE, REPLAYMSG } from "../../../constants/events";
 import CardMsgModal from "./components/CardMsgModal";
 import { faceMap } from "../../../constants/faceType";
 
 import send_id_card from "@/assets/images/send_id_card.png";
 import send_pic from "@/assets/images/send_pic.png";
 import send_video from "@/assets/images/send_video.png";
+import { useSelector, shallowEqual } from "react-redux";
+import { RootState } from "../../../store";
 
 const { Footer } = Layout;
 
 type CveFooterProps = {
   sendMsg: (nMsg: string, type: messageTypes) => void;
   curCve: Cve;
+};
+
+type AtItem = {
+  id: string;
+  name: string;
 };
 
 const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
@@ -31,17 +38,32 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   const [mutilSelect, setMutilSelect] = useState(false);
   const [crardSeVis, setCrardSeVis] = useState(false);
   const [mutilMsg, setMutilMsg] = useState<Message[]>([]);
-  const [faceUpdate,setFaceUpdate] = useState(false);
+  const [foceUpdate, setFoceUpdate] = useState(false);
+  const [atList, setAtList] = useState<AtItem[]>([]);
+  const [uid2name, setUid2name] = useState<StringMapType>({});
+  const [face2str, setFace2str] = useState<StringMapType>({});
+  const groupMemberList = useSelector((state: RootState) => state.contacts.groupMemberList, shallowEqual);
 
   useEffect(() => {
+    window.addEventListener("paste", textInit);
+
     events.on(REPLAYMSG, replyHandler);
     events.on(MUTILMSG, mutilHandler);
-
     return () => {
+      window.removeEventListener("paste", textInit);
       events.off(REPLAYMSG, replyHandler);
       events.off(MUTILMSG, mutilHandler);
     };
   }, []);
+
+  useEffect(() => {
+    events.on(ATSTATEUPDATE, atHandler);
+    events.on(ISSETDRAFT, setDraft);
+    return () => {
+      events.off(ATSTATEUPDATE, atHandler);
+      events.off(ISSETDRAFT, setDraft);
+    };
+  }, [atList, uid2name, face2str]);
 
   useEffect(() => {
     events.on(MUTILMSGCHANGE, mutilMsgChangeHandler);
@@ -52,20 +74,96 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
 
   useEffect(() => {
     if (!inputRef.current) return;
+    if (atList.length > 0) {
+      setAtList([]);
+    }
 
     if (curCve.draftText !== "") {
-      inputRef.current.state.value = curCve.draftText;
+      parseDrft(curCve.draftText);
     } else {
-      inputRef.current.state.value = "";
+      inputRef.current.innerHTML = "";
     }
   }, [curCve]);
 
-  useEffect(() => {
-    events.on(ISSETDRAFT, setDraft);
-    return () => {
-      events.off(ISSETDRAFT, setDraft);
-    };
-  }, []);
+  const textInit = (e: any) => {
+    e.preventDefault();
+    let text;
+    const clp = (e.originalEvent || e).clipboardData;
+    if (clp === undefined || clp === null) {
+      text = "";
+    } else {
+      text = clp.getData("text/plain") || "";
+    }
+    // inputRef.current.innerHTML += text;
+    document.execCommand("insertText", false, text);
+    move2end();
+  };
+
+  const reParseEmojiFace = (text: string) => {
+    faceMap.map((f) => {
+      const idx = text.indexOf(f.context);
+      if (idx > -1) {
+        const faceStr = `<img alt="${f.context}" style="padding-right:2px" width="24px" src="${f.src}">`;
+        setFace2str({ ...face2str, [faceStr]: f.context });
+        text = text.replaceAll(f.context, faceStr);
+      }
+    });
+
+    return text;
+  };
+
+  const reParseAt = (text: string) => {
+    const pattern = /@\S+\s/g;
+    const arr = text.match(pattern);
+    console.log(arr);
+
+    arr?.map((uid) => {
+      const member = groupMemberList.find((gm) => gm.userId === uid.slice(1, -1));
+      if (member) {
+        text = text.replace(uid, `<b contenteditable="false" style="color:#428be5"> @${member.nickName}</b>&nbsp;`);
+
+        setAtList([...atList, { id: member.userId, name: member.nickName }]);
+        const hln = `<b contenteditable="false" style="color:#428be5"> @${member.nickName}</b>&nbsp;`;
+        setUid2name({ ...uid2name, [hln]: member.userId });
+      }
+    });
+    console.log(text);
+    
+    return text;
+  };
+
+  const parseDrft = (text: string) => {
+    text = reParseEmojiFace(reParseAt(text));
+    inputRef.current.innerHTML = text;
+    move2end();
+    setFoceUpdate((v) => !v);
+  };
+
+  const move2end = () => {
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(inputRef.current);
+    range.collapse(false);
+    sel?.removeAllRanges();
+    sel?.addRange(range);
+  };
+
+  const atHandler = (id: string, name: string) => {
+    if (replyMsg) {
+      setReplyMsg(undefined);
+    }
+    if (atList.findIndex((au) => au.id === id) === -1) {
+      setAtList([...atList, { id, name }]);
+
+      const hln = `<b contenteditable="false" style="color:#428be5"> @${name}</b>&nbsp;`;
+
+      setUid2name({ ...uid2name, [hln]: id });
+
+      inputRef.current.innerHTML += hln;
+      move2end();
+      setFoceUpdate((v) => !v);
+    }
+  };
 
   const mutilHandler = (flag: boolean) => {
     setMutilSelect(flag);
@@ -79,20 +177,26 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
       const idx = tms.findIndex((t) => t.clientMsgID === msg.clientMsgID);
       tms.splice(idx, 1);
     }
-    console.log(tms);
     setMutilMsg(tms);
   };
 
   const replyHandler = (msg: Message) => {
+    console.log(msg);
+    
     setReplyMsg(msg);
   };
 
   const setDraft = (cve: Cve) => {
-    if ((inputRef.current && inputRef.current.state.value) || (cve.draftText !== "" && !inputRef.current.state.value)) {
-      im.setConversationDraft({ conversationID: cve.conversationID, draftText: inputRef.current.state.value ?? "" })
+    if ((inputRef.current && inputRef.current.innerHTML) || (cve.draftText !== "" && !inputRef.current.innerHTML)) {
+      const option = {
+        conversationID: cve.conversationID,
+        draftText: atList.length > 0 ? parseEmojiFace(parseAt()) : parseEmojiFace(inputRef.current.innerHTML),
+      };
+      
+      im.setConversationDraft(option)
         .then((res) => {})
         .catch((err) => {})
-        .finally(() => (inputRef.current.state.value = ""));
+        .finally(() => (inputRef.current.innerHTML = ""));
     }
   };
 
@@ -122,7 +226,7 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
       case messageTypes.TEXTMESSAGE:
         return msg.content;
       case messageTypes.ATTEXTMESSAGE:
-        return `${msg.senderNickName + " " + msg.atElem.text}`;
+        return msg.atElem.text;
       case messageTypes.PICTUREMESSAGE:
         return "[图片消息]";
       case messageTypes.VIDEOMESSAGE:
@@ -143,10 +247,8 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   };
 
   const sendCosMsg = async (uploadData: UploadRequestOption, type: string) => {
-    console.log(uploadData);
     cosUpload(uploadData)
       .then((res) => {
-        console.log(res);
         if (type === "pic") {
           imgMsg(uploadData.file as RcFile, res.url);
         } else if (type === "video") {
@@ -209,10 +311,9 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   };
 
   const quoteMsg = async () => {
-    const { data } = await im.createQuoteMessage({ text: inputRef.current.state.value, message: JSON.stringify(replyMsg) });
+    const { data } = await im.createQuoteMessage({ text: parseEmojiFace(inputRef.current.innerHTML), message: JSON.stringify(replyMsg) });
     sendMsg(data, messageTypes.QUOTEMESSAGE);
-    inputRef.current.state.value = "";
-    setFlag(false);
+    reSet();
   };
 
   const menus = [
@@ -264,23 +365,25 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     </Menu>
   );
 
-  const faceClick = (face:typeof faceMap[0]) => {
-    inputRef.current.state.value += face.context
-    setFaceUpdate(v=>!v)
-  }
+  const faceClick = (face: typeof faceMap[0]) => {
+    const faceEl = `<img alt="${face.context}" style="padding-right:2px" width="24px" src="${face.src}">`;
+    setFace2str({ ...face2str, [faceEl]: face.context });
+    inputRef.current.innerHTML += faceEl;
+    setFoceUpdate((v) => !v);
+  };
 
   const FaceType = () => (
-    <div style={{boxShadow:"0px 4px 25px rgb(0 0 0 / 16%)"}} className="face_container">
+    <div style={{ boxShadow: "0px 4px 25px rgb(0 0 0 / 16%)" }} className="face_container">
       {faceMap.map((face) => (
-        <div key={face.context} onClick={()=>faceClick(face)} className="face_item">
+        <div key={face.context} onClick={() => faceClick(face)} className="face_item">
           <AntdImage preview={false} width={24} src={face.src} />
         </div>
       ))}
     </div>
   );
 
-  const suffix = (
-    <>
+  const Suffix = () => (
+    <div className="suffix_container">
       <Dropdown overlayClassName="face_type_drop" overlay={FaceType} placement="topLeft" arrow>
         {/* <Tooltip title="表情"> */}
         <SmileOutlined style={{ paddingRight: "8px" }} />
@@ -290,22 +393,26 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
       <Dropdown overlayClassName="msg_type_drop" overlay={MsgType} placement="topCenter" arrow>
         <PlusCircleOutlined />
       </Dropdown>
-    </>
-  );
-
-  const prefix = () => (
-    <div className="reply">
-      <CloseCircleFilled onClick={() => setReplyMsg(undefined)} />
-      <div className="reply_text">
-        回复 <span>{replyMsg?.senderNickName}:</span> {parseMsg(replyMsg!)}
-      </div>
     </div>
   );
+
+  const Prefix = () =>
+    replyMsg ? (
+      <div className="reply">
+        <CloseCircleFilled onClick={() => setReplyMsg(undefined)} />
+        <div className="reply_text">
+          回复 <span>{replyMsg?.senderNickName}:</span> {parseMsg(replyMsg!)}
+        </div>
+      </div>
+    ) : null;
 
   const switchMessage = (type: string) => {
     switch (type) {
       case "text":
         sendTextMsg();
+        break;
+      case "at":
+        sendAtTextMsg();
         break;
       case "quote":
         quoteMsg();
@@ -315,12 +422,52 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     }
   };
 
-  const sendTextMsg = async () => {
-    const { data } = await im.createTextMessage(inputRef.current.state.value);
-    sendMsg(data, messageTypes.TEXTMESSAGE);
-    inputRef.current.state.value = "";
+  const reSet = () => {
+    inputRef.current.innerHTML = "";
     setReplyMsg(undefined);
+    setUid2name({});
+    setAtList([]);
     setFlag(false);
+  };
+
+  const parseAt = () => {
+    let text: string = inputRef.current.innerHTML;
+    const tmpMaps = uid2name;
+    Object.keys(tmpMaps).map((key: any) => {
+      const idx = text.indexOf(key);
+      if (idx > -1) {
+        text = text.replace(key, ` @${tmpMaps[key]} `);
+      }
+    });
+    return text.indexOf('<b contenteditable="false" style="color:#428be5"></b>') > -1 ? "" : text;
+  };
+
+  const parseEmojiFace = (text: string) => {
+    const keys = Object.keys(face2str);
+
+    if (keys.length > 0) {
+      keys.map((key) => {
+        text = text.replace(key, face2str[key]);
+      });
+    }
+    return text;
+  };
+
+  const sendTextMsg = async () => {
+    const { data } = await im.createTextMessage(parseEmojiFace(inputRef.current.innerHTML));
+    sendMsg(data, messageTypes.TEXTMESSAGE);
+    reSet();
+  };
+
+  const sendAtTextMsg = async () => {
+    const options = {
+      text: parseEmojiFace(parseAt()),
+      atUserList: atList.map((au) => au.id),
+    };
+
+    const { data } = await im.createTextAtMessage(options);
+    sendMsg(data, messageTypes.ATTEXTMESSAGE);
+    reSet();
   };
 
   const typing = () => {
@@ -339,10 +486,33 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   };
 
   const keyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && inputRef.current.state.value) {
+    let lastValue: string = inputRef.current.innerHTML;
+
+    const secIdx = lastValue.length;
+
+    const lastIdx = lastValue.lastIndexOf("<b", secIdx);
+    const rmStr = lastValue.slice(lastIdx, secIdx);
+    const pattern = /^<b.*?&nbsp;$/;
+
+    if (e.key === "Backspace" && lastIdx > -1 && pattern.test(rmStr)) {
+      lastValue = lastValue.replace(new RegExp(rmStr), "");
+      e.preventDefault();
+      inputRef.current.innerHTML = lastValue;
+      move2end();
+      const rmName = rmStr.slice(26, -10);
+      const tmpList = atList;
+      const rmAtIdx = tmpList.findIndex((au) => au.name === rmName);
+      tmpList.splice(rmAtIdx, 1);
+      setAtList(tmpList);
+      setFoceUpdate((v) => !v);
+    }
+    if (e.key === "Enter" && lastValue) {
+      e.preventDefault();
+
       if (flag) return;
       setFlag(true);
-      switchMessage(replyMsg ? "quote" : "text");
+
+      switchMessage(replyMsg ? "quote" : atList.length > 0 ? "at" : "text");
     }
   };
 
@@ -396,20 +566,11 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
           </Button>
         </div>
       ) : (
-        <Input
-          style={{
-            paddingTop: replyMsg ? "32px" : "4px",
-          }}
-          prefix={replyMsg ? prefix() : null}
-          ref={inputRef}
-          // value={inputRef?.current.value}
-          onKeyDown={keyDown}
-          onChange={(e) => {
-            typing();
-          }}
-          placeholder={`发送给 ${curCve.showName}`}
-          suffix={suffix}
-        />
+        <div style={{ position: "relative" }}>
+          <div style={{ paddingTop: replyMsg ? "32px" : "4px" }} ref={inputRef} data-pl={`发送给 ${curCve.showName}`} onKeyDown={keyDown} className="input_div" contentEditable />
+          <Prefix />
+          <Suffix />
+        </div>
       )}
       {crardSeVis && <CardMsgModal cb={sendCardMsg} visible={crardSeVis} close={close} />}
     </Footer>

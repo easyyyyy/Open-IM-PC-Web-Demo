@@ -17,11 +17,10 @@ const { Sider } = Layout;
 
 type CveRightBarProps = {
   curCve: Cve;
-  groupMembers: GroupMember[];
   friendInfo?: FriendItem;
 };
 
-const CveRightBar: FC<CveRightBarProps> = ({ curCve, groupMembers, friendInfo }) => {
+const CveRightBar: FC<CveRightBarProps> = ({ curCve, friendInfo }) => {
   const [visibleDrawer, setVisibleDrawer] = useState(false);
   const [curTool, setCurTool] = useState(-1);
   const [groupInfo, setGroupInfo] = useState<GroupItem>();
@@ -125,7 +124,7 @@ const CveRightBar: FC<CveRightBarProps> = ({ curCve, groupMembers, friendInfo })
   return (
     <Sider width="42" theme="light" className="right_bar">
       <div className="right_bar_col">{tools.map((t) => toolIcon(t))}</div>
-      {visibleDrawer && <CveRightDrawer visible={visibleDrawer} curCve={curCve} groupMembers={groupMembers} friendInfo={friendInfo} onClose={onClose} openCard={openCard} />}
+      {visibleDrawer && <CveRightDrawer visible={visibleDrawer} curCve={curCve} friendInfo={friendInfo} onClose={onClose} openCard={openCard} />}
     </Sider>
   );
 };

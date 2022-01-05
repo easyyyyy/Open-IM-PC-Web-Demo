@@ -17,7 +17,7 @@ import { im } from "../../utils";
 import { InitConfig } from "open-im-sdk/im";
 import { IMURL } from "../../config";
 import { useDispatch } from "react-redux";
-import { getSelfInfo, setSelfInfo } from "../../store/actions/user";
+import { getSelfInfo, getAdminToken, setSelfInfo } from "../../store/actions/user";
 import { getCveList } from "../../store/actions/cve";
 import {
   getBlackList,
@@ -165,6 +165,7 @@ const Login = () => {
         dispatch(getGroupApplicationList());
         dispatch(getUnReadCount());
         dispatch(getBlackList())
+        dispatch(getAdminToken())
         if (type === "login") {
           navigate("/", { replace: true });
         }

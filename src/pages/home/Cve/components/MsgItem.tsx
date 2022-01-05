@@ -14,9 +14,12 @@ import mc_msg from "@/assets/images/mc_msg.png";
 import sh_msg from "@/assets/images/sh_msg.png";
 import del_msg from "@/assets/images/del_msg.png";
 import cp_msg from "@/assets/images/cp_msg.png";
-import { DELETEMESSAGE, FORWARDANDMERMSG, MERMSGMODAL, MUTILMSG, MUTILMSGCHANGE, REPLAYMSG, REVOKEMSG } from "../../../../constants/events";
+import { ATSTATEUPDATE, DELETEMESSAGE, FORWARDANDMERMSG, MERMSGMODAL, MUTILMSG, MUTILMSGCHANGE, OPENSINGLEMODAL, REPLAYMSG, REVOKEMSG } from "../../../../constants/events";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { faceMap } from "../../../../constants/faceType";
+import { useLongPress } from "ahooks";
+import { shallowEqual, useSelector } from "react-redux";
+import { RootState } from "../../../../store";
 
 type MsgItemProps = {
   msg: Message;
@@ -37,7 +40,17 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
   });
   const [isSingle, setIsSingle] = useState(false);
   const [lastChange, setLastChange] = useState(false);
-  const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
+  const [contextMenuVisible, setContextMenuVisible] = useState(false);
+  const groupMemberList = useSelector((state: RootState) => state.contacts.groupMemberList,shallowEqual);
+  const avaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(()=>{
+    //@ts-ignore
+    window.spanClick = async (id:string) => {
+      const { data } = await im.getUsersInfo([id])
+      events.emit(OPENSINGLEMODAL,JSON.parse(data)[0])
+    }
+  },[])
 
   useEffect(() => {
     if (curCve) {
@@ -86,6 +99,19 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
     return mstr;
   }
 
+  const parseAt = (mstr:string) => {
+    const pattern = /@\S+\s/g;
+    const arr = mstr.match(pattern);
+
+    arr?.map(a=>{
+      const member = groupMemberList.find(gm=>gm.userId=== a.slice(1,-1))
+      if(member){
+        mstr = mstr.replace(a,`<span onclick="spanClick('${member.userId}')" style="color:#428be5;cursor: pointer;"> @${member.nickName} </span>`)
+      }
+    })
+    return mstr;
+  }
+
   const msgType = (msg: Message) => {
     switch (msg.contentType) {
       case messageTypes.TEXTMESSAGE:
@@ -100,16 +126,17 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
           </div>
         );
       case messageTypes.ATTEXTMESSAGE:
-        let atStr = "";
-        let text = msg.atElem.text;
-        const lastone = msg.atElem.atUserList![msg.atElem.atUserList!.length - 1];
-        msg.atElem.atUserList?.map((u) => (atStr += u + " "));
-        const idx = msg.atElem.text.indexOf(lastone);
-        let atMsg = text.slice(idx + lastone.length)
+        // let atStr = "";
+        // let text = msg.atElem.text;
+        // const lastone = msg.atElem.atUserList![msg.atElem.atUserList!.length - 1];
+        // msg.atElem.atUserList?.map((u) => (atStr += u + " "));
+        // const idx = msg.atElem.text.indexOf(lastone);
+        let atMsg = msg.atElem.text;
         atMsg = parseEmojiFace(atMsg);
+        atMsg = parseAt(atMsg);
         return (
           <div style={sty} className={`chat_bg_msg_content_text ${!isSingle ? "nick_magin" : ""}`}>
-            <span>{`@${atStr}`}</span>
+            {/* <span>{`@${atStr}`}</span> */}
             <div style={{display:"inline-block"}} dangerouslySetInnerHTML={{__html:atMsg}}></div>
             {timeTip()}
           </div>
@@ -136,15 +163,18 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
           </div>
         );
       case messageTypes.QUOTEMESSAGE:
-        let quoteMsg = msg.quoteElem.text;
+        const quMsg = msg.quoteElem.quoteMessage;
+        let replyMsg = msg.quoteElem.text;
+        let quoteMsg = quMsg.contentType===messageTypes.ATTEXTMESSAGE ? parseAt(quMsg.atElem.text) : quMsg.content;
+        replyMsg = parseEmojiFace(replyMsg);
         quoteMsg = parseEmojiFace(quoteMsg);
         return (
           <div style={sty} className={`chat_bg_msg_content_text chat_bg_msg_content_qute ${!isSingle ? "nick_magin" : ""}`}>
             <div className="qute_content">
               <div>{`回复${msg.quoteElem.quoteMessage.senderNickName}:`}</div>
-              <div className="content">{msg.quoteElem.quoteMessage.content}</div>
+              <div className="content" dangerouslySetInnerHTML={{__html:quoteMsg}}></div>
             </div>
-            <div dangerouslySetInnerHTML={{__html:quoteMsg}}></div>
+            <div dangerouslySetInnerHTML={{__html:replyMsg}}></div>
             {
               timeTip()
             }
@@ -294,7 +324,7 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
       menu.hidden = true;
     }
     return menu.hidden ? null : menu.title === "复制" ? (
-      <CopyToClipboard key={menu.title} onCopy={() => message.success("复制成功！")} text={msg.content}>
+      <CopyToClipboard key={menu.title} onCopy={() => message.success("复制成功！")} text={msg.contentType===messageTypes.ATTEXTMESSAGE? msg.atElem.text :msg.content}>
         <div onClick={menu.method} className="msg_menu_iem">
           <img src={menu.icon} />
           <span>{menu.title}</span>
@@ -331,6 +361,17 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
     }
   };
 
+  const avatarLongPress = () => {
+    if(!isSingleCve(curCve!)){
+      events.emit(ATSTATEUPDATE,msg.sendID,msg.senderNickName)
+    }
+  }
+
+  useLongPress(avatarLongPress,avaRef,{
+    onClick:() => clickItem(msg.sendID),
+    delay:500
+  })
+
   return (
     <div onClick={mutilCheckItem} className={`chat_bg_msg ${isSelf(msg.sendID) ? "chat_bg_omsg" : ""}`}>
       {mutilSelect && (
@@ -339,7 +380,7 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
         </div>
       )}
 
-      <div className="cs" onClick={() => clickItem(msg.sendID)}>
+      <div className="cs" ref={avaRef}>
         <MyAvatar className="chat_bg_msg_icon" shape="square" size={42} src={msg.senderFaceUrl} />
       </div>
 

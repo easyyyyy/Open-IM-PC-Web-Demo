@@ -1,4 +1,4 @@
-import { ContactActionTypes, ContactState, SET_BLACK_LIST, SET_FRIEND_APPLICATION_LIST, SET_FRIEND_LIST, SET_GROUP_APPLICATION_LIST, SET_GROUP_LIST, SET_ORIGIN_LIST, SET_UNREAD_COUNT } from "../types/contacts";
+import { ContactActionTypes, ContactState, SET_BLACK_LIST, SET_FRIEND_APPLICATION_LIST, SET_FRIEND_LIST, SET_GROUP_APPLICATION_LIST, SET_GROUP_LIST, SET_GROUP_MEMBER_LIST, SET_MEMBER2STATUS, SET_ORIGIN_LIST, SET_UNREAD_COUNT } from "../types/contacts";
 
 let initialState: ContactState = {
     friendList:[],
@@ -7,6 +7,8 @@ let initialState: ContactState = {
     blackList:[],
     friendApplicationList:[],
     groupApplicationList:[],
+    groupMemberList:[],
+    member2status: {},
     unReadCount:0
   };
   
@@ -33,6 +35,10 @@ let initialState: ContactState = {
         return { ...state, friendApplicationList: action.payload };
       case SET_GROUP_APPLICATION_LIST:
         return { ...state, groupApplicationList: action.payload };
+      case SET_GROUP_MEMBER_LIST:
+        return { ...state, groupMemberList: action.payload };
+      case SET_MEMBER2STATUS:
+        return { ...state, member2status: action.payload };
       case SET_UNREAD_COUNT:
         return { ...state, unReadCount: action.payload };
       default:

@@ -16,6 +16,7 @@ import { cosUpload, events, im } from "../../../utils";
 import InviteMemberBox, { SelectFriendItem, SelectGroupItem, SelectMemberItem, SelectType } from "./InviteMemberBox";
 import { SENDFORWARDMSG } from "../../../constants/events";
 import { messageTypes } from "../../../constants/messageContentType";
+import { Member } from "../../../utils/src/im";
 
 type GroupOpModalProps = {
   visible: boolean;
@@ -124,7 +125,7 @@ const GroupOpModal: FC<GroupOpModalProps> = ({ visible,options, modalType, group
       return;
     }
 
-    let memberList: any = [];
+    let memberList: Member[] = [];
     rs.selectedList.map((s) => {
       memberList.push({
         uid: (s as SelectFriendItem).uid,

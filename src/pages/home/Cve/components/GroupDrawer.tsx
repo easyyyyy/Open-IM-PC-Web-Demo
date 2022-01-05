@@ -93,10 +93,10 @@ const GroupDrawer: FC<GroupDrawerProps> = ({
           {role !== GroupRole.NOMAL && <MinusOutlined onClick={delInGroup} />}
         </div>
       </div>
-      <div onClick={toManage} className="group_drawer_item">
+      {/* <div onClick={toManage} className="group_drawer_item">
         <div>群管理</div>
         <RightOutlined />
-      </div>
+      </div> */}
       <div className="group_drawer_item group_drawer_item_nbtm">
         <div>群昵称</div>
         <Paragraph

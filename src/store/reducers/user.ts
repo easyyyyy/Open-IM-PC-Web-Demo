@@ -1,8 +1,8 @@
-import { SET_SELF_INFO, SET_SELF_INIT_LOADING, SET_SELF_TOKEN, UserActionTypes, UserState } from "../types/user";
+import { SET_SELF_INFO, SET_SELF_INIT_LOADING, SET_ADMIN_TOKEN, UserActionTypes, UserState } from "../types/user";
 
 let initialState: UserState = {
     selfInfo:{},
-    selfToken:"",
+    adminToken:"",
     selfInitLoading:true
   };
 
@@ -19,8 +19,8 @@ let initialState: UserState = {
     switch (action.type) {
       case SET_SELF_INFO:
         return { ...state, selfInfo: {...state.selfInfo,...action.payload} };
-      case SET_SELF_TOKEN:
-        return { ...state, selfToken: action.payload };
+      case SET_ADMIN_TOKEN:
+        return { ...state, adminToken: action.payload };
       case SET_SELF_INIT_LOADING:
         return { ...state, selfInitLoading: action.payload };
       default:

@@ -1,10 +1,11 @@
 import { Dispatch } from "redux";
 import { UserInfo } from "../../@types/open_im";
+import { getAuthToken } from "../../api/admin";
 import { im } from "../../utils";
 import {
   SET_SELF_INFO,
   SET_SELF_INIT_LOADING,
-  SET_SELF_TOKEN,
+  SET_ADMIN_TOKEN,
   UserActionTypes,
 } from "../types/user";
 
@@ -17,7 +18,7 @@ export const setSelfInfo = (value: UserInfo): UserActionTypes => {
 
 export const setSelfToken = (value: string): UserActionTypes => {
   return {
-    type: SET_SELF_TOKEN,
+    type: SET_ADMIN_TOKEN,
     payload: value,
   };
 };
@@ -38,3 +39,11 @@ export const getSelfInfo = (uid: string) => {
     });
   };
 };
+
+export const getAdminToken = (uid?:string,secret?:string) => {
+  return (dispatch: Dispatch) => {
+    getAuthToken(uid,secret).then(res=>{
+      dispatch(setSelfToken(res.data.token))
+    })
+  }
+}

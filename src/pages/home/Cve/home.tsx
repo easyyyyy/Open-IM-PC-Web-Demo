@@ -1,6 +1,6 @@
 import { Button, Image, Layout, message, Modal } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { shallowEqual, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Cve, FriendItem, GroupItem, GroupMember, MergeElem, Message, PictureElem } from "../../../@types/open_im";
 import { RootState } from "../../../store";
 import CveList from "./CveList";
@@ -19,6 +19,7 @@ import { scroller, animateScroll } from "react-scroll";
 import { MergerMsgParams, WsResponse } from "../../../utils/src/im";
 import MerModal from "./components/MerModal";
 import { SelectType } from "../components/InviteMemberBox";
+import { getGroupMemberList, setGroupMemberList } from "../../../store/actions/contacts";
 
 const { Content } = Layout;
 
@@ -46,7 +47,8 @@ const WelcomeContent = () => {
 
 type ReactiveState = {
   historyMsgList: Message[];
-  groupMemberList: GroupMember[];
+  // groupMemberList: GroupMember[];
+  groupInfo: GroupItem;
   friendInfo: FriendItem;
   curCve: Cve | null;
   typing: boolean;
@@ -65,10 +67,13 @@ const Home = () => {
   const cveList = useSelector(selectCveList, shallowEqual);
   const selectCveLoading = (state: RootState) => state.cve.cveInitLoading;
   const cveLoading = useSelector(selectCveLoading, shallowEqual);
-  const selfID = useSelector((state: RootState) => state.user.selfInfo.uid);
+  const selfID = useSelector((state: RootState) => state.user.selfInfo.uid,shallowEqual);
+  const groupMemberList = useSelector((state: RootState) => state.contacts.groupMemberList,shallowEqual);
+  const dispatch = useDispatch();
   const rs = useReactive<ReactiveState>({
     historyMsgList: [],
-    groupMemberList: [],
+    // groupMemberList: [],
+    groupInfo:{} as GroupItem,
     friendInfo: {} as FriendItem,
     curCve: null,
     typing: false,
@@ -177,8 +182,11 @@ const Home = () => {
         if (newServerMsg.contentType === messageTypes.TYPINGMESSAGE) {
           typingUpdate();
         } else {
-          rs.historyMsgList = [newServerMsg, ...rs.historyMsgList];
-          // scrollToBottom()
+          if (newServerMsg.contentType === messageTypes.REVOKEMESSAGE) {
+            rs.historyMsgList = [newServerMsg, ...rs.historyMsgList.filter((ms) => ms.clientMsgID !== newServerMsg.content)];
+          } else {
+            rs.historyMsgList = [newServerMsg, ...rs.historyMsgList];
+          }
 
           if (isSingleCve(rs.curCve)) {
             markC2CHasRead(rs.curCve.userID, [newServerMsg.clientMsgID]);
@@ -210,20 +218,24 @@ const Home = () => {
   };
 
   const memberInviteHandler = (data: WsResponse) => {
-    rs.groupMemberList = [...rs.groupMemberList, ...JSON.parse(JSON.parse(data.data).memberList)];
+    let tmp = groupMemberList;
+    tmp = [...tmp, ...JSON.parse(JSON.parse(data.data).memberList)];
+    dispatch(setGroupMemberList(tmp))
   };
 
   const memberKickHandler = (data: WsResponse) => {
+    const tmp = groupMemberList;
     let idxs: number[] = [];
     const users: GroupMember[] = JSON.parse(JSON.parse(data.data).memberList);
     users.map((u) => {
-      rs.groupMemberList.map((gm, idx) => {
+      tmp.map((gm, idx) => {
         if (u.userId === gm.userId) {
           idxs.push(idx);
         }
       });
     });
-    idxs.map((i) => rs.groupMemberList.splice(i, 1));
+    idxs.map((i) => tmp.splice(i, 1));
+    dispatch(setGroupMemberList(tmp))
   };
 
   const inCurCve = (newServerMsg: Message): boolean => {
@@ -268,16 +280,33 @@ const Home = () => {
     rs.historyMsgList.length = 0;
     rs.curCve = cve;
     rs.hasMore = true;
+    getInfo(cve);
     msgCancel();
     setImgGroup([]);
     getHistoryMsg(cve.userID, cve.groupID);
     markCveHasRead(cve);
+  };
+
+  const getInfo = (cve:Cve) => {
     if (!isSingleCve(cve)) {
-      getGroupMembers(cve.groupID);
+      getGroupInfo(cve.groupID);
+      const options = {
+        groupId: cve.groupID,
+        next: 0,
+        filter: 0,
+      };
+      dispatch(getGroupMemberList(options))
     } else {
       getFriendInfo(cve.userID);
     }
-  };
+  }
+
+  const getGroupInfo = (gid:string) => {
+    im.getGroupsInfo([gid])
+        .then((res) => {
+          rs.groupInfo = JSON.parse(res.data)[0]
+        })
+  }
 
   const markCveHasRead = (cve: Cve, type?: number) => {
     if (cve.unreadCount === 0 && !type) return;
@@ -303,16 +332,16 @@ const Home = () => {
     });
   };
 
-  const getGroupMembers = (gid: string) => {
-    const options = {
-      groupId: gid,
-      next: 0,
-      filter: 0,
-    };
-    im.getGroupMemberList(options).then((res) => {
-      rs.groupMemberList = JSON.parse(res.data).data;
-    });
-  };
+  // const getGroupMembers = (gid: string) => {
+  //   const options = {
+  //     groupId: gid,
+  //     next: 0,
+  //     filter: 0,
+  //   };
+  //   im.getGroupMemberList(options).then((res) => {
+  //     rs.groupMemberList = JSON.parse(res.data).data;
+  //   });
+  // };
 
   const getFriendInfo = (fid: string) => {
     im.getFriendsInfo([fid]).then((res) => {
@@ -336,7 +365,6 @@ const Home = () => {
       count: 20,
       startMsg: sMsg ?? null,
     };
-
     getMsg(config);
   };
 
@@ -360,7 +388,7 @@ const Home = () => {
     }
 
     rs.historyMsgList = [...rs.historyMsgList, ...JSON.parse(res.data).reverse()];
-    console.log(rs.historyMsgList);
+    // console.log(rs.historyMsgList);
 
     if (JSON.parse(res.data).length < 20) {
       rs.hasMore = false;
@@ -466,10 +494,10 @@ const Home = () => {
   return (
     <>
       <HomeSider searchCb={siderSearch}>
-        <CveList curCve={rs.curCve} loading={cveLoading} cveList={rs.searchStatus ? rs.searchCve : cveList } clickItem={clickItem} />
+        <CveList curCve={rs.curCve} loading={cveLoading} cveList={rs.searchStatus ? rs.searchCve : cveList} clickItem={clickItem} />
       </HomeSider>
       <Layout>
-        {rs.curCve && <HomeHeader typing={rs.typing} curCve={rs.curCve} type="chat" />}
+        {rs.curCve && <HomeHeader ginfo={rs.groupInfo} typing={rs.typing} curCve={rs.curCve} type="chat" />}
 
         <Content id="chat_main" className={`total_content`}>
           {rs.curCve ? (
@@ -495,7 +523,7 @@ const Home = () => {
 
         {rs.curCve && <CveFooter curCve={rs.curCve} sendMsg={sendMsg} />}
       </Layout>
-      {rs.curCve && <CveRightBar friendInfo={rs.friendInfo} groupMembers={rs.groupMemberList} curCve={rs.curCve} />}
+      {rs.curCve && <CveRightBar friendInfo={rs.friendInfo} curCve={rs.curCve} />}
     </>
   );
 };

@@ -14,7 +14,7 @@ import SingleDrawer from "./components/SingleDrawer";
 import GroupDrawer from "./components/GroupDrawer";
 import EditDrawer from "./components/EditDrawer";
 import MemberDrawer from "./components/MemberDrawer";
-import { useSelector } from "react-redux";
+import { shallowEqual, useSelector } from "react-redux";
 import { RootState } from "../../../store";
 import GroupManage from "./components/GroupManage";
 
@@ -22,7 +22,6 @@ import GroupManage from "./components/GroupManage";
 type CveRightDrawerProps = {
   curCve: Cve;
   visible: boolean;
-  groupMembers: GroupMember[];
   friendInfo?:FriendItem;
   onClose: () => void;
   openCard: () => void;
@@ -43,14 +42,14 @@ export enum GroupRole {
 const CveRightDrawer: FC<CveRightDrawerProps> = ({
   curCve,
   visible,
-  groupMembers,
   friendInfo,
   onClose,
   openCard,
 }) => {
   const [groupInfo, setGroupInfo] = useState<GroupItem>();
   const [type, setType] = useState<DrawerType>("set");
-  const selfID = useSelector((state: RootState) => state.user.selfInfo.uid);
+  const selfID = useSelector((state: RootState) => state.user.selfInfo.uid,shallowEqual);
+  const groupMembers = useSelector((state: RootState) => state.contacts.groupMemberList,shallowEqual);
   const [adminList, setAdminList] = useState<GroupMember[]>([]);
   const [role, setRole] = useState<GroupRole>(GroupRole.NOMAL);
 

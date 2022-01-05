@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { useSelector, shallowEqual } from "react-redux";
-import { Cve, Message, PictureElem, UserInfo } from "../../../@types/open_im";
+import { Cve, GroupMember, Message, PictureElem, UserInfo } from "../../../@types/open_im";
 import { tipsTypes } from "../../../constants/messageContentType";
 import { RootState } from "../../../store";
 import { events, im } from "../../../utils";
@@ -20,7 +20,6 @@ type ChatContentProps = {
 
 const ChatContent: FC<ChatContentProps> = ({ merID,msgList, imgClick, loadMore, hasMore, curCve, loading }) => {
   const [userInfo, setUserInfo] = useState<UserInfo>();
-  const [userCardVisible, setUserCardVisible] = useState(false);
   const [mutilSelect, setMutilSelect] = useState(false);
   const selectValue = (state: RootState) => state.user.selfInfo;
   const selfID = useSelector(selectValue, shallowEqual).uid!;
@@ -94,10 +93,6 @@ const ChatContent: FC<ChatContentProps> = ({ merID,msgList, imgClick, loadMore, 
       }
     }
     events.emit(OPENSINGLEMODAL,info);
-  };
-
-  const closeCard = () => {
-    setUserCardVisible(false);
   };
 
   return (

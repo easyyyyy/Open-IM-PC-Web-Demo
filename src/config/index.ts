@@ -4,6 +4,7 @@ export const AXIOSURL = "http://121.37.25.71:42233"
 export const AXIOSTIMEOUT = 60000
 // export const IMURL = "ws://172.16.8.136:30000"
 export const IMURL = "ws://121.37.25.71:30000"
+export const ADMINURL = "http://121.37.25.71:10000"
 // export const IMURL = "ws://43.128.5.63:30000"
 // export const IMURL = "ws://172.16.8.136:30000"
 // export const IMURL = "ws://47.112.160.66:30000"
