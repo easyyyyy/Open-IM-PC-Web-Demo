@@ -1,11 +1,11 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { useSelector, shallowEqual } from "react-redux";
 import { Cve, GroupMember, Message, PictureElem, UserInfo } from "../../../@types/open_im";
 import { tipsTypes } from "../../../constants/messageContentType";
 import { RootState } from "../../../store";
 import { events, im } from "../../../utils";
 import ScrollView from "../../../components/ScrollView";
-import { MUTILMSG, OPENSINGLEMODAL, UPDATEFRIENDCARD } from "../../../constants/events";
+import { MUTILMSG, OPENSINGLEMODAL } from "../../../constants/events";
 import MsgItem from "./components/MsgItem";
 
 type ChatContentProps = {
@@ -15,36 +15,27 @@ type ChatContentProps = {
   hasMore: boolean;
   curCve?: Cve;
   loading: boolean;
-  merID?:string;
+  merID?: string;
 };
 
-const ChatContent: FC<ChatContentProps> = ({ merID,msgList, imgClick, loadMore, hasMore, curCve, loading }) => {
-  const [userInfo, setUserInfo] = useState<UserInfo>();
+const ChatContent: FC<ChatContentProps> = ({ merID, msgList, imgClick, loadMore, hasMore, curCve, loading }) => {
   const [mutilSelect, setMutilSelect] = useState(false);
   const selectValue = (state: RootState) => state.user.selfInfo;
   const selfID = useSelector(selectValue, shallowEqual).uid!;
   const originFriendList = useSelector((state: RootState) => state.contacts.friendList, shallowEqual);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const tipList = Object.values(tipsTypes);
 
   useEffect(() => {
-    events.on(UPDATEFRIENDCARD, updateCardHandler);
     events.on(MUTILMSG, mutilHandler);
     return () => {
-      events.off(UPDATEFRIENDCARD, updateCardHandler);
       events.off(MUTILMSG, mutilHandler);
     };
   }, []);
 
   const mutilHandler = (flag: boolean) => {
     setMutilSelect(flag);
-  };
-
-  const updateCardHandler = async (uid: string) => {
-    const { errCode, data } = await im.getFriendsInfo([uid]);
-    if (errCode === 0) {
-      setUserInfo(JSON.parse(data)[0]);
-    }
   };
 
   const parseTip = (msg: Message): string => {
@@ -84,15 +75,15 @@ const ChatContent: FC<ChatContentProps> = ({ merID,msgList, imgClick, loadMore, 
     if (idx > -1) {
       const { errCode, data } = await im.getFriendsInfo([id]);
       if (errCode === 0) {
-        info = JSON.parse(data)[0]
+        info = JSON.parse(data)[0];
       }
     } else {
       const { errCode, data } = await im.getUsersInfo([id]);
       if (errCode === 0) {
-        info = JSON.parse(data)[0]
+        info = JSON.parse(data)[0];
       }
     }
-    events.emit(OPENSINGLEMODAL,info);
+    events.emit(OPENSINGLEMODAL, info);
   };
 
   return (
@@ -106,10 +97,12 @@ const ChatContent: FC<ChatContentProps> = ({ merID,msgList, imgClick, loadMore, 
               </div>
             );
           } else {
-            return <MsgItem key={msg.clientMsgID} mutilSelect={mutilSelect} msg={msg} imgClick={imgClick} selfID={merID??selfID} curCve={curCve} clickItem={clickItem} />;
+            return <MsgItem audio={audioRef} key={msg.clientMsgID} mutilSelect={mutilSelect} msg={msg} imgClick={imgClick} selfID={merID ?? selfID} curCve={curCve} clickItem={clickItem} />;
           }
         })}
       </ScrollView>
+
+      <audio ref={audioRef} />
     </div>
   );
 };

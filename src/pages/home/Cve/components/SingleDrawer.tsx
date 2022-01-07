@@ -32,6 +32,7 @@ const SingleDrawer: FC<SingleDrawerProps> = ({
         .catch(err=>message.error("移出黑名单失败！"))
     }
   }
+  
   return (
     <div className="single_drawer">
       <div onClick={openCard} className="single_drawer_item">

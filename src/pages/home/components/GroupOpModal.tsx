@@ -16,7 +16,7 @@ import { cosUpload, events, im } from "../../../utils";
 import InviteMemberBox, { SelectFriendItem, SelectGroupItem, SelectMemberItem, SelectType } from "./InviteMemberBox";
 import { SENDFORWARDMSG } from "../../../constants/events";
 import { messageTypes } from "../../../constants/messageContentType";
-import { Member } from "../../../utils/src/im";
+import { Member } from "../../../utils/open_im_sdk/im";
 
 type GroupOpModalProps = {
   visible: boolean;

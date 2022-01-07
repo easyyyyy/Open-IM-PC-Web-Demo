@@ -13,10 +13,10 @@ import ChatContent from "./ChatContent";
 import home_bg from "@/assets/images/home_bg.png";
 import { messageTypes, notOssMessageTypes, sessionType, tipsTypes } from "../../../constants/messageContentType";
 import { useReactive, useRequest } from "ahooks";
-import { CbEvents } from "../../../utils/src";
+import { CbEvents } from "../../../utils/open_im_sdk";
 import { DELETEMESSAGE, ISSETDRAFT, MERMSGMODAL, OPENGROUPMODAL, RESETCVE, REVOKEMSG, SENDFORWARDMSG, TOASSIGNCVE, UPDATEFRIENDCARD } from "../../../constants/events";
 import { scroller, animateScroll } from "react-scroll";
-import { MergerMsgParams, WsResponse } from "../../../utils/src/im";
+import { MergerMsgParams, WsResponse } from "../../../utils/open_im_sdk/im";
 import MerModal from "./components/MerModal";
 import { SelectType } from "../components/InviteMemberBox";
 import { getGroupMemberList, setGroupMemberList } from "../../../store/actions/contacts";
@@ -145,9 +145,14 @@ const Home = () => {
   }, []);
 
   //  event hander
-  const updateCardHandler = (id: string) => {
-    getFriendInfo(id);
-  };
+  const updateCardHandler = (info:FriendItem) => {
+    if(info.uid===rs.curCve?.userID){
+      rs.curCve.showName = info.comment
+    }
+    if(info.uid === rs.friendInfo.uid){
+      rs.friendInfo = info
+    }
+  }
 
   const merModalHandler = (el: MergeElem, sender: string) => {
     rs.merData = { ...el, sender };
@@ -296,7 +301,7 @@ const Home = () => {
         filter: 0,
       };
       dispatch(getGroupMemberList(options))
-    } else {
+    }else{
       getFriendInfo(cve.userID);
     }
   }

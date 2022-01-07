@@ -25,6 +25,7 @@ import { getSelfInfo } from "../../../store/actions/user";
 import { getFriendList } from "../../../store/actions/contacts";
 import { TOASSIGNCVE, UPDATEFRIENDCARD } from "../../../constants/events";
 import { sessionType } from "../../../constants/messageContentType";
+import { RcFile } from "antd/lib/upload";
 
 const { Paragraph } = Typography;
 
@@ -137,7 +138,8 @@ const UserCard: FC<UserCardProps> = ({
     im.setFriendInfo({ uid: info.uid!, comment: drft })
       .then((res) => {
         dispatch(getFriendList());
-        events.emit(UPDATEFRIENDCARD,info.uid);
+        (info as FriendItem).comment = drft;
+        events.emit(UPDATEFRIENDCARD,info);
         message.success("修改成功！");
       })
       .catch((err) => message.error("修改失败！"));
@@ -148,14 +150,13 @@ const UserCard: FC<UserCardProps> = ({
     
     cosUpload(uploadData)
       .then((res) => {
-        console.log(res);
-
         selfInfo = {};
         selfInfo.icon = res.url;
         updateSelfInfo();
       })
       .catch((err) => message.error("图片上传失败！"));
   };
+
 
   const goBack = () => {
     setStep("info");
@@ -211,17 +212,14 @@ const UserCard: FC<UserCardProps> = ({
         </div>
       </div>
       <Upload
-        name="self_icon"
         openFileDialogOnClick={type ? true : false}
-        action={""}
+        action=""
         customRequest={(data) => uploadIcon(data)}
         showUploadList={false}
       >
         <MyAvatar
-          shape="square"
           src={info.icon}
           size={42}
-          icon={<UserOutlined />}
         />
       </Upload>
     </>
@@ -251,6 +249,7 @@ const UserCard: FC<UserCardProps> = ({
               onEnd: () => {
                 selfInfo = {};
                 selfInfo.name = drft;
+                updateSelfInfo();
               },
               onCancel: ()=>drft = "",
             }}
@@ -353,14 +352,14 @@ const UserCard: FC<UserCardProps> = ({
       title={
         <div
           className="draggable_card_title"
-          onMouseOver={() => {
-            if (draggDisable) {
-              setDraggDisable(false);
-            }
-          }}
-          onMouseOut={() => {
-            setDraggDisable(true);
-          }}
+          // onMouseOver={() => {
+          //   if (draggDisable) {
+          //     setDraggDisable(false);
+          //   }
+          // }}
+          // onMouseOut={() => {
+          //   setDraggDisable(true);
+          // }}
         >
           {step === "info" ? <InfoTitle /> : <SendTitle />}
         </div>
@@ -372,7 +371,7 @@ const UserCard: FC<UserCardProps> = ({
           disabled={draggDisable}
           bounds={bounds}
           onStart={(event, uiData) => onStart(event, uiData)}
-          cancel={`.cancel_drag, .cancel_input, .ant-upload,.left_info_icon,.ant-modal-body`}
+          cancel={`.cancel_drag, .cancel_input, .ant-upload,.left_info_icon,.ant-modal-body,.ant-upload`}
           enableUserSelectHack={false}
         >
           <div ref={draRef}>{modal}</div>

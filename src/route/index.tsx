@@ -14,7 +14,7 @@ import { getCveList, setCveList } from "../store/actions/cve";
 import { getBlackList, getFriendApplicationList, getFriendList, getGroupApplicationList, getGroupList, getUnReadCount, setUnReadCount } from "../store/actions/contacts";
 import { getSelfInfo, getAdminToken } from "../store/actions/user";
 import Test from "../pages/Test";
-import { CbEvents } from "../utils/src";
+import { CbEvents } from "../utils/open_im_sdk";
 import { Cve } from "../@types/open_im";
 
 const Auth = () => {

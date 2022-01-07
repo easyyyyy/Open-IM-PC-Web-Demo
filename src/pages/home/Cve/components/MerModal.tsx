@@ -1,7 +1,7 @@
 import { Modal } from "antd"
 import { FC } from "react"
 import { Cve } from "../../../../@types/open_im"
-import { MergeElem, PictureElem } from "../../../../utils/src/im"
+import { MergeElem, PictureElem } from "../../../../utils/open_im_sdk/im"
 import ChatContent from "../ChatContent"
 import MsgItem from "./MsgItem"
 

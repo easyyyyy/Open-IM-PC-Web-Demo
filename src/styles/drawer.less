@@ -200,6 +200,37 @@
       }
     }
   }
+  .group_notice {
+    padding: 20px 0;
+    margin: 0 16px;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #dedfe0;
+    &_title{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 6px;
+      .left{
+        display: flex;
+        align-items: center;
+        &_info{
+          display: flex;
+          flex-direction: column;
+          padding-left: 12px;
+          div{
+            &:last-child{
+              font-size: 12px;
+              color: #999;
+            }
+          }
+        }
+      }
+      .anticon{
+        font-size: 18px;
+      }
+    }
+  }
   .anticon {
     color: #999;
   }

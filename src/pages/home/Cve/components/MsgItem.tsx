@@ -1,11 +1,11 @@
-import { LoadingOutlined, ExclamationCircleFilled } from "@ant-design/icons";
+import { LoadingOutlined, ExclamationCircleFilled, FileTextOutlined } from "@ant-design/icons";
 import { Spin, Popover, Image, Tooltip, message, Modal, Checkbox } from "antd";
 import { CSSProperties, FC, useEffect, useRef, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { Message, PictureElem, Cve, MergeElem } from "../../../../@types/open_im";
 import { MyAvatar } from "../../../../components/MyAvatar";
 import { messageTypes } from "../../../../constants/messageContentType";
-import { events, formatDate, im, isSingleCve } from "../../../../utils";
+import { bytesToSize, events, formatDate, im, isSingleCve, switchFileIcon } from "../../../../utils";
 
 import ts_msg from "@/assets/images/ts_msg.png";
 import re_msg from "@/assets/images/re_msg.png";
@@ -14,18 +14,24 @@ import mc_msg from "@/assets/images/mc_msg.png";
 import sh_msg from "@/assets/images/sh_msg.png";
 import del_msg from "@/assets/images/del_msg.png";
 import cp_msg from "@/assets/images/cp_msg.png";
+import other_voice from "@/assets/images/voice_other.png"
+import my_voice from "@/assets/images/voice_my.png"
+
+
 import { ATSTATEUPDATE, DELETEMESSAGE, FORWARDANDMERMSG, MERMSGMODAL, MUTILMSG, MUTILMSGCHANGE, OPENSINGLEMODAL, REPLAYMSG, REVOKEMSG } from "../../../../constants/events";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { faceMap } from "../../../../constants/faceType";
 import { useLongPress } from "ahooks";
 import { shallowEqual, useSelector } from "react-redux";
 import { RootState } from "../../../../store";
+import { Map, Marker } from "react-amap";
 
 type MsgItemProps = {
   msg: Message;
   selfID: string;
   imgClick: (el: PictureElem) => void;
   clickItem: (uid: string) => void;
+  audio: React.RefObject<HTMLAudioElement>
   curCve?: Cve;
   mutilSelect?: boolean;
 };
@@ -33,7 +39,7 @@ type MsgItemProps = {
 const canCpTypes = [messageTypes.TEXTMESSAGE, messageTypes.ATTEXTMESSAGE];
 const canHiddenTypes = ["复制", "翻译", "回复", "转发",];
 
-const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, mutilSelect }) => {
+const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, mutilSelect,audio }) => {
   const textRef = useRef<HTMLDivElement>(null);
   const [sty, setSty] = useState<CSSProperties>({
     paddingRight: "40px",
@@ -107,9 +113,16 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
       const member = groupMemberList.find(gm=>gm.userId=== a.slice(1,-1))
       if(member){
         mstr = mstr.replace(a,`<span onclick="spanClick('${member.userId}')" style="color:#428be5;cursor: pointer;"> @${member.nickName} </span>`)
+      }else{
+        mstr = mstr.replace(a,`<span onclick="spanClick('${a.slice(1,-1)}')" style="color:#428be5;cursor: pointer;"> ${a}</span>`)
       }
     })
     return mstr;
+  }
+
+  const playVoice = (url:string) => {
+    audio.current!.src = url;
+    audio.current?.play();
   }
 
   const msgType = (msg: Message) => {
@@ -126,17 +139,11 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
           </div>
         );
       case messageTypes.ATTEXTMESSAGE:
-        // let atStr = "";
-        // let text = msg.atElem.text;
-        // const lastone = msg.atElem.atUserList![msg.atElem.atUserList!.length - 1];
-        // msg.atElem.atUserList?.map((u) => (atStr += u + " "));
-        // const idx = msg.atElem.text.indexOf(lastone);
         let atMsg = msg.atElem.text;
         atMsg = parseEmojiFace(atMsg);
         atMsg = parseAt(atMsg);
         return (
           <div style={sty} className={`chat_bg_msg_content_text ${!isSingle ? "nick_magin" : ""}`}>
-            {/* <span>{`@${atStr}`}</span> */}
             <div style={{display:"inline-block"}} dangerouslySetInnerHTML={{__html:atMsg}}></div>
             {timeTip()}
           </div>
@@ -153,6 +160,34 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
               onClick={() => imgClick(msg.pictureElem)}
             />
             {timeTip("pic_msg_time")}
+          </div>
+        );
+      case messageTypes.VOICEMESSAGE:
+        const isSelfMsg = isSelf(msg.sendID);
+        const imgStyle = isSelfMsg?{paddingLeft:"4px"}:{paddingRight:"4px"}
+        const imgSrc = isSelfMsg?my_voice:other_voice
+        return (
+          <div style={sty} className={`chat_bg_msg_content_text chat_bg_msg_content_voice ${!isSingle ? "nick_magin" : ""}`}>
+            <div style={{flexDirection: isSelfMsg?"row-reverse":"row"}} onClick={()=>playVoice(msg.soundElem.sourceUrl)}>
+              <img style={imgStyle} src={imgSrc} alt="" />
+              {`${msg.soundElem.duration} ''`}
+            </div>
+            {timeTip()}
+          </div>
+        );
+      case messageTypes.FILEMESSAGE:
+        const fileEl = msg.fileElem
+        const suffix = fileEl.fileName.slice(fileEl.fileName.lastIndexOf(".")+1);
+        return (
+          <div className={`chat_bg_msg_content_text chat_bg_msg_content_file ${!isSingle ? "nick_magin" : ""}`}>
+            <div className="file_container">
+              <img src={switchFileIcon(suffix)} alt="" />
+              <div className="file_info">
+                <div>{fileEl.fileName}</div>
+                <div>{bytesToSize(fileEl.fileSize)}</div>
+              </div>
+            </div>
+            {timeTip()}
           </div>
         );
       case messageTypes.VIDEOMESSAGE:
@@ -205,6 +240,17 @@ const MsgItem: FC<MsgItemProps> = ({ msg, selfID, imgClick, curCve, clickItem, m
               {timeTip()}
           </div>
         )
+      case messageTypes.LOCATIONMESSAGE:
+        const locationEl = msg.locationElem
+        const postion = {longitude:locationEl.longitude,latitude:locationEl.latitude}
+        return (
+          <div className={`chat_bg_msg_content_map ${!isSingle ? "nick_magin" : ""}`}>
+            <Map center={postion} amapkey="dcdc861728801ee3410f67f6a487d3fa">
+              <Marker position={postion}/>
+            </Map>
+              {timeTip("pic_msg_time")}
+          </div>
+        );
         default:
         return <div className={`chat_bg_msg_content_text ${!isSingle ? "nick_magin" : ""}`}>[暂未支持的消息类型]</div>;
         // console.log(msg);

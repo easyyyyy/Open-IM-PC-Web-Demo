@@ -51,11 +51,11 @@ const HomeHeader: FC<HeaderProps> = ({ isShowBt, type, title, curCve, typing, gi
             switchOnline(statusItem.status, statusItem.detailPlatformStatus);
           }
         });
-      } else if (!isSingleCve(curCve!) && ginfo && groupMemberList.length > 0) {
+      } else if (!isSingleCve(curCve!) && groupMemberList.length > 0) {
         getGroupOnline();
       }
     }
-  }, [type, curCve, ginfo, groupMemberList]);
+  }, [type, curCve, groupMemberList]);
 
   const switchOnline = (oType: string, details?: DetailType[]) => {
     switch (oType) {
@@ -83,6 +83,7 @@ const HomeHeader: FC<HeaderProps> = ({ isShowBt, type, title, curCve, typing, gi
     for (let i = 0; i < total; i++) {
       promiseArr.push(getOnline(tmplist.splice(0, 200).map((m) => m.userId),adminToken));
     }
+    
     Promise.all(promiseArr).then((res) => {
       let count = 0;
       let obj = {};

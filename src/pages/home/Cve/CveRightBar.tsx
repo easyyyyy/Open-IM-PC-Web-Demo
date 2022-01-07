@@ -24,7 +24,6 @@ const CveRightBar: FC<CveRightBarProps> = ({ curCve, friendInfo }) => {
   const [visibleDrawer, setVisibleDrawer] = useState(false);
   const [curTool, setCurTool] = useState(-1);
   const [groupInfo, setGroupInfo] = useState<GroupItem>();
-  const [type, setType] = useState<"set" | "edit_group_info">("set");
 
   useEffect(() => {
     if (!isSingleCve(curCve)) {
@@ -63,6 +62,9 @@ const CveRightBar: FC<CveRightBarProps> = ({ curCve, friendInfo }) => {
   const clickItem = (idx: number) => {
     setCurTool(idx);
     switch (idx) {
+      case 0:
+        setVisibleDrawer(true);
+        break;
       case 1:
         break;
       case 2:
@@ -76,15 +78,11 @@ const CveRightBar: FC<CveRightBarProps> = ({ curCve, friendInfo }) => {
   };
 
   const toolIcon = (tool: typeof tools[0]) => {
-    if (tool.tip === "群公告") return null;
+    if (tool.tip === "群公告" && isSingleCve(curCve)) return null;
     return (
       <Tooltip key={tool.tip} placement="right" title={tool.tip}>
         <div className="right_bar_col_icon" onClick={() => tool.method(tool.idx)}>
-          <img
-            // width="20px"
-            // height="20px"
-            src={curTool === tool.idx ? tool.icon_se : tool.icon}
-          />
+          <img src={curTool === tool.idx ? tool.icon_se : tool.icon} />
         </div>
       </Tooltip>
     );
@@ -124,7 +122,7 @@ const CveRightBar: FC<CveRightBarProps> = ({ curCve, friendInfo }) => {
   return (
     <Sider width="42" theme="light" className="right_bar">
       <div className="right_bar_col">{tools.map((t) => toolIcon(t))}</div>
-      {visibleDrawer && <CveRightDrawer visible={visibleDrawer} curCve={curCve} friendInfo={friendInfo} onClose={onClose} openCard={openCard} />}
+      {visibleDrawer && <CveRightDrawer curTool={curTool} visible={visibleDrawer} curCve={curCve} friendInfo={friendInfo} onClose={onClose} openCard={openCard} />}
     </Sider>
   );
 };

@@ -1,3 +1,11 @@
+import file_pdf from "@/assets/images/file_pdf.png"
+import file_pic from "@/assets/images/file_pic.png"
+import file_ppt from "@/assets/images/file_ppt.png"
+import file_unknow from "@/assets/images/file_unknow.png"
+import file_world from "@/assets/images/file_world.png"
+import file_xslx from "@/assets/images/file_xslx.png"
+import file_zip from "@/assets/images/file_zip.png"
+
 export const findEmptyValue = (obj: any) => {
   let flag = true;
   for (let key in obj) {
@@ -135,3 +143,36 @@ export const getUserIP = (): Promise<string> => {
     }
   });
 };
+
+export const bytesToSize = (bytes:number) => {
+  if (bytes === 0) return '0 B';
+  var k = 1024,
+      sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+      i = Math.floor(Math.log(bytes) / Math.log(k));
+
+ return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+}
+
+export const switchFileIcon = (suffix:string) => {
+  const imageSuffixs = ["jpeg","tiff","png","gif","jpg","gif"]
+  const pptSuffixs = ["ppt","pptx"]
+  const exelceSuffixs = ["xlsx","xls"]
+  const worldSuffixs = ["doc","docx"]
+  const zipSuffixs = ["rar","zip"]
+
+  if(imageSuffixs.includes(suffix)){
+    return file_pic
+  }else if(pptSuffixs.includes(suffix)){
+    return file_ppt
+  }else if(exelceSuffixs.includes(suffix)){
+    return file_xslx
+  }else if(worldSuffixs.includes(suffix)){
+    return file_world
+  }else if(zipSuffixs.includes(suffix)){
+    return file_zip
+  }else if(suffix === "pdf"){
+    return file_pdf
+  }else{
+    return file_unknow
+  }
+}

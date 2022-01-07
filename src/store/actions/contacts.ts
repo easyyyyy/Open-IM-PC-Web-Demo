@@ -1,7 +1,7 @@
 import { Dispatch } from "redux";
 import { FriendApplication, FriendItem, GroupApplication, GroupItem, GroupMember, MemberMapType, UserInfo } from "../../@types/open_im";
 import { im } from "../../utils";
-import { GetGroupMemberParams } from "../../utils/src/im";
+import { GetGroupMemberParams } from "../../utils/open_im_sdk/im";
 import {
   ContactActionTypes,
   SET_BLACK_LIST,

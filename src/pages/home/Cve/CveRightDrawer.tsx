@@ -17,12 +17,14 @@ import MemberDrawer from "./components/MemberDrawer";
 import { shallowEqual, useSelector } from "react-redux";
 import { RootState } from "../../../store";
 import GroupManage from "./components/GroupManage";
+import { GroupNotice } from "./components/GroupNotice";
 
 
 type CveRightDrawerProps = {
   curCve: Cve;
   visible: boolean;
   friendInfo?:FriendItem;
+  curTool?: number;
   onClose: () => void;
   openCard: () => void;
 };
@@ -31,7 +33,8 @@ export type DrawerType =
   | "set"
   | "edit_group_info"
   | "member_list"
-  | "group_manage";
+  | "group_manage"
+  | "group_notice_list";
 
 export enum GroupRole {
   NOMAL = 0,
@@ -43,6 +46,7 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
   curCve,
   visible,
   friendInfo,
+  curTool,
   onClose,
   openCard,
 }) => {
@@ -52,6 +56,17 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
   const groupMembers = useSelector((state: RootState) => state.contacts.groupMemberList,shallowEqual);
   const [adminList, setAdminList] = useState<GroupMember[]>([]);
   const [role, setRole] = useState<GroupRole>(GroupRole.NOMAL);
+
+  useEffect(()=>{
+    switch (curTool) {
+      case 0:
+        setType("group_notice_list")
+        break;
+      default:
+        setType("set")
+        break;
+    }
+  },[curTool])
 
   useEffect(() => {
     if (!isSingleCve(curCve)) {
@@ -210,6 +225,10 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
               adminList={adminList}
             />
           );
+        case "group_notice_list":
+          return (
+            <GroupNotice groupInfo={groupInfo}/>
+          )
         default:
           break;
       }
@@ -233,6 +252,8 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
         return backTitle("set", "群成员");
       case "group_manage":
         return backTitle("set", "群管理");
+      case "group_notice_list":
+        return <div>群公告</div>;
       default:
         break;
     }

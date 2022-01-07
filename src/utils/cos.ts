@@ -2,14 +2,14 @@
 import COS from 'cos-js-sdk-v5'
 import { UploadRequestOption } from 'rc-upload/lib/interface'
 import { request } from '.';
-import { COSBUCKET, COSREGION,COSAUTHORIZATIONURL } from '../config';
+import { COSBUCKET, COSREGION,ADMINURL } from '../config';
 
 export const cos = new COS({
     // getAuthorization 必选参数
     getAuthorization: function (options, callback) {
         // 异步获取临时密钥
 
-        var url = `${COSAUTHORIZATIONURL}/third/tencent_cloud_storage_credential`; // url替换成您自己的后端服务
+        var url = `${ADMINURL}/third/tencent_cloud_storage_credential`; // url替换成您自己的后端服务
         request.post(url,{
             operationID:Date.now().toString(),
             token:''
