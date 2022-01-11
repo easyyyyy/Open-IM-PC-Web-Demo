@@ -12,6 +12,7 @@ import { Cve, FriendItem, GroupItem, GroupMember } from "../../../@types/open_im
 import { events, im, isSingleCve } from "../../../utils";
 import { OPENSINGLEMODAL, TOASSIGNCVE } from "../../../constants/events";
 import CveRightDrawer from "./CveRightDrawer/CveRightDrawer";
+import { useTranslation } from "react-i18next";
 
 const { Sider } = Layout;
 
@@ -23,17 +24,18 @@ type CveRightBarProps = {
 const CveRightBar: FC<CveRightBarProps> = ({ curCve, friendInfo }) => {
   const [visibleDrawer, setVisibleDrawer] = useState(false);
   const [curTool, setCurTool] = useState(-1);
-  const [groupInfo, setGroupInfo] = useState<GroupItem>();
+  const { t } = useTranslation();
+  // const [groupInfo, setGroupInfo] = useState<GroupItem>();
 
-  useEffect(() => {
-    if (!isSingleCve(curCve)) {
-      im.getGroupsInfo([curCve.groupID])
-        .then((res) => {
-          setGroupInfo(JSON.parse(res.data)[0]);
-        })
-        .catch((err) => message.error("获取群聊信息失败！"));
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (!isSingleCve(curCve)) {
+  //     im.getGroupsInfo([curCve.groupID])
+  //       .then((res) => {
+  //         setGroupInfo(JSON.parse(res.data)[0]);
+  //       })
+  //       .catch((err) => message.error("获取群聊信息失败！"));
+  //   }
+  // }, []);
 
   useEffect(() => {
     events.on(TOASSIGNCVE, assignHandler);
@@ -50,7 +52,6 @@ const CveRightBar: FC<CveRightBarProps> = ({ curCve, friendInfo }) => {
   };
 
   const openCard = () => {
-    // setDraggableCardVisible(true);
     events.emit(OPENSINGLEMODAL, friendInfo);
   };
 
@@ -78,7 +79,7 @@ const CveRightBar: FC<CveRightBarProps> = ({ curCve, friendInfo }) => {
   };
 
   const toolIcon = (tool: typeof tools[0]) => {
-    if (tool.tip === "群公告" && isSingleCve(curCve)) return null;
+    if (tool.idx === 0 && isSingleCve(curCve)) return null;
     return (
       <Tooltip key={tool.tip} placement="right" title={tool.tip}>
         <div className="right_bar_col_icon" onClick={() => tool.method(tool.idx)}>
@@ -90,28 +91,28 @@ const CveRightBar: FC<CveRightBarProps> = ({ curCve, friendInfo }) => {
 
   const tools = [
     {
-      tip: "群公告",
+      tip: t("GroupAnnouncement"),
       icon: right_notice,
       icon_se: right_notice_se,
       method: clickItem,
       idx: 0,
     },
     {
-      tip: "查找",
+      tip: t("Search"),
       icon: right_search,
       icon_se: right_search_se,
       method: clickItem,
       idx: 1,
     },
     {
-      tip: "文件",
+      tip: t("File"),
       icon: right_file,
       icon_se: right_file_se,
       method: clickItem,
       idx: 2,
     },
     {
-      tip: "设置",
+      tip: t("Setting"),
       icon: right_setting,
       icon_se: right_setting_se,
       method: clickItem,

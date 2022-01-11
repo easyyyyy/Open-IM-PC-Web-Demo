@@ -14,7 +14,7 @@ type LoadingProps = {
 export const Loading:FC<LoadingProps> = ({size,className,height,width,tip,style}) => {
     return (
         <div className={className} style={{width:width??"100%",height: height??"100%",display:"flex",justifyContent:"center",alignItems:"center",...style}}>
-             <Spin tip={tip??'加载中...'} size={size} />
+             <Spin tip={tip??'Loading...'} size={size} />
         </div>
     )
 }

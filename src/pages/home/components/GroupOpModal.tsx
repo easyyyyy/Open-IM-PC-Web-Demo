@@ -10,9 +10,9 @@ import { UploadRequestOption } from "rc-upload/lib/interface";
 import { cosUpload, events, im } from "../../../utils";
 import { SENDFORWARDMSG } from "../../../constants/events";
 import { messageTypes } from "../../../constants/messageContentType";
-import { Member } from "../../../utils/open_im_sdk/im";
 import MultipleSelectBox, { SelectFriendItem, SelectGroupItem, SelectType, SelectMemberItem } from "./MultipleSelectBox";
 import { useTranslation } from "react-i18next";
+import { Member } from "../../../utils/open_im_sdk/types";
 
 type GroupOpModalProps = {
   visible: boolean;

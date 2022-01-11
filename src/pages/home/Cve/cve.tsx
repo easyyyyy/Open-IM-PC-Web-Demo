@@ -16,10 +16,11 @@ import { useReactive, useRequest } from "ahooks";
 import { CbEvents } from "../../../utils/open_im_sdk";
 import { DELETEMESSAGE, ISSETDRAFT, MERMSGMODAL, OPENGROUPMODAL, RESETCVE, REVOKEMSG, SENDFORWARDMSG, TOASSIGNCVE, UPDATEFRIENDCARD } from "../../../constants/events";
 import { animateScroll } from "react-scroll";
-import { MergerMsgParams, WsResponse } from "../../../utils/open_im_sdk/im";
 import MerModal from "./components/MerModal";
 import { SelectType } from "../components/MultipleSelectBox";
 import { getGroupMemberList, setGroupMemberList } from "../../../store/actions/contacts";
+import { MergerMsgParams, WsResponse } from "../../../utils/open_im_sdk/types";
+import { useTranslation } from "react-i18next";
 
 const { Content } = Layout;
 
@@ -30,16 +31,17 @@ type NMsgMap = {
 };
 
 const WelcomeContent = () => {
+  const { t } = useTranslation();
   const createGroup = () => {
     events.emit(OPENGROUPMODAL, "create");
   };
   return (
     <div className="content_bg">
-      <div className="content_bg_title">创建群组</div>
-      <div className="content_bg_sub">创建群组，立即开启在线办公</div>
+      <div className="content_bg_title">{t("CreateGroup")}</div>
+      <div className="content_bg_sub">{t("CreateGroupTip")}</div>
       <img src={home_bg} alt="" />
       <Button onClick={createGroup} className="content_bg_btn" type="primary">
-        立即创建
+        {t("CreateNow")}
       </Button>
     </div>
   );
@@ -92,8 +94,9 @@ const Home = () => {
   } = useRequest(im.getHistoryMessageList, {
     manual: true,
     onSuccess: handleMsg,
-    onError: (err) => message.error("获取聊天记录失败！"),
+    onError: (err) => message.error(t("GetChatRecordFailed")),
   });
+  const { t } = useTranslation();
 
   let nMsgMaps: NMsgMap[] = [];
 
@@ -162,7 +165,7 @@ const Home = () => {
   const assignHandler = (id: string, type: sessionType) => {
     getOneCve(id, type)
       .then((cve) => clickItem(cve))
-      .catch((err) => message.error("获取会话失败！"));
+      .catch((err) => message.error(t("GetCveFailed")));
   };
 
   const sendForwardHandler = (options: string | MergerMsgParams, type: messageTypes, list: SelectType[]) => {
@@ -260,7 +263,7 @@ const Home = () => {
     let tmpList = [...rs.historyMsgList];
     tmpList.splice(idx, 1);
     rs.historyMsgList = tmpList;
-    message.success("消息删除成功！");
+    message.success(t("DeleteMessageSuc"));
   };
 
   const revokeMyMsgHandler = (mid: string) => {

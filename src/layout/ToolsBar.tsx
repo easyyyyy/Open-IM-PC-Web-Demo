@@ -18,27 +18,19 @@ import { shallowEqual, useSelector } from "react-redux";
 import { RootState } from "../store";
 import { useClickAway } from "ahooks";
 import { getAdminUrl, getAxiosUrl, getIMUrl } from "../config";
+import { useTranslation } from "react-i18next";
 
 const { Sider } = Layout;
 
-const tools = [
-  {
-    tip: "消息",
-    icon: cve,
-    icon_select: cve_select,
-    path: "/",
-    idx: 0,
-  },
-  {
-    tip: "通讯录",
-    icon: cons,
-    icon_select: cons_select,
-    path: "/contacts",
-    idx: 1,
-  },
-];
+type ToolItem = {
+  tip: string,
+  icon: string,
+  icon_select: string,
+  path: string,
+  idx: number,
+}
 
-const ToolIcon = ({ tool }: { tool: typeof tools[0] }) => {
+const ToolIcon = ({ tool }: { tool: ToolItem }) => {
   let resolved = useResolvedPath(tool.path);
   let match = useMatch({ path: resolved.pathname, end: true });
   const [applications, setApplications] = useState(0);
@@ -66,6 +58,7 @@ const ToolIcon = ({ tool }: { tool: typeof tools[0] }) => {
     });
     setApplications(fan + gan);
   }, [friendApplicationList, groupApplicationList]);
+  
 
   return (
     <Link to={tool.path}>
@@ -100,8 +93,9 @@ const ToolsBar: FC<ToolsBarProps> = ({ userInfo }) => {
   const [draggableCardVisible, setDraggableCardVisible] = useState(false);
   const [showPop, setShowPop] = useState(false);
   const navigate = useNavigate();
-  const popRef = useRef<any>();
-  const avaRef = useRef<any>();
+  const popRef = useRef<HTMLDivElement>(null);
+  const avaRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   useClickAway(() => {
     if(showPop)setShowPop(false);
@@ -130,8 +124,8 @@ const ToolsBar: FC<ToolsBarProps> = ({ userInfo }) => {
         break;
       case 3:
         Modal.confirm({
-          title:"退出登录",
-          content:"您确定要退出登录吗？",
+          title:t("LogOut"),
+          content:t("LogOutTip"),
           onOk:logout
         })
         break;
@@ -139,6 +133,23 @@ const ToolsBar: FC<ToolsBarProps> = ({ userInfo }) => {
         break;
     }
   };
+
+  const tools:ToolItem[] = [
+    {
+      tip: t("Message"),
+      icon: cve,
+      icon_select: cve_select,
+      path: "/",
+      idx: 0,
+    },
+    {
+      tip: t("Contact"),
+      icon: cons,
+      icon_select: cons_select,
+      path: "/contacts",
+      idx: 1,
+    },
+  ];
 
   const logout = () => {
     im.logout();
@@ -161,19 +172,19 @@ const ToolsBar: FC<ToolsBarProps> = ({ userInfo }) => {
 
   const popMenus = [
     {
-      title: "我的信息",
+      title: t("MyInformation"),
       idx: 0,
     },
     {
-      title: "账号设置",
+      title: t("AccountSettings"),
       idx: 1,
     },
     {
-      title: "关于我们",
+      title: t("AboutUs"),
       idx: 2,
     },
     {
-      title: "退出登录",
+      title: t("LogOut"),
       idx: 3,
     },
   ];

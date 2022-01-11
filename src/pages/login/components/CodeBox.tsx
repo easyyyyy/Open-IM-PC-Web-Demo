@@ -83,7 +83,7 @@ const CodeBox = ({ finish, type, loading, num }: IProps) => {
             if (vs.length === 6) finish(vs);
           }}
         />
-        {i18n.options.lng === "zh" ? <ObtainZh /> : <ObtainEn />}
+        {i18n.language === "zh" ? <ObtainZh /> : <ObtainEn />}
         <Button loading={loading} style={{ marginTop: "72px" }} type="primary" onClick={() => finish(code)}>
           {t("NextStep")}
         </Button>

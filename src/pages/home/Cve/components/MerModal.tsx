@@ -1,9 +1,8 @@
 import { Modal } from "antd"
 import { FC } from "react"
-import { Cve } from "../../../../@types/open_im"
-import { MergeElem, PictureElem } from "../../../../utils/open_im_sdk/im"
+import { PictureElem } from "../../../../@types/open_im"
+import { MergeElem } from "../../../../utils/open_im_sdk/types"
 import ChatContent from "../ChatContent"
-import MsgItem from "../MsgItem/MsgItem"
 
 type MerModalProps = {
     close:()=>void;

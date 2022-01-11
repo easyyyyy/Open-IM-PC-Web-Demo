@@ -13,9 +13,9 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import { FORWARDANDMERMSG, MUTILMSG, REPLAYMSG, REVOKEMSG, DELETEMESSAGE } from "../../../../../constants/events";
 import { messageTypes } from "../../../../../constants/messageContentType";
 import { Message } from "../../../../../@types/open_im";
+import { useTranslation } from "react-i18next";
 
 const canCpTypes = [messageTypes.TEXTMESSAGE, messageTypes.ATTEXTMESSAGE];
-const canHiddenTypes = ["复制", "翻译", "回复", "转发"];
 
 type MsgMenuProps = {
   visible: boolean;
@@ -25,6 +25,9 @@ type MsgMenuProps = {
 };
 
 const MsgMenu: FC<MsgMenuProps> = ({ visible, msg, isSelf, visibleChange, children }) => {
+  const { t } = useTranslation();
+  const canHiddenTypes = [t("Copy"), t("Translate"), t("Reply"), t("Forward")];
+
   const forwardMsg = () => {
     events.emit(FORWARDANDMERMSG, "forward", JSON.stringify(msg));
   };
@@ -42,13 +45,13 @@ const MsgMenu: FC<MsgMenuProps> = ({ visible, msg, isSelf, visibleChange, childr
       .then((res) => {
         events.emit(REVOKEMSG, msg.clientMsgID);
       })
-      .catch((err) => message.error("撤回消息失败！"));
+      .catch((err) => message.error(t("RevokeMessageFailed")));
   };
 
   const delComfirm = () => {
     Modal.confirm({
-      title: "删除信息",
-      content: "确认删除该信息吗？",
+      title: t("DeleteMessage"),
+      content: t("DeleteMessageConfirm"),
       okButtonProps: {
         type: "primary",
       },
@@ -62,48 +65,48 @@ const MsgMenu: FC<MsgMenuProps> = ({ visible, msg, isSelf, visibleChange, childr
       .then((res) => {
         events.emit(DELETEMESSAGE, msg.clientMsgID);
       })
-      .catch((err) => message.error("删除消息失败！"));
+      .catch((err) => message.error(t("DeleteMessageFailed")));
   };
 
   const menus = [
     // {
-    //   title: "翻译",
+    //   title: t("Translate"),
     //   icon: ts_msg,
     //   method: () => {},
     //   hidden: false,
     // },
     {
-      title: "转发",
+      title: t("Forward"),
       icon: sh_msg,
       method: forwardMsg,
       hidden: false,
     },
     {
-      title: "复制",
+      title: t("Copy"),
       icon: cp_msg,
       method: () => {},
       hidden: false,
     },
     {
-      title: "多选",
+      title: t("Multiple"),
       icon: mc_msg,
       method: mutilMsg,
       hidden: false,
     },
     {
-      title: "回复",
+      title: t("Reply"),
       icon: re_msg,
       method: replayMsg,
       hidden: false,
     },
     {
-      title: "撤回",
+      title: t("Revoke"),
       icon: rev_msg,
       method: revMsg,
       hidden: false,
     },
     {
-      title: "删除",
+      title: t("Delete"),
       icon: del_msg,
       method: delComfirm,
       hidden: false,
@@ -115,10 +118,10 @@ const MsgMenu: FC<MsgMenuProps> = ({ visible, msg, isSelf, visibleChange, childr
       menu.hidden = true;
     }
 
-    if (!isSelf && menu.title === "撤回") {
+    if (!isSelf && menu.title === t("Revoke")) {
       menu.hidden = true;
     }
-    return menu.hidden ? null : menu.title === "复制" ? (
+    return menu.hidden ? null : menu.title === t("Copy") ? (
       <CopyToClipboard key={menu.title} onCopy={() => message.success("复制成功！")} text={msg.contentType === messageTypes.ATTEXTMESSAGE ? msg.atElem.text : msg.content}>
         <div onClick={menu.method} className="msg_menu_iem">
           <img src={menu.icon} />

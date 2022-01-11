@@ -12,6 +12,7 @@ import { formatDate, switchFileIcon, bytesToSize, events, isSingleCve } from "..
 
 import other_voice from "@/assets/images/voice_other.png";
 import my_voice from "@/assets/images/voice_my.png";
+import { useTranslation } from "react-i18next";
 
 type SwitchMsgTypeProps = {
   msg: Message;
@@ -29,6 +30,7 @@ const SwitchMsgType: FC<SwitchMsgTypeProps> = ({ msg, audio, curCve, selfID, img
   const [sty, setSty] = useState<CSSProperties>({
     paddingRight: "40px",
   });
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (curCve) {
@@ -174,7 +176,7 @@ const SwitchMsgType: FC<SwitchMsgTypeProps> = ({ msg, audio, curCve, selfID, img
         return (
           <div style={sty} className={`chat_bg_msg_content_text chat_bg_msg_content_qute ${!isSingle ? "nick_magin" : ""}`}>
             <div className="qute_content">
-              <div>{`回复${msg.quoteElem.quoteMessage.senderNickName}:`}</div>
+              <div>{`${t("Reply")+msg.quoteElem.quoteMessage.senderNickName}:`}</div>
               <div className="content" dangerouslySetInnerHTML={{ __html: quoteMsg }}></div>
             </div>
             <div dangerouslySetInnerHTML={{ __html: replyMsg }}></div>
@@ -198,7 +200,7 @@ const SwitchMsgType: FC<SwitchMsgTypeProps> = ({ msg, audio, curCve, selfID, img
         const ctx = JSON.parse(msg.content);
         return (
           <div onClick={() => clickItem(ctx.uid)} style={sty} className={`chat_bg_msg_content_text chat_bg_msg_content_card ${!isSingle ? "nick_magin" : ""}`}>
-            <div className="title">名片</div>
+            <div className="title">{t("IDCard")}</div>
             <div className="desc">
               <MyAvatar src={ctx.icon} size={32} />
               <div className="card_nick">{ctx.name}</div>
@@ -218,7 +220,7 @@ const SwitchMsgType: FC<SwitchMsgTypeProps> = ({ msg, audio, curCve, selfID, img
           </div>
         );
       default:
-        return <div className={`chat_bg_msg_content_text ${!isSingle ? "nick_magin" : ""}`}>[暂未支持的消息类型]</div>;
+        return <div className={`chat_bg_msg_content_text ${!isSingle ? "nick_magin" : ""}`}>{t("UnsupportedMessage")}</div>;
     }
   };
 

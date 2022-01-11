@@ -42,7 +42,7 @@ const ScrollView: FC<ScrollViewProps> = (
           height={data.length === 0 ? `${height}px`??"600px" : "60px"}
         />
       ) : (
-        <div className={styles.con_nomore}>没有更多啦~</div>
+        <div className={styles.con_nomore}>No more~</div>
       )}
     </div>
   );

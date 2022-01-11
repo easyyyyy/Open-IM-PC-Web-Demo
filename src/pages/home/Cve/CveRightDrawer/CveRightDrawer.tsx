@@ -3,8 +3,7 @@ import {
 } from "@ant-design/icons";
 import {
   Drawer,
-  message,
-  Typography,
+  message
 } from "antd";
 import { FC, useEffect, useState } from "react";
 import { Cve, FriendItem, GroupItem, GroupMember } from "../../../../@types/open_im";
@@ -18,6 +17,7 @@ import { shallowEqual, useSelector } from "react-redux";
 import { RootState } from "../../../../store";
 import GroupManage from "./GroupDrawer/GroupManage";
 import { GroupNotice } from "./GroupDrawer/GroupNotice";
+import { useTranslation } from "react-i18next";
 
 
 type CveRightDrawerProps = {
@@ -56,6 +56,7 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
   const groupMembers = useSelector((state: RootState) => state.contacts.groupMemberList,shallowEqual);
   const [adminList, setAdminList] = useState<GroupMember[]>([]);
   const [role, setRole] = useState<GroupRole>(GroupRole.NOMAL);
+  const { t } = useTranslation();
 
   useEffect(()=>{
     switch (curTool) {
@@ -75,7 +76,7 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
           setGroupInfo(JSON.parse(res.data)[0]);
           getPermission(JSON.parse(res.data)[0]);
         })
-        .catch((err) => message.error("获取群聊信息失败！"));
+        .catch((err) => message.error(t("GetGroupInfoFailed")));
     }
   }, [type, groupMembers]);
 
@@ -105,9 +106,9 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
     im.deleteFromFriendList(curCve.userID)
       .then((res) => {
         events.emit(RESETCVE);
-        message.success("解除好友关系成功！");
+        message.success(t("UnfriendingSuc"));
       })
-      .catch((err) => message.success("解除好友关系失败！"));
+      .catch((err) => message.error(t("UnfriendingFailed")));
   };
 
   const updatePin = () => {
@@ -117,7 +118,7 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
     };
     im.pinConversation(options)
       .then((res) => {
-        message.success(curCve.isPinned === 0 ? "置顶成功!" : "取消置顶成功!");
+        message.success(curCve.isPinned === 0 ? t("PinSuc") : t("CancelPinSuc"));
         curCve.isPinned = curCve.isPinned === 0 ? 1 : 0
       })
       .catch((err) => {});
@@ -127,9 +128,9 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
     im.quitGroup(curCve.groupID)
       .then((res) => {
         events.emit(RESETCVE);
-        message.success("退出群聊成功！");
+        message.success(t("QuitGroupSuc"));
       })
-      .catch((err) => message.error("退出群聊失败！"));
+      .catch((err) => message.error(t("QuitGroupFailed")));
   };
 
   const inviteToGroup = () => {
@@ -166,10 +167,10 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
     };
     im.setGroupInfo(options)
       .then((res) => {
-        message.success("修改成功！");
+        message.success(t("ModifySuc"));
         setType("set");
       })
-      .catch((err) => message.error("修改失败！"));
+      .catch((err) => message.error(t("ModifyFailed")));
   };
 
   const switchContent = () => {
@@ -245,15 +246,15 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
   const switchTitle = () => {
     switch (type) {
       case "set":
-        return <div>设置</div>;
+        return <div>{t("Setting")}</div>;
       case "edit_group_info":
-        return backTitle("set", "编辑群信息");
+        return backTitle("set", t("EditGroupInfo"));
       case "member_list":
-        return backTitle("set", "群成员");
+        return backTitle("set", t("GroupMembers"));
       case "group_manage":
-        return backTitle("set", "群管理");
+        return backTitle("set", t("GroupManagement"));
       case "group_notice_list":
-        return <div>群公告</div>;
+        return <div>{t("GroupAnnouncement")}</div>;
       default:
         break;
     }

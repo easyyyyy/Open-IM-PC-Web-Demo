@@ -11,6 +11,7 @@ import { faceMap } from "../../../../constants/faceType";
 import { useSelector, shallowEqual } from "react-redux";
 import { RootState } from "../../../../store";
 import MsgTypeSuffix from "./MsgTypeSuffix";
+import { useTranslation } from "react-i18next";
 
 const { Footer } = Layout;
 
@@ -37,6 +38,7 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   const [uid2name, setUid2name] = useState<StringMapType>({});
   const [face2str, setFace2str] = useState<StringMapType>({});
   const groupMemberList = useSelector((state: RootState) => state.contacts.groupMemberList, shallowEqual);
+  const { t,i18n } = useTranslation();
 
   useEffect(() => {
     window.addEventListener("paste", textInit);
@@ -201,19 +203,19 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
       case messageTypes.ATTEXTMESSAGE:
         return msg.atElem.text;
       case messageTypes.PICTUREMESSAGE:
-        return "[图片消息]";
+        return t("PictureMessage");
       case messageTypes.VIDEOMESSAGE:
-        return "[视频消息]";
+        return t("VideoMessage");
       case messageTypes.VOICEMESSAGE:
-        return "[语音消息]";
+        return t("VoiceMessage");
       case messageTypes.LOCATIONMESSAGE:
-        return "[位置消息]";
+        return t("LocationMessage");
       case messageTypes.MERGERMESSAGE:
-        return "[合并转发消息]";
+        return t("MergeMessage");
       case messageTypes.FILEMESSAGE:
-        return "[文件消息]";
+        return t("FileMessage");
       case messageTypes.QUOTEMESSAGE:
-        return "[引用消息]";
+        return t("QuoteMessage");
       default:
         break;
     }
@@ -230,7 +232,7 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
       <div className="reply">
         <CloseCircleFilled onClick={() => setReplyMsg(undefined)} />
         <div className="reply_text">
-          回复 <span>{replyMsg?.senderNickName}:</span> {parseMsg(replyMsg!)}
+          {t("Reply")} <span>{replyMsg?.senderNickName}:</span> {parseMsg(replyMsg!)}
         </div>
       </div>
     ) : null;
@@ -360,7 +362,7 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   const selectRec = async () => {
     if (mutilMsg.length === 0) return;
     if (mutilMsg.length > 1) {
-      message.info("当前仅支持转发一条文字消息~");
+      message.info(t("MergeTip"));
       return;
     }
 
@@ -372,9 +374,23 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
       };
       tmm.push(JSON.stringify(obj));
     });
+    let title = "";
+    if(isSingleCve(curCve)){
+      if(i18n.language === "zh"){
+        title = t("With")+curCve.showName+t("ChatRecord")
+      }else{
+        title = t("ChatRecord")+t("With")+curCve.showName
+      }
+    }else{
+      if(i18n.language === "zh"){
+        title = t("GroupChat")+curCve.showName+t("ChatRecord")
+      }else{
+        title = t("ChatRecord")+t("In")+curCve.showName
+      }
+    }
     const options = {
       messageList: [...mutilMsg],
-      title: isSingleCve(curCve) ? `与${curCve.showName}的聊天记录` : `群聊${curCve.showName}的聊天记录`,
+      title,
       summaryList: tmm,
     };
 
@@ -398,7 +414,7 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     <div className="footer_mutil">
       <CloseOutlined onClick={cancelMutil} />
       <Button onClick={selectRec} type="primary" shape="round">
-        合并转发
+        {t("MergerAndForward")}
       </Button>
     </div>
   );
@@ -409,7 +425,7 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
         <MutilAction />
       ) : (
         <div style={{ position: "relative" }}>
-          <div style={{ paddingTop: replyMsg ? "32px" : "4px" }} ref={inputRef} data-pl={`发送给 ${curCve.showName}`} onKeyDown={keyDown} className="input_div" contentEditable />
+          <div style={{ paddingTop: replyMsg ? "32px" : "4px" }} ref={inputRef} data-pl={`${t("SendTo")} ${curCve.showName}`} onKeyDown={keyDown} className="input_div" contentEditable />
           <ReplyPrefix />
           <MsgTypeSuffix choseCard={choseCard} faceClick={faceClick} sendMsg={sendMsg} />
         </div>

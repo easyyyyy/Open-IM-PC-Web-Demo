@@ -1,12 +1,13 @@
 import { FC, useEffect, useRef, useState } from "react";
 import { useSelector, shallowEqual } from "react-redux";
-import { Cve, GroupMember, Message, PictureElem, UserInfo } from "../../../@types/open_im";
+import { Cve, Message, PictureElem, UserInfo } from "../../../@types/open_im";
 import { tipsTypes } from "../../../constants/messageContentType";
 import { RootState } from "../../../store";
 import { events, im } from "../../../utils";
 import ScrollView from "../../../components/ScrollView";
 import { MUTILMSG, OPENSINGLEMODAL } from "../../../constants/events";
 import MsgItem from "./MsgItem/MsgItem";
+import { useTranslation } from "react-i18next";
 
 type ChatContentProps = {
   msgList: Message[];
@@ -24,7 +25,8 @@ const ChatContent: FC<ChatContentProps> = ({ merID, msgList, imgClick, loadMore,
   const selfID = useSelector(selectValue, shallowEqual).uid!;
   const originFriendList = useSelector((state: RootState) => state.contacts.friendList, shallowEqual);
   const audioRef = useRef<HTMLAudioElement>(null);
-
+  const { t } = useTranslation();
+  
   const tipList = Object.values(tipsTypes);
 
   useEffect(() => {
@@ -40,25 +42,25 @@ const ChatContent: FC<ChatContentProps> = ({ merID, msgList, imgClick, loadMore,
 
   const parseTip = (msg: Message): string => {
     if (msg.contentType === tipsTypes.REVOKEMESSAGE) {
-      return `${msg.sendID === selfID ? "你" : msg.senderNickName}撤回了一条消息`;
+      return (msg.sendID === selfID ? t("You") : msg.senderNickName) + t("RevokeMessage");
     }
     switch (msg.contentType) {
       case tipsTypes.ACCEPTFRIENDNOTICE:
-        return "你们已经是好友啦，开始聊天吧~";
+        return t("AlreadyFriend");
       case tipsTypes.CREATEGROUPNOTICE:
-        return "你已成功加入群聊";
+        return t("AlreadyGroup");
       case tipsTypes.ACCEPTGROUPAPPLICATIONNOTICE:
         const jointip = JSON.parse(msg.content).defaultTips;
         const joinIdx = jointip.indexOf(" join the group");
-        return `${jointip.slice(0, joinIdx)} 加入了群聊`;
+        return jointip.slice(0, joinIdx)+" "+t("JoinedGroup");
       case tipsTypes.INVITETOGROUPNOTICE:
         const invitetip = JSON.parse(msg.content).defaultTips;
         const inviteIdx = invitetip.indexOf(" invited into the group chat by ");
-        return `${invitetip.slice(32 + inviteIdx)}邀请了${invitetip.slice(0, inviteIdx)}入群`;
+        return invitetip.slice(32 + inviteIdx)+t("Invited")+invitetip.slice(0, inviteIdx)+t("IntoGroup");
       case tipsTypes.QUITGROUPNOTICE:
         const quitTip = JSON.parse(msg.content).defaultTips;
         const quitIdx = quitTip.indexOf(" have quit group chat");
-        return `${quitTip.slice(6, quitIdx)} 退出了群聊`;
+        return quitTip.slice(6, quitIdx)+t("QuitedGroup");
       default:
         return JSON.parse(msg.content).defaultTips;
     }

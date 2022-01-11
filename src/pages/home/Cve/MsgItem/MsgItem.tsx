@@ -11,6 +11,7 @@ import { useInViewport, useLongPress } from "ahooks";
 
 import MsgType from "./SwitchMsgType/SwitchMsgType";
 import MsgMenu from "./MsgMenu/MsgMenu";
+import { useTranslation } from "react-i18next";
 
 type MsgItemProps = {
   msg: Message;
@@ -32,6 +33,7 @@ const MsgItem: FC<MsgItemProps> = (props) => {
   const avaRef = useRef<HTMLDivElement>(null);
   const msgItemRef = useRef<HTMLDivElement>(null);
   const [ inViewport ] = useInViewport(msgItemRef);
+  const { t } = useTranslation();
 
   useEffect(() => {
     //@ts-ignore
@@ -71,7 +73,7 @@ const MsgItem: FC<MsgItemProps> = (props) => {
         return <Spin indicator={antIcon} />;
       case 2:
         if (curCve && isSingleCve(curCve)) {
-          return msg.isRead ? "已读" : "未读";
+          return msg.isRead ? t("Readed") : t("UnRead");
         }
         return null;
       case 3:

@@ -7,6 +7,7 @@ import {
 } from "@ant-design/icons";
 import { Col, Input, message, Modal, Row } from "antd";
 import { FC, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { GroupMember } from "../../../../../@types/open_im";
 import { MyAvatar } from "../../../../../components/MyAvatar";
 import { im } from "../../../../../utils";
@@ -19,18 +20,19 @@ type GroupManageProps = {
 
 const GroupManage: FC<GroupManageProps> = ({ adminList,groupMembers,gid }) => {
   const [visible, setVisible] = useState(false);
+  const { t } = useTranslation();
 
   const transfer = (userId:string) => {
       im.transferGroupOwner({groupId:gid,userId}).then(res=>{
-          message.success("转让成功！")
+          message.success(t("TransferSuc"))
           setVisible(false)
-      }).catch(err=>message.error("转让失败！"))
+      }).catch(err=>message.error(t("TransferFailed")))
   }
 
   const warning = (item:GroupMember) => {
     Modal.confirm({
-      title:"转让群主",
-      content:`确认将群主转让给 ${item.nickName}`,
+      title:t("TransferGroup"),
+      content: t("TransferTip")+" "+item.nickName,
       closable:false,
       className:"warning_modal",
       onOk: ()=>transfer(item.userId)
@@ -44,7 +46,7 @@ const GroupManage: FC<GroupManageProps> = ({ adminList,groupMembers,gid }) => {
           //   onClick={() => changeType("member_list")}
           className="group_drawer_row_title"
         >
-          <div>群管理员</div>
+          <div>{t("GroupAdministrators")}</div>
           <div>
             <span className="num_tip">0/10</span>
             <RightOutlined />
@@ -75,17 +77,17 @@ const GroupManage: FC<GroupManageProps> = ({ adminList,groupMembers,gid }) => {
         style={{ border: "none" }}
         className="group_drawer_item"
       >
-        <div>转让群主</div>
+        <div>{t("TransferGroup")}</div>
         <RightOutlined />
       </div>
       <Modal
-        title="转让群主"
+        title={t("TransferGroup")}
         className="transfer_modal"
         visible={visible}
         onOk={() => {}}
         onCancel={() => setVisible(false)}
       >
-        <Input placeholder="搜索" prefix={<SearchOutlined />} />
+        <Input placeholder={t("Search")} prefix={<SearchOutlined />} />
         <Row className="gutter_row" gutter={[16, 0]}>
             {
                 groupMembers.map(m=>(

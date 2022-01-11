@@ -1,5 +1,5 @@
 import { Layout } from "antd";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import HomeSider from "../components/HomeSider";
 import ContactMenuList, { MenuItem } from "./ContactMenuList";
 import my_friend from "@/assets/images/my_friend.png";
@@ -16,50 +16,50 @@ import { sessionType } from "../../../constants/messageContentType";
 import { events } from "../../../utils";
 import { TOASSIGNCVE } from "../../../constants/events";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 
 const { Content } = Layout;
 
-const consMenuList = [
-  {
-    title: "常用联系人",
-    icon: nomal_cons,
-    bgc: "#FEC757",
-    idx: 0,
-    suffix: "nc",
-  },
-  {
-    title: "新的好友",
-    icon: new_friend,
-    bgc: "#428BE5",
-    idx: 1,
-    suffix: "nf",
-  },
-  {
-    title: "新的群组",
-    icon: new_group,
-    bgc: "#428BE5",
-    idx: 2,
-    suffix: "ng",
-  },
-  {
-    title: "我的好友",
-    icon: my_friend,
-    bgc: "#428BE5",
-    idx: 3,
-    suffix: "mf",
-  },
-  {
-    title: "我的群组",
-    icon: my_group,
-    bgc: "#53D39C",
-    idx: 4,
-    suffix: "mg",
-  },
-];
-
 const Contacts = () => {
+  const { t } = useTranslation();
+  const consMenuList = [
+    {
+      title: t("CommonContacts"),
+      icon: nomal_cons,
+      bgc: "#FEC757",
+      idx: 0,
+      suffix: "nc",
+    },
+    {
+      title: t("NewFriend"),
+      icon: new_friend,
+      bgc: "#428BE5",
+      idx: 1,
+      suffix: "nf",
+    },
+    {
+      title: t("NewGroups"),
+      icon: new_group,
+      bgc: "#428BE5",
+      idx: 2,
+      suffix: "ng",
+    },
+    {
+      title: t("MyFriends"),
+      icon: my_friend,
+      bgc: "#428BE5",
+      idx: 3,
+      suffix: "mf",
+    },
+    {
+      title: t("MyGroups"),
+      icon: my_group,
+      bgc: "#53D39C",
+      idx: 4,
+      suffix: "mg",
+    },
+  ];
   const [menu, setMenu] = useState(consMenuList[3]);
-  const searchRef = useRef(null);
   const selectValue = (state: RootState) => state.contacts.friendList;
   const cons = useSelector(selectValue, shallowEqual);
   const navigate = useNavigate()

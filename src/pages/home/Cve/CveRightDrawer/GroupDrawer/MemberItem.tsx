@@ -1,6 +1,7 @@
 import { DeleteOutlined } from "@ant-design/icons";
 import { Modal, message, Tooltip, Skeleton } from "antd";
 import { FC, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { GroupMember, MemberMapType } from "../../../../../@types/open_im";
 import LayLoad from "../../../../../components/LayLoad";
 import { MyAvatar } from "../../../../../components/MyAvatar";
@@ -18,9 +19,10 @@ type MemberItemProps = {
 
 const MemberItem: FC<MemberItemProps> = ({ idx, item, member2Status, role, gid, selfID }) => {
   const memberItemRef = useRef<HTMLDivElement>(null);
-
+  const { t } = useTranslation();
+  
   const parseStatus = (userID: string) => {
-    let str = "离线";
+    let str = t("Offline");
     const item = member2Status[userID];
     if (item) {
       if (item.status === "online") {
@@ -30,7 +32,7 @@ const MemberItem: FC<MemberItemProps> = ({ idx, item, member2Status, role, gid, 
             str += `${pla.platform}/`;
           }
         });
-        str = `${str.slice(0, -1)}在线`;
+        str = str.slice(0, -1)+t("Online");
       }
     }
     return `[${str}]`;
@@ -38,10 +40,10 @@ const MemberItem: FC<MemberItemProps> = ({ idx, item, member2Status, role, gid, 
 
   const warning = (item: GroupMember) => {
     Modal.confirm({
-      title: "移除群成员",
-      content: `移除后，${item.nickName} 将无法接收该会话的信息`,
-      cancelText: "取消",
-      okText: "移除",
+      title: t("RemoveMembers"),
+      content: t("RemoveTip1")+item.nickName+" "+ t("RemoveTip2"),
+      cancelText: t("Cancel"),
+      okText: t("Remove"),
       okButtonProps: {
         danger: true,
         type: "primary",
@@ -60,13 +62,13 @@ const MemberItem: FC<MemberItemProps> = ({ idx, item, member2Status, role, gid, 
     };
     im.kickGroupMember(options)
       .then((res) => {
-        message.success("踢出成功！");
+        message.success(t("KickSuc"));
       })
-      .catch((err) => message.error("踢出失败！"));
+      .catch((err) => message.error(t("KickFailed")));
   };
 
   const RemoveIcon = ({ item }: { item: GroupMember }) => (
-    <Tooltip placement="left" title="移除成员">
+    <Tooltip placement="left" title={t("RemoveMembers")}>
       <DeleteOutlined onClick={() => warning(item)} />
     </Tooltip>
   );
@@ -89,9 +91,9 @@ const MemberItem: FC<MemberItemProps> = ({ idx, item, member2Status, role, gid, 
       case 0:
         return null;
       case 1:
-        return <div className="owner_tip">群主</div>;
+        return <div className="owner_tip">{t("GroupOwner")}</div>;
       case 2:
-        return <div className="admin_tip">管理员</div>;
+        return <div className="admin_tip">{t("GroupAdministrators")}</div>;
       default:
         break;
     }

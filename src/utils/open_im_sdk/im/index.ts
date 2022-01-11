@@ -1,333 +1,40 @@
 import { CbEvents, RequestFunc } from "../constants";
 import { uuid } from "../util";
 import Emitter from "../event";
-
-export type InitConfig = {
-  uid: string;
-  token: string;
-  url: string;
-  platformID: number;
-  operationID?: string;
-};
-
-export type WsParams = {
-  reqFuncName: RequestFunc;
-  operationID: string;
-  uid: string | undefined;
-  data: any;
-};
-
-export type WsResponse = {
-  event: RequestFunc;
-  errCode: number;
-  errMsg: string;
-  data: any;
-  operationID: string;
-};
-
-export type LoginParams = {
-  uid: string;
-  token: string;
-};
-
-export type UserInfo = {
-  name?: string;
-  icon?: string;
-  gender?: number;
-  mobile?: string;
-  birth?: string;
-  email?: string;
-  ex?: string;
-};
-
-export type AtMsgParams = {
-  text: string;
-  atUserList: string[];
-};
-
-export type ImageMsgParams = {
-  sourcePicture: PicBaseInfo;
-  bigPicture: PicBaseInfo;
-  snapshotPicture: PicBaseInfo;
-};
-
-export type PicBaseInfo = {
-  uuid: string;
-  type: string;
-  size: number;
-  width: number;
-  height: number;
-  url: string;
-};
-
-export type SoundMsgParams = {
-  uuid: string;
-  soundPath: string;
-  sourceUrl: string;
-  dataSize: number;
-  duration: number;
-};
-
-export type VideoMsgParams = {
-  videoPath: string;
-  duration: number;
-  videoType: string;
-  snapshotPath: string;
-  videoUUID: string;
-  videoUrl: string;
-  videoSize: number;
-  snapshotUUID: string;
-  snapshotSize: number;
-  snapshotUrl: string;
-  snapshotWidth: number;
-  snapshotHeight: number;
-};
-
-export type FileMsgParams = {
-  filePath: string;
-  fileName: string;
-  uuid: string;
-  sourceUrl: string;
-  fileSize: number;
-};
-
-export type MergerMsgParams = {
-  messageList: Message[];
-  title: string;
-  summaryList: string[];
-};
-
-export type Message = {
-  clientMsgID:    string;
-  serverMsgID:    string;
-  createTime:     number;
-  sendTime:       number;
-  sessionType:    number;
-  sendID:         string;
-  recvID:         string;
-  msgFrom:        number;
-  contentType:    number;
-  platformID:     number;
-  forceList:      string | null;
-  senderNickName: string;
-  senderFaceUrl:  string;
-  groupID:        string;
-  content:        string;
-  seq:            number;
-  isRead:         boolean;
-  status:         number;
-  remark:         string;
-  pictureElem:    PictureElem;
-  soundElem:      SoundElem;
-  videoElem:      VideoElem;
-  fileElem:       FileElem;
-  mergeElem:      MergeElem;
-  atElem:         AtElem;
-  locationElem:   LocationElem;
-  customElem:     CustomElem;
-  quoteElem:      QuoteElem;
-}
-
-export type AtElem = {
-  text:       string;
-  atUserList: string[]|null;
-  isAtSelf:   boolean;
-}
-
-export type CustomElem = {
-  data:        string;
-  description: string;
-  extension:   string;
-}
-
-export type FileElem = {
-  filePath:  string;
-  uuid:      string;
-  sourceUrl: string;
-  fileName:  string;
-  fileSize:  number;
-}
-
-export type LocationElem = {
-  description: string;
-  longitude:   number;
-  latitude:    number;
-}
-
-export type MergeElem = {
-  title:        string;
-  abstractList: string[]|null;
-  multiMessage: Message[];
-}
-
-export type PictureElem = {
-  sourcePath:      string;
-  sourcePicture:   Picture;
-  bigPicture:      Picture;
-  snapshotPicture: Picture;
-}
-
-export type Picture = {
-  uuid:   string;
-  type:   string;
-  size:   number;
-  width:  number;
-  height: number;
-  url:    string;
-}
-
-export type QuoteElem = {
-  quoteMessage: Message;
-  text: string;
-}
-
-export type SoundElem = {
-  uuid:      string;
-  soundPath: string;
-  sourceUrl: string;
-  dataSize:  number;
-  duration:  number;
-}
-
-export type VideoElem = {
-  videoPath:      string;
-  videoUUID:      string;
-  videoUrl:       string;
-  videoType:      string;
-  videoSize:      number;
-  duration:       number;
-  snapshotPath:   string;
-  snapshotUUID:   string;
-  snapshotSize:   number;
-  snapshotUrl:    string;
-  snapshotWidth:  number;
-  snapshotHeight: number;
-}
-
-export type LocationMsgParams = {
-  description: string;
-  longitude: number;
-  latitude: number;
-};
-
-export type CustomMsgParams = {
-  data: string;
-  extension: string;
-  description: string;
-};
-
-export type QuoteMsgParams = {
-  text: string;
-  message: string;
-};
-
-export type SendMsgParams = {
-  recvID: string;
-  groupID: string;
-  onlineUserOnly: boolean;
-  message: string;
-};
-
-export type GetHistoryMsgParams = {
-  userID: string;
-  groupID: string;
-  count: number;
-  startMsg: Message | null;
-};
-
-export type InsertSingleMsgParams = {
-  message: string;
-  userID: string;
-  sender: string;
-};
-
-export type TypingUpdateParams = {
-  receiver: string;
-  msgTip: string;
-};
-
-export type MarkC2CParams = {
-  receiver: string;
-  msgIDList: string[];
-};
-
-export type GetOneCveParams = {
-  sourceID: string;
-  sessionType: number;
-};
-
-export type SetDraftParams = {
-  conversationID: string;
-  draftText: string;
-};
-
-export type PinCveParams = {
-  conversationID: string;
-  isPinned: boolean;
-};
-
-export type AddFriendParams = {
-  uid: string;
-  reqMessage: string;
-};
-
-export type SetFriendParams = {
-  uid: string;
-  comment: string;
-};
-
-export type InviteGroupParams = {
-  groupId: string;
-  reason: string;
-  userList: string[];
-};
-
-export type GetGroupMemberParams = {
-  groupId: string;
-  filter: number;
-  next: number;
-};
-
-export type CreateGroupParams = {
-  gInfo: Omit<GroupInfo, "groupId">;
-  memberList: Member[];
-};
-
-export type Member = {
-  uid: string;
-  setRole: number;
-};
-
-export type GroupInfo = {
-  groupId: string;
-  groupName: string;
-  introduction: string;
-  notification: string;
-  faceUrl: string;
-};
-
-export type JoinGroupParams = {
-  groupId: string;
-  message: string;
-};
-
-export type TransferGroupParams = {
-  groupId: string;
-  userId: string;
-};
-
-export type AccessGroupParams = {
-  application: string;
-  reason: string;
-};
-
-type Ws2Promise = {
-  oid: string;
-  mname: string;
-  mrsve: (value: WsResponse | PromiseLike<WsResponse>) => void;
-  mrjet: (reason?: any) => void;
-  flag: boolean;
-};
+import {
+  Ws2Promise,
+  InitConfig,
+  WsResponse,
+  LoginParams,
+  UserInfo,
+  AtMsgParams,
+  ImageMsgParams,
+  SoundMsgParams,
+  VideoMsgParams,
+  FileMsgParams,
+  MergerMsgParams,
+  LocationMsgParams,
+  CustomMsgParams,
+  QuoteMsgParams,
+  SendMsgParams,
+  GetHistoryMsgParams,
+  InsertSingleMsgParams,
+  TypingUpdateParams,
+  MarkC2CParams,
+  GetOneCveParams,
+  SetDraftParams,
+  PinCveParams,
+  AddFriendParams,
+  SetFriendParams,
+  InviteGroupParams,
+  GetGroupMemberParams,
+  CreateGroupParams,
+  GroupInfo,
+  JoinGroupParams,
+  TransferGroupParams,
+  AccessGroupParams,
+  WsParams,
+} from "../types";
 
 export default class OpenIMSDK extends Emitter {
   private ws: WebSocket | undefined;
@@ -391,13 +98,13 @@ export default class OpenIMSDK extends Emitter {
       };
 
       const onClose = () => {
-        console.log("ws close:::"+this.ws?.readyState);
+        console.log("ws close:::" + this.ws?.readyState);
 
         // errData.errCode = 111;
         // errData.errMsg = "ws connect failed...";
         // if (!this.logoutFlag) this.reconnect();
         // reject(errData);
-      }
+      };
 
       const onError = (err: Error | Event) => {
         console.log(err);
@@ -405,13 +112,9 @@ export default class OpenIMSDK extends Emitter {
         errData.errMsg = "ws connect failed...";
         if (!this.logoutFlag) this.reconnect();
         reject(errData);
-      }
+      };
 
-      this.createWs(
-        onOpen,
-        onClose,
-        onError
-      )
+      this.createWs(onOpen, onClose, onError);
 
       if (!this.ws) {
         errData.errCode = 112;
@@ -662,7 +365,7 @@ export default class OpenIMSDK extends Emitter {
     });
   };
 
-  createCardMessage = (data:string,operationID?: string) => {
+  createCardMessage = (data: string, operationID?: string) => {
     return new Promise<WsResponse>((resolve, reject) => {
       const _uuid = operationID || uuid(this.uid as string);
       const args = {
@@ -673,7 +376,7 @@ export default class OpenIMSDK extends Emitter {
       };
       this.wsSend(args, resolve, reject);
     });
-  }
+  };
 
   sendMessage = (data: SendMsgParams, operationID?: string) => {
     return new Promise<WsResponse>((resolve, reject) => {
@@ -770,10 +473,7 @@ export default class OpenIMSDK extends Emitter {
     });
   };
 
-  insertSingleMessageToLocalStorage = (
-    data: InsertSingleMsgParams,
-    operationID?: string
-  ) => {
+  insertSingleMessageToLocalStorage = (data: InsertSingleMsgParams, operationID?: string) => {
     return new Promise<WsResponse>((resolve, reject) => {
       const _uuid = operationID || uuid(this.uid as string);
       const args = {
@@ -1104,10 +804,7 @@ export default class OpenIMSDK extends Emitter {
     });
   };
 
-  getGroupMembersInfo = (
-    data: Omit<InviteGroupParams, "reason">,
-    operationID?: string
-  ) => {
+  getGroupMembersInfo = (data: Omit<InviteGroupParams, "reason">, operationID?: string) => {
     return new Promise<WsResponse>((resolve, reject) => {
       const _uuid = operationID || uuid(this.uid as string);
       const tmp: any = data;
@@ -1275,12 +972,8 @@ export default class OpenIMSDK extends Emitter {
 
   //tool methods
 
-  private wsSend = (
-    params: WsParams,
-    resolve: (value: WsResponse | PromiseLike<WsResponse>) => void,
-    reject: (reason?: any) => void
-  ) => {
-    if(this.ws===undefined){
+  private wsSend = (params: WsParams, resolve: (value: WsResponse | PromiseLike<WsResponse>) => void, reject: (reason?: any) => void) => {
+    if (this.ws === undefined) {
       let errData: WsResponse = {
         event: params.reqFuncName,
         errCode: 112,
@@ -1288,7 +981,7 @@ export default class OpenIMSDK extends Emitter {
         data: "",
         operationID: params.operationID || "",
       };
-      reject(errData)
+      reject(errData);
     }
     if (typeof params.data === "object") {
       params.data = JSON.stringify(params.data);
@@ -1319,7 +1012,7 @@ export default class OpenIMSDK extends Emitter {
 
       const callbackJob = this.ws2promise[data.operationID];
       if (!callbackJob) {
-        return
+        return;
       }
       if (data.errCode === 0) {
         callbackJob.mrsve(data);
@@ -1327,7 +1020,7 @@ export default class OpenIMSDK extends Emitter {
         callbackJob.mrjet(data);
       }
       delete this.ws2promise[data.operationID];
-    }
+    };
 
     if (this.platform == "web") {
       this.ws!.send(JSON.stringify(params));
@@ -1363,8 +1056,8 @@ export default class OpenIMSDK extends Emitter {
     const xflag = typeof wx;
 
     if (wflag !== "undefined") {
-      this.platform = "web"
-      return
+      this.platform = "web";
+      return;
     }
 
     if (uflag === "object" && xflag !== "object") {
@@ -1385,10 +1078,10 @@ export default class OpenIMSDK extends Emitter {
         token: this.token!,
       };
       this.iLogin(loginData).then((res) => (this.logoutFlag = false));
-    }
+    };
 
     if (_onOpen) {
-      onOpen = _onOpen
+      onOpen = _onOpen;
     }
 
     let onClose: any = () => {
@@ -1397,31 +1090,31 @@ export default class OpenIMSDK extends Emitter {
       if (!this.logoutFlag) {
         this.reconnect();
       }
-    }
+    };
 
     if (_onClose) {
-      onClose = _onClose
+      onClose = _onClose;
     }
 
-    let onError: any = () => {}
+    let onError: any = () => {};
     if (_onError) {
-      onError = _onError
+      onError = _onError;
     }
 
     if (this.platform === "web") {
-      this.ws = this.ws??new WebSocket(this.wsUrl);
+      this.ws = this.ws ?? new WebSocket(this.wsUrl);
       this.ws.onclose = onClose;
       this.ws.onopen = onOpen;
-      this.ws.onerror = onError
-      return
+      this.ws.onerror = onError;
+      return;
     }
 
     // @ts-ignore
-    const platformNamespace = this.platform === "uni" ? uni : wx
+    const platformNamespace = this.platform === "uni" ? uni : wx;
     this.ws = platformNamespace.connectSocket({
       url: this.wsUrl,
       complete: () => {},
-    })
+    });
     //@ts-ignore
     this.ws.onClose(onClose);
     //@ts-ignore

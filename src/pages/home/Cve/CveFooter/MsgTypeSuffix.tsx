@@ -10,6 +10,7 @@ import { messageTypes } from "../../../../constants/messageContentType";
 import send_id_card from "@/assets/images/send_id_card.png";
 import send_pic from "@/assets/images/send_pic.png";
 import send_video from "@/assets/images/send_video.png";
+import { useTranslation } from "react-i18next";
 
 type MsgTypeSuffixProps = {
     choseCard:()=>void
@@ -18,7 +19,7 @@ type MsgTypeSuffixProps = {
 }
 
 const MsgTypeSuffix:FC<MsgTypeSuffixProps> = ({choseCard,faceClick,sendMsg}) => {
-
+  const { t } = useTranslation();
   const imgMsg = async (file: RcFile, url: string) => {
     const { width, height } = await getPicInfo(file);
     const sourcePicture = {
@@ -77,24 +78,24 @@ const MsgTypeSuffix:FC<MsgTypeSuffixProps> = ({choseCard,faceClick,sendMsg}) => 
           videoMsg(uploadData.file as RcFile, res.url);
         }
       })
-      .catch((err) => message.error("上传失败！"));
+      .catch((err) => message.error(t("UploadFailed")));
   };
   
   const menus = [
     {
-      title: "发送名片",
+      title: t("SendCard"),
       icon: send_id_card,
       method: choseCard,
       type: "card",
     },
     {
-      title: "发送视频",
+      title: t("SendVideo"),
       icon: send_video,
       method: sendCosMsg,
       type: "video",
     },
     {
-      title: "发送图片",
+      title: t("SendPicture"),
       icon: send_pic,
       method: sendCosMsg,
       type: "pic",

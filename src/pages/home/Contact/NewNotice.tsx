@@ -1,5 +1,6 @@
 import { UserOutlined } from "@ant-design/icons";
 import { Button, Empty, message } from "antd";
+import { useTranslation } from "react-i18next";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { FriendApplication, GroupApplication } from "../../../@types/open_im";
 import { MyAvatar } from "../../../components/MyAvatar";
@@ -12,6 +13,7 @@ const NewNotice = ({ type }: { type: number }) => {
   const friendApplicationList = useSelector(selectFriendApplication, shallowEqual);
   const selectGroupApplication = (state: RootState) => state.contacts.groupApplicationList;
   const groupApplicationList = useSelector(selectGroupApplication, shallowEqual);
+  const { t } = useTranslation();
 
   const NoticeItem = ({ ap }: { ap: FriendApplication | GroupApplication }) => {
     const dispatch = useDispatch();
@@ -20,9 +22,9 @@ const NewNotice = ({ type }: { type: number }) => {
         im.acceptFriendApplication((ap as FriendApplication).uid)
           .then((res) => {
             ap.flag = 1;
-            message.success("添加好友成功！");
+            message.success(t("AddFriendSuc"));
           })
-          .catch((err) => message.error("操作失败！"));
+          .catch((err) => message.error(t("AccessFailed")));
       } else {
         const options = {
           application: JSON.stringify(ap),
@@ -32,9 +34,9 @@ const NewNotice = ({ type }: { type: number }) => {
           .then((res) => {
             // ap.flag = 1
             dispatch(getGroupApplicationList());
-            message.success("同意入群成功！");
+            message.success(t("AgreeJoin"));
           })
-          .catch((err) => message.error("操作失败！"));
+          .catch((err) => message.error(t("AccessFailed")));
       }
     };
     const refuseApplication = () => {
@@ -43,7 +45,7 @@ const NewNotice = ({ type }: { type: number }) => {
           .then((res) => {
             ap.flag = -1;
           })
-          .catch((err) => message.error("操作失败！"));
+          .catch((err) => message.error(t("AccessFailed")));
       } else {
         const options = {
           application: JSON.stringify(ap),
@@ -53,7 +55,7 @@ const NewNotice = ({ type }: { type: number }) => {
           .then((res) => {
             ap.flag = -1;
           })
-          .catch((err) => message.error("操作失败！"));
+          .catch((err) => message.error(t("AccessFailed")));
       }
     };
 
@@ -70,9 +72,9 @@ const NewNotice = ({ type }: { type: number }) => {
             <div className="notice_group">
               <div className="notice_group_title">{(ap as GroupApplication).fromUserNickName}</div>
               <div className="notice_group_sub">
-                申请加入 <span style={{ color: "#428BE5" }}>{(ap as GroupApplication).groupID}</span>
+                {t("ApplyJoin")} <span style={{ color: "#428BE5" }}>{(ap as GroupApplication).groupID}</span>
               </div>
-              <div className="notice_group_res">申请理由：</div>
+              <div className="notice_group_res">{t("ApplyReason")}：</div>
               <div className="notice_group_res">{(ap as GroupApplication).reqMsg}</div>
             </div>
           )}
@@ -81,12 +83,12 @@ const NewNotice = ({ type }: { type: number }) => {
           {ap.flag === 0 ? (
             <>
               <Button onClick={() => acceptApplication()} type="primary">
-                接受
+                {t("Accept")}
               </Button>
-              <Button onClick={() => refuseApplication()}>拒绝</Button>
+              <Button onClick={() => refuseApplication()}>{t("Refuse")}</Button>
             </>
           ) : (
-            <div className="apt_result">{ap.flag === -1 ? "已拒绝" : "已添加"}</div>
+            <div className="apt_result">{ap.flag === -1 ? t("Refused") : t("Accepted")}</div>
           )}
         </div>
       </div>
@@ -96,7 +98,7 @@ const NewNotice = ({ type }: { type: number }) => {
   return (
     <div className="notice_bg">
       {(type === 1 && friendApplicationList.length === 0) || (type === 2 && groupApplicationList.length === 0) ? (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无通知" />
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("NoNotice")} />
       ) : (
         (type === 1 ? friendApplicationList : groupApplicationList).map((fp) => <NoticeItem key={(fp as FriendApplication).uid ?? (fp as GroupApplication).groupID} ap={fp} />)
       )}

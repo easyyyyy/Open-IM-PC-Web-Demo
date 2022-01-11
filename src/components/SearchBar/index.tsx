@@ -39,7 +39,7 @@ export const SearchBar= ({menus,searchCb}:SearchBarProps) => {
 
   return (
     <div className={styles.top_tools}>
-      <Input allowClear onPressEnter={()=>searchCb(text)} onChange={(v)=>onChanged(v.target.value)} placeholder="搜索" prefix={<SearchOutlined />} />
+      <Input allowClear onPressEnter={()=>searchCb(text)} onChange={(v)=>onChanged(v.target.value)} placeholder="search" prefix={<SearchOutlined />} />
       <Dropdown
         overlay={addMenu}
         placement="bottomCenter"

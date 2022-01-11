@@ -1,6 +1,5 @@
 import { CbEvents } from "../constants";
-import { WsResponse } from "../im";
-
+import { WsResponse } from "../types";
 
 interface Events {
     [key:string]:Cbfn[]

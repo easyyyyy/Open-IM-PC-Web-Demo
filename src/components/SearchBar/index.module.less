@@ -1,11 +1,12 @@
 .top_tools {
   display: flex;
-  padding: 15px 15px 11px 15px;
+  padding: 15px 15px 11px;
   -webkit-app-region: drag;
+
   :global {
     .ant-input-affix-wrapper {
       border-radius: 16px;
-      -webkit-app-region:no-drag;
+      -webkit-app-region: no-drag;
     }
   }
 }
@@ -14,11 +15,14 @@
   .ant-dropdown-arrow {
     border-color: #353940 !important;
   }
+
   .ant-dropdown-menu-title-content {
     color: #fff;
   }
+
   .ant-dropdown-menu-item {
     padding: 7px 14px !important;
+
     &-active {
       background-color: #4f545d !important;
     }

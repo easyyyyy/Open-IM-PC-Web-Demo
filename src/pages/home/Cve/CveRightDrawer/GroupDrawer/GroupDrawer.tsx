@@ -1,12 +1,7 @@
-import {
-  RightOutlined,
-  SearchOutlined,
-  UserOutlined,
-  PlusOutlined,
-  MinusOutlined,
-} from "@ant-design/icons";
+import { RightOutlined, SearchOutlined, UserOutlined, PlusOutlined, MinusOutlined } from "@ant-design/icons";
 import { Input, Switch, Button, Typography } from "antd";
 import { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Cve, GroupMember } from "../../../../../@types/open_im";
 import { MyAvatar } from "../../../../../components/MyAvatar";
 import { DrawerType, GroupRole } from "../CveRightDrawer";
@@ -24,16 +19,8 @@ type GroupDrawerProps = {
   quitGroup: () => void;
 };
 
-const GroupDrawer: FC<GroupDrawerProps> = ({
-  curCve,
-  role,
-  groupMembers,
-  changeType,
-  inviteToGroup,
-  delInGroup,
-  updatePin,
-  quitGroup,
-}) => {
+const GroupDrawer: FC<GroupDrawerProps> = ({ curCve, role, groupMembers, changeType, inviteToGroup, delInGroup, updatePin, quitGroup }) => {
+  const { t } = useTranslation();
   const toManage = () => {
     if (role === GroupRole.OWNER) {
       changeType("group_manage");
@@ -48,11 +35,8 @@ const GroupDrawer: FC<GroupDrawerProps> = ({
           <div className="group_drawer_item_info">
             <div className="group_drawer_item_title">{curCve.showName}</div>
             {role !== GroupRole.NOMAL ? (
-              <div
-                onClick={() => changeType("edit_group_info")}
-                className="group_drawer_item_sub"
-              >
-                修改群信息
+              <div onClick={() => changeType("edit_group_info")} className="group_drawer_item_sub">
+                {t("UpdateGroupInfo")}
               </div>
             ) : null}
           </div>
@@ -60,32 +44,21 @@ const GroupDrawer: FC<GroupDrawerProps> = ({
         <RightOutlined />
       </div>
       <div className="group_drawer_row">
-        <div
-          onClick={() => changeType("member_list")}
-          className="group_drawer_row_title"
-        >
-          <div>群成员</div>
+        <div onClick={() => changeType("member_list")} className="group_drawer_row_title">
+          <div>{t("GruopMembers")}</div>
           <div>
             <span className="num_tip">{groupMembers.length}</span>
             <RightOutlined />
           </div>
         </div>
         <div className="group_drawer_row_input">
-          <Input placeholder="搜索" prefix={<SearchOutlined />} />
+          <Input placeholder={t("Search")} prefix={<SearchOutlined />} />
         </div>
         <div className="group_drawer_row_icon">
           {groupMembers!.length > 0
             ? groupMembers!.map((gm, idx) => {
                 if (idx < (role !== GroupRole.NOMAL ? 7 : 6)) {
-                  return (
-                    <MyAvatar
-                      key={gm.userId}
-                      shape="square"
-                      size={32.8}
-                      src={gm.faceUrl}
-                      icon={<UserOutlined />}
-                    />
-                  );
+                  return <MyAvatar key={gm.userId} shape="square" size={32.8} src={gm.faceUrl} icon={<UserOutlined />} />;
                 }
               })
             : null}
@@ -98,10 +71,10 @@ const GroupDrawer: FC<GroupDrawerProps> = ({
         <RightOutlined />
       </div> */}
       <div className="group_drawer_item group_drawer_item_nbtm">
-        <div>群昵称</div>
+        <div>{t("NickInGruop")}</div>
         <Paragraph
           editable={{
-            tooltip: "点击编辑",
+            tooltip: t("ClickEdit"),
             maxLength: 15,
             onChange: () => {},
           }}
@@ -110,34 +83,27 @@ const GroupDrawer: FC<GroupDrawerProps> = ({
         </Paragraph>
       </div>
       <div className="group_drawer_item group_drawer_item_nbtm">
-        <div>群聊ID</div>
-        <Paragraph
-        copyable
-        ellipsis
-        >
-        {curCve.groupID+curCve.groupID}
+        <div>{t("Group")}ID</div>
+        <Paragraph copyable ellipsis>
+          {curCve.groupID + curCve.groupID}
         </Paragraph>
         {/* <div className="group_id"></div> */}
       </div>
       <div className="group_drawer_item group_drawer_item_nbtm">
-        <div>添加到置顶</div>
-        <Switch
-          checked={curCve.isPinned === 0 ? false : true}
-          size="small"
-          onChange={updatePin}
-        />
+        <div>{t("Pin")}</div>
+        <Switch checked={curCve.isPinned === 0 ? false : true} size="small" onChange={updatePin} />
       </div>
       <div className="group_drawer_item group_drawer_item_nbtm">
-        <div>消息免打扰</div>
+        <div>{t("CancelPin")}</div>
         <Switch size="small" onChange={() => {}} />
       </div>
       <div className="group_drawer_btns">
         <Button onClick={quitGroup} danger className="group_drawer_btns_item">
-          退出群组
+          {t("QuitGroup")}
         </Button>
         {role === GroupRole.OWNER ? (
           <Button type="primary" danger className="group_drawer_btns_item">
-            解散群组
+            {t("DissolveGroup")}
           </Button>
         ) : null}
       </div>

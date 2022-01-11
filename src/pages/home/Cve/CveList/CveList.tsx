@@ -1,5 +1,6 @@
-import { Empty, List} from "antd";
-import { FC} from "react";
+import { Empty, List } from "antd";
+import { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { shallowEqual, useSelector } from "react-redux";
 import { Cve } from "../../../../@types/open_im";
 import { RootState } from "../../../../store";
@@ -17,7 +18,8 @@ type CveListProps = {
 
 const CveList: FC<CveListProps> = ({ cveList, clickItem, loading, marginTop, curCve }) => {
   const curUid = useSelector((state: RootState) => state.user.selfInfo.uid, shallowEqual);
-
+  const { t } = useTranslation();
+  
   return (
     <div className="cve_list">
       {cveList.length > 0 ? (
@@ -31,7 +33,7 @@ const CveList: FC<CveListProps> = ({ cveList, clickItem, loading, marginTop, cur
           renderItem={(item) => <CveItem cveList={cveList} curUid={curUid!} curCve={curCve} key={item.conversationID} onClick={clickItem} cve={item} />}
         />
       ) : (
-        <Empty description="暂无会话" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        <Empty description={t("NoCve")} image={Empty.PRESENTED_IMAGE_SIMPLE} />
       )}
     </div>
   );

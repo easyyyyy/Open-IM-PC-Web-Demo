@@ -1,6 +1,7 @@
 import { SearchOutlined } from "@ant-design/icons";
 import { Empty, Input, message, Modal, Tooltip } from "antd";
 import { FC, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSelector, shallowEqual } from "react-redux";
 import { debounce } from "throttle-debounce";
 import { GroupMember } from "../../../../../@types/open_im";
@@ -21,6 +22,7 @@ const MemberDrawer: FC<MemberDrawerProps> = (props) => {
   const [searchStatus, setSearchStatus] = useState(false);
   const [searchList, setSearchList] = useState<GroupMember[]>([]);
   const member2Status = useSelector((state: RootState) => state.contacts.member2status, shallowEqual);
+  const { t } = useTranslation();
 
   const onSearch = (e: any) => {
     if (e.key === "Enter") {
@@ -53,11 +55,11 @@ const MemberDrawer: FC<MemberDrawerProps> = (props) => {
   return (
     <div className="group_members">
       <div className="group_members_search">
-        <Input onKeyDown={onSearch} onChange={inputOnChange} placeholder="搜索" prefix={<SearchOutlined />} />
+        <Input onKeyDown={onSearch} onChange={inputOnChange} placeholder={t("Search")} prefix={<SearchOutlined />} />
       </div>
       <div className="group_members_list">
         {searchStatus && searchList.length === 0 ? (
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="无该成员" />
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("EmptySearch")} />
         ) : (
           (searchStatus ? searchList : groupMembers).map((g,idx) => <MemberItem key={g.userId} item={g} idx={idx} member2Status={member2Status} {...props} />)
         )}

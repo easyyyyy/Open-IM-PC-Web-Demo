@@ -1,53 +1,45 @@
 import { shallowEqual } from "@babel/types";
-import { Button, Empty, Layout, message } from "antd";
-import { useEffect, useState } from "react";
+import { Button, Empty, Layout, message, Radio, RadioChangeEvent } from "antd";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { useLocation } from "react-router";
+import { useLocation } from "react-router-dom";
 import { MyAvatar } from "../../../components/MyAvatar";
 import { RootState } from "../../../store";
 import { im } from "../../../utils";
 
 const { Header, Sider, Content } = Layout;
 
-const aboutMenus = [
-  {
-    title: "检查新版本",
-    idx: 0,
-  },
-  {
-    title: "新功能介绍",
-    idx: 1,
-  },
-  {
-    title: "服务协议",
-    idx: 2,
-  },
-  {
-    title: "OpenIM隐私政策",
-    idx: 3,
-  },
-  {
-    title: "版权信息",
-    idx: 4,
-  },
-];
+type LanguageType = "zh"|"en"
 
-const setMenus = [
-  {
-    title: "个人设置",
-    idx: 0,
-  },
-  {
-    title: "通讯录黑名单",
-    idx: 1,
-  },
-];
+const PersonalSetting = () => {
+  const { i18n, t } = useTranslation();
+
+  const onChange = (e: RadioChangeEvent) => {
+    i18n.changeLanguage(e.target.value)
+    localStorage.setItem("IMLanguage",e.target.value)
+  };
+
+  return (
+    <div className="personal_setting">
+      <div className="personal_setting_item">
+      <div className="title">{t("SelectLanguage")}</div>
+      <Radio.Group onChange={onChange} value={i18n.language}>
+        <Radio value="zh">简体中文</Radio>
+        <Radio value="en">English</Radio>
+      </Radio.Group>
+      </div>
+    </div>
+  );
+};
 
 const Blacklist = () => {
+  const { t } = useTranslation();
   const blackList = useSelector((state: RootState) => state.contacts.blackList, shallowEqual);
   const rmBl = (id: string) => {
-    im.deleteFromBlackList(id).then((res) => message.success("移除成功！"));
+    im.deleteFromBlackList(id).then((res) => message.success(t("RemoveMembersSuc")));
   };
+
   return (
     <div className="profile_content_bl">
       {blackList.length > 0 ? (
@@ -58,37 +50,87 @@ const Blacklist = () => {
               <div className="nick">{bl.name}</div>
             </div>
             <Button onClick={() => rmBl(bl.uid!)} type="link">
-              移除
+              {t("Remove")}
             </Button>
           </div>
         ))
       ) : (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无数据" />
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("NoData")} />
       )}
     </div>
   );
 };
 
 const Profile = () => {
-  const type = useLocation().state.type ?? "about";
+  const type = (useLocation().state as any).type ?? "about";
   const [curMenu, setCurMenu] = useState("");
+  const { t } = useTranslation();
+
+  const aboutMenus = [
+    {
+      title: t("CheckVersion"),
+      idx: 0,
+    },
+    {
+      title: t("NewFunctions"),
+      idx: 1,
+    },
+    {
+      title: t("ServceAggrement"),
+      idx: 2,
+    },
+    {
+      title: `OpenIM${t("PrivacyAgreement")}`,
+      idx: 3,
+    },
+    {
+      title: t("Copyright"),
+      idx: 4,
+    },
+  ];
+
+  const setMenus = [
+    {
+      title: t("PersonalSettings"),
+      idx: 0,
+    },
+    {
+      title: t("Blacklist"),
+      idx: 1,
+    },
+  ];
 
   const clickMenu = (idx: number) => {
     switch (idx) {
+      case 0:
+        if (type === "set") {
+          setCurMenu("ps");
+        }
+        break;
       case 1:
         if (type === "set") {
           setCurMenu("bl");
         }
         break;
-
       default:
         setCurMenu("");
         break;
     }
   };
+
+  const switchContent = () => {
+    switch (curMenu) {
+      case "bl":
+        return <Blacklist />
+      case "ps":
+        return <PersonalSetting/>
+      default:
+        return <div>...</div>
+    }
+  }
   return (
     <Layout className="profile">
-      <Header className="profile_header">{type === "about" ? "关于我们" : "账号设置"}</Header>
+      <Header className="profile_header">{type === "about" ? t("AboutUs") : t("AccountSettings")}</Header>
       <Layout>
         <Sider width="350" className="profile_sider" theme="light">
           <div className="profile_sider_menu">
@@ -99,7 +141,7 @@ const Profile = () => {
             ))}
           </div>
         </Sider>
-        <Content className="profile_content">{curMenu === "bl" ? <Blacklist /> : "..."}</Content>
+        <Content className="profile_content">{switchContent()}</Content>
       </Layout>
     </Layout>
   );
