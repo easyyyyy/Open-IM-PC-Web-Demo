@@ -1,5 +1,5 @@
 import { OnLineResType } from "../@types/open_im";
-import { ADMINURL } from "../config";
+import { getAdminUrl } from "../config";
 import { request } from "../utils";
 import { uuid } from "../utils/open_im_sdk";
 
@@ -12,7 +12,7 @@ export const getAuthToken = (uid?:string,secret?:string) =>
       uid: uid??"openIM123456",
     }),
     {
-      baseURL: ADMINURL,
+      baseURL: getAdminUrl(),
     }
   );
 
@@ -24,7 +24,7 @@ export const getOnline = async (userIDList: string[],token:string, opid?: string
         userIDList,
       }),
       {
-        baseURL: ADMINURL,
+        baseURL: getAdminUrl(),
         headers:{
             token
         }

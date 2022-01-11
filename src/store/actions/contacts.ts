@@ -10,6 +10,7 @@ import {
   SET_GROUP_APPLICATION_LIST,
   SET_GROUP_LIST,
   SET_GROUP_MEMBER_LIST,
+  SET_GROUP_MEMBER_LOADING,
   SET_MEMBER2STATUS,
   SET_ORIGIN_LIST,
   SET_UNREAD_COUNT,
@@ -63,6 +64,13 @@ export const setGroupApplicationList = (value: GroupApplication[]): ContactActio
 export const setGroupMemberList = (value: GroupMember[]): ContactActionTypes => {
   return {
     type: SET_GROUP_MEMBER_LIST,
+    payload: value,
+  };
+};
+
+export const setGroupMemberLoading = (value: boolean): ContactActionTypes => {
+  return {
+    type: SET_GROUP_MEMBER_LOADING,
     payload: value,
   };
 };
@@ -123,8 +131,10 @@ export const getGroupApplicationList = () => {
 
 export const getGroupMemberList = (options:GetGroupMemberParams) => {
   return (dispatch: Dispatch) => {
+    dispatch(setGroupMemberLoading(true));
     im.getGroupMemberList(options).then((res) => {
       dispatch(setGroupMemberList(JSON.parse(res.data).data))
+      dispatch(setGroupMemberLoading(false));
     });
   };
 };

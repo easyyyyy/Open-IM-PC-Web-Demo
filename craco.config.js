@@ -33,7 +33,7 @@ module.exports = {
         cacheGroups: {
           commons: {
             chunks: "initial",
-            minChunks: 4,
+            minChunks: 2,
             maxInitialRequests: 5,
             minSize: 0,
           },
@@ -48,27 +48,27 @@ module.exports = {
       },
     },
     configure: (webpackConfig, { env, paths }) => {
-      if (process.env.NODE_ENV === "production") {
-        webpackConfig.externals = {
-          react: "React",
-          "react-dom": "ReactDOM",
-          redux: "Redux",
-        };
+      // if (process.env.NODE_ENV === "production") {
+      //   webpackConfig.externals = {
+      //     react: "React",
+      //     "react-dom": "ReactDOM",
+      //     redux: "Redux",
+      //   };
 
-        cdn = {
-          js: [
-            "https://cdn.bootcdn.net/ajax/libs/react/17.0.2/umd/react.production.min.js",
-            "https://cdn.bootcdn.net/ajax/libs/react-dom/17.0.2/umd/react-dom.production.min.js",
-            "https://cdn.bootcdn.net/ajax/libs/redux/4.1.0/redux.min.js",
-          ],
-          css: [],
-        };
+      //   cdn = {
+      //     js: [
+      //       "https://cdn.bootcdn.net/ajax/libs/react/17.0.2/umd/react.production.min.js",
+      //       "https://cdn.bootcdn.net/ajax/libs/react-dom/17.0.2/umd/react-dom.production.min.js",
+      //       "https://cdn.bootcdn.net/ajax/libs/redux/4.1.0/redux.min.js",
+      //     ],
+      //     css: [],
+      //   };
 
-        const { isFound, match } = getPlugin(webpackConfig, pluginByName("HtmlWebpackPlugin"));
-        if (isFound) {
-          match.options.cdn = cdn;
-        }
-      }
+      //   const { isFound, match } = getPlugin(webpackConfig, pluginByName("HtmlWebpackPlugin"));
+      //   if (isFound) {
+      //     match.options.cdn = cdn;
+      //   }
+      // }
       return webpackConfig;
     },
   },

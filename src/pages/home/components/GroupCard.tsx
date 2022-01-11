@@ -8,13 +8,14 @@ import {
 } from "antd";
 import { FC, useState, useRef, useEffect } from "react";
 import Draggable, { DraggableEvent, DraggableData } from "react-draggable";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { shallowEqual, useSelector } from "react-redux";
 import { GroupItem } from "../../../@types/open_im";
 import { RootState } from "../../../store";
 import { events, im } from "../../../utils";
 import { MyAvatar } from "../../../components/MyAvatar";
 import { TOASSIGNCVE } from "../../../constants/events";
 import { sessionType } from "../../../constants/messageContentType";
+import { useTranslation } from "react-i18next";
 
 type GroupCardProps = {
   draggableCardVisible: boolean;
@@ -38,8 +39,7 @@ const GroupCard: FC<GroupCardProps> = ({
     right: 0,
   });
   const draRef = useRef<any>(null);
-
-  const dispatch = useDispatch();
+  const { t } = useTranslation();
   const [form] = Form.useForm();
 
   useEffect(()=>{
@@ -76,21 +76,12 @@ const GroupCard: FC<GroupCardProps> = ({
     im.joinGroup(param)
       .then((res) => {
         console.log(res);
-        message.success("发送入群请求成功！");
+        message.success(t("SendAddGruopSuc"));
         close();
       })
       .catch((err) => {
-        message.error("发送入群请求失败！");
+        message.error(t("SendAddGruopFailed"));
       });
-  };
-
-  const clickBtn = () => {
-    if (inGroup) {
-      //TODO to cve
-      events.emit(TOASSIGNCVE,info.groupID,sessionType.GROUPCVE)
-    } else {
-      setStep("send");
-    }
   };
 
   const goBack = () => {
@@ -106,7 +97,7 @@ const GroupCard: FC<GroupCardProps> = ({
 
   const nextStep = () => {
     if(inGroup){
-
+      events.emit(TOASSIGNCVE,info.groupID,sessionType.GROUPCVE)
     }else{
       setStep("send")
     }
@@ -120,10 +111,8 @@ const GroupCard: FC<GroupCardProps> = ({
           <div className="left_info_title">{info.groupName +' ('+info.memberCount+')'}</div>
         </div>
           <MyAvatar
-            shape="square"
             src={info.faceUrl}
             size={42}
-            icon={<UserOutlined />}
           />
       </>
     );
@@ -137,7 +126,7 @@ const GroupCard: FC<GroupCardProps> = ({
           onClick={goBack}
           style={{ fontSize: "12px", marginRight: "12px" }}
         />
-        <div className="send_msg_title_text">群聊验证</div>
+        <div className="send_msg_title_text">{t("GroupValidation")}</div>
       </div>
     </>
   );
@@ -145,7 +134,7 @@ const GroupCard: FC<GroupCardProps> = ({
 
   const InfoBody = () => (
     <div className="group_card_body">
-      <div className="group_card_title">群成员</div>
+      <div className="group_card_title"></div>
       <div className="group_card_member">
         <MyAvatar size={35.3} />
         <MyAvatar size={35.3} />
@@ -154,13 +143,13 @@ const GroupCard: FC<GroupCardProps> = ({
         <MyAvatar size={35.3} />
         <EllipsisOutlined />
       </div>
-      <div style={{padding:"8px 0"}} className="group_card_title">{`群ID  ${6456456156156161561}`}</div>
+      <div style={{padding:"8px 0"}} className="group_card_title">{`${t("GroupID")}  ${info.groupID}`}</div>
       <Button
         onClick={nextStep}
         className="add_con_btn"
         type="primary"
       >
-        { inGroup?'发送消息':'添加群聊' }
+        { inGroup?t("SendMessage"):t("AddGroup") }
       </Button>
     </div>
   );
@@ -182,7 +171,7 @@ const GroupCard: FC<GroupCardProps> = ({
           autoComplete="off"
         >
           <Form.Item name="reqMessage">
-            <Input placeholder="请输入验证信息" />
+            <Input placeholder={t("VerficationTip")} />
           </Form.Item>
         </Form>
       </div>
@@ -191,7 +180,7 @@ const GroupCard: FC<GroupCardProps> = ({
         className="add_con_btn"
         type="primary"
       >
-        发送
+        {t("Send")}
       </Button>
     </>
   );

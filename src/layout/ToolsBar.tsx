@@ -1,4 +1,4 @@
-import { Avatar, Badge, Layout, Modal, Popover, Tooltip } from "antd";
+import { Badge, Layout, Modal, Popover, Tooltip } from "antd";
 
 import styles from "./layout.module.less";
 
@@ -17,6 +17,7 @@ import UserCard from "../pages/home/components/UserCard";
 import { shallowEqual, useSelector } from "react-redux";
 import { RootState } from "../store";
 import { useClickAway } from "ahooks";
+import { getAdminUrl, getAxiosUrl, getIMUrl } from "../config";
 
 const { Sider } = Layout;
 
@@ -141,7 +142,16 @@ const ToolsBar: FC<ToolsBarProps> = ({ userInfo }) => {
 
   const logout = () => {
     im.logout();
+    const IMUrl = getIMUrl();
+    const IMAxiosUrl = getAxiosUrl();
+    const IMAdminUrl = getAdminUrl();
+    const LastUid = localStorage.getItem("lastimuid")
     localStorage.clear();
+    localStorage.setItem("IMAxiosUrl",IMAxiosUrl);
+    localStorage.setItem("IMUrl",IMUrl);
+    localStorage.setItem("IMAdminUrl",IMAdminUrl);
+    localStorage.setItem("IMAdminUrl",IMAdminUrl);
+    localStorage.setItem("lastimuid",LastUid!);
     navigate("/login");
   };
 

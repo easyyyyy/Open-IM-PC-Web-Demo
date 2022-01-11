@@ -2,9 +2,9 @@ import { RightOutlined } from '@ant-design/icons';
 import { Button, Input, message, Upload } from 'antd';
 import { UploadRequestOption } from 'rc-upload/lib/interface';
 import { FC } from 'react';
-import { GroupItem } from '../../../../@types/open_im';
-import { MyAvatar } from '../../../../components/MyAvatar';
-import { cosUpload } from '../../../../utils';
+import { GroupItem } from '../../../../../@types/open_im';
+import { MyAvatar } from '../../../../../components/MyAvatar';
+import { cosUpload } from '../../../../../utils';
 
 type EditDrawerProps = {
     groupInfo:GroupItem;
@@ -28,6 +28,7 @@ const EditDrawer:FC<EditDrawerProps> = ({groupInfo,changeGroupInfo,updateGroupIn
             <div>群头像</div>
             <div className="group_drawer_item_right">
               <Upload
+              accept='image/*'
                 action={""}
                 customRequest={(data) => uploadIcon(data)}
                 showUploadList={false}

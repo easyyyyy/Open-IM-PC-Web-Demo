@@ -1,14 +1,14 @@
 import { BrowserRouter, HashRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import Mylayout from "../layout/MyLayout";
 import Login from "../pages/login/Login";
-import Home from "../pages/home/Cve/home";
+import Home from "../pages/home/Cve/cve";
 import Contacts from "../pages/home/Contact/contacts";
 import Profile from "../pages/home/Profile/Profile";
-import { FC, ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { RootState } from "../store";
 import { im } from "../utils";
-import { IMURL } from "../config";
+import { getIMUrl } from "../config";
 import { message, Modal, Spin } from "antd";
 import { getCveList, setCveList } from "../store/actions/cve";
 import { getBlackList, getFriendApplicationList, getFriendList, getGroupApplicationList, getGroupList, getUnReadCount, setUnReadCount } from "../store/actions/contacts";
@@ -133,11 +133,10 @@ const Auth = () => {
   //@ts-ignore
 
   const imLogin = async () => {
-    let url = IMURL;
+    let url = getIMUrl();
     let platformID = 5;
     if (window.electron) {
-      const ip = await window.electron.getIP();
-      url = `ws://${ip}:7788`;
+      url = await window.electron.getLocalWsAddress();
       // if(window.process.platform==="darwin"){
       //   platformID = 4
       // }else if(window.process.platform==="win32"){

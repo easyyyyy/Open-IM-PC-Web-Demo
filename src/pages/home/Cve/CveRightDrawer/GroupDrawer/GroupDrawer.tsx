@@ -7,8 +7,8 @@ import {
 } from "@ant-design/icons";
 import { Input, Switch, Button, Typography } from "antd";
 import { FC } from "react";
-import { Cve, GroupMember } from "../../../../@types/open_im";
-import { MyAvatar } from "../../../../components/MyAvatar";
+import { Cve, GroupMember } from "../../../../../@types/open_im";
+import { MyAvatar } from "../../../../../components/MyAvatar";
 import { DrawerType, GroupRole } from "../CveRightDrawer";
 
 const { Paragraph } = Typography;

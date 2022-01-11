@@ -8,6 +8,7 @@ export type ContactState = {
   friendApplicationList: FriendApplication[];
   groupApplicationList: GroupApplication[];
   groupMemberList: GroupMember[];
+  groupMemberLoading: boolean;
   member2status: MemberMapType;
   unReadCount: number;
 };
@@ -19,6 +20,7 @@ export const SET_BLACK_LIST = "SET_BLACK_LIST";
 export const SET_FRIEND_APPLICATION_LIST = "SET_FRIEND_APPLICATION_LIST";
 export const SET_GROUP_APPLICATION_LIST = "SET_GROUP_APPLICATION_LIST";
 export const SET_GROUP_MEMBER_LIST = "SET_GROUP_MEMBER_LIST";
+export const SET_GROUP_MEMBER_LOADING = "SET_GROUP_MEMBER_LOADING";
 export const SET_MEMBER2STATUS = "SET_MEMBER2STATUS";
 export const SET_UNREAD_COUNT = "SET_UNREAD_COUNT";
 
@@ -57,6 +59,12 @@ type SetGroupMemberList = {
   payload: GroupMember[];
 };
 
+type SetGroupMemberLoading = {
+  type: typeof SET_GROUP_MEMBER_LOADING;
+  payload: boolean;
+};
+
+
 type SetMember2Status = {
   type: typeof SET_MEMBER2STATUS;
   payload: MemberMapType;
@@ -76,4 +84,5 @@ export type ContactActionTypes =
   | SetUnReadCount
   | SetbBlackList
   | SetMember2Status
-  | SetGroupMemberList;
+  | SetGroupMemberList
+  | SetGroupMemberLoading;

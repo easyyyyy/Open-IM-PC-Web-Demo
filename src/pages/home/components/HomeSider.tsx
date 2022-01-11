@@ -1,6 +1,7 @@
 import { UserAddOutlined, MessageOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import { Layout, Modal, Input, Button, message } from "antd";
 import { cloneElement, FC, forwardRef, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FriendItem, GroupItem, GroupMember, Message, UserInfo } from "../../../@types/open_im";
 import { SearchBar } from "../../../components/SearchBar";
 import { FORWARDANDMERMSG, OPENGROUPMODAL, OPENSINGLEMODAL, TOASSIGNCVE } from "../../../constants/events";
@@ -20,28 +21,31 @@ type AddConModalProps = {
   type: "friend" | "group";
 };
 
-const AddConModal: FC<AddConModalProps> = ({ isAddConsVisible, loading, searchCons, cancleSearch, getNo, type }) => (
-  <Modal
-    key="AddConModal"
-    className="add_cons_modal"
-    title={type === "friend" ? "添加好友" : "添加群聊"}
-    visible={isAddConsVisible}
-    centered
-    destroyOnClose
-    width={360}
-    onCancel={cancleSearch}
-    footer={[
-      <Button key="comfirmBtn" loading={loading} onClick={searchCons} className="add_cons_modal_btn" type="primary">
-        确定
-      </Button>,
-      <Button key="cancelBtn" onClick={cancleSearch} className="add_cons_modal_btn" type="default">
-        取消
-      </Button>,
-    ]}
-  >
-    <Input allowClear placeholder={`请输入${type === "friend" ? "用户" : "群聊"}ID`} onChange={(v) => getNo(v.target.value)} />
-  </Modal>
-);
+const AddConModal: FC<AddConModalProps> = ({ isAddConsVisible, loading, searchCons, cancleSearch, getNo, type }) => {
+  const { t } = useTranslation();
+  return (
+    <Modal
+      key="AddConModal"
+      className="add_cons_modal"
+      title={type === "friend" ? t("AddFriend") : t("JoinGroup")}
+      visible={isAddConsVisible}
+      centered
+      destroyOnClose
+      width={360}
+      onCancel={cancleSearch}
+      footer={[
+        <Button key="comfirmBtn" loading={loading} onClick={searchCons} className="add_cons_modal_btn" type="primary">
+          {t("Confirm")}
+        </Button>,
+        <Button key="cancelBtn" onClick={cancleSearch} className="add_cons_modal_btn" type="default">
+          {t("Cancel")}
+        </Button>,
+      ]}
+    >
+      <Input allowClear placeholder={`${t("PleaseInput")}${type === "friend" ? t("User") : t("Gruop")}ID`} onChange={(v) => getNo(v.target.value)} />
+    </Modal>
+  );
+}
 
 type HomeSiderProps = {
   searchCb:(value:string)=>void
@@ -64,6 +68,7 @@ const HomeSider: FC<HomeSiderProps> = ({ children,searchCb }) => {
   const [addType, setAddType] = useState<"friend" | "group">("friend");
   const [modalType, setModalType] = useState<ModalType>("create");
   const [groupInfo, setGroupInfo] = useState<GroupInfoType>();
+  const { t } = useTranslation();
 
   useEffect(() => {
     events.on(TOASSIGNCVE, assignHandler);
@@ -124,17 +129,17 @@ const HomeSider: FC<HomeSiderProps> = ({ children,searchCb }) => {
 
   const menus = [
     {
-      title: "添加好友",
+      title: t("AddFriend"),
       icon: <UserAddOutlined style={{ fontSize: "16px", color: "#fff" }} />,
       method: clickMenuItem,
     },
     {
-      title: "添加群聊",
+      title: t("JoinGroup"),
       icon: <UsergroupAddOutlined style={{ fontSize: "16px", color: "#fff" }} />,
       method: clickMenuItem,
     },
     {
-      title: "创建群聊",
+      title: t("CreateGroup"),
       icon: <MessageOutlined style={{ fontSize: "16px", color: "#fff" }} />,
       method: clickMenuItem,
     },
@@ -152,12 +157,12 @@ const HomeSider: FC<HomeSiderProps> = ({ children,searchCb }) => {
             setSerchRes(tmpArr[0]);
             setUserCardVisible(true);
           } else {
-            message.info("用户搜索结果为空！");
+            message.info(t("UserSearchEmpty"));
           }
           setLoading(false);
         })
         .catch((err) => {
-          message.error("请求失败，请重试！");
+          message.error(t("AccessFailed"));
           setLoading(false);
         });
     } else {
@@ -168,12 +173,12 @@ const HomeSider: FC<HomeSiderProps> = ({ children,searchCb }) => {
             setSerchRes(tmpArr[0]);
             setGroupCardVisible(true);
           } else {
-            message.info("群聊搜索结果为空！");
+            message.info(t("GroupSearchEmpty"));
           }
           setLoading(false);
         })
         .catch((err) => {
-          message.error("请求失败，请重试！");
+          message.error(t("AccessFailed"));
           setLoading(false);
         });
     }

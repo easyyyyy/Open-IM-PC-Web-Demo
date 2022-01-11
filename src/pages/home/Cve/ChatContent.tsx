@@ -6,7 +6,7 @@ import { RootState } from "../../../store";
 import { events, im } from "../../../utils";
 import ScrollView from "../../../components/ScrollView";
 import { MUTILMSG, OPENSINGLEMODAL } from "../../../constants/events";
-import MsgItem from "./components/MsgItem";
+import MsgItem from "./MsgItem/MsgItem";
 
 type ChatContentProps = {
   msgList: Message[];
@@ -97,7 +97,7 @@ const ChatContent: FC<ChatContentProps> = ({ merID, msgList, imgClick, loadMore,
               </div>
             );
           } else {
-            return <MsgItem audio={audioRef} key={msg.clientMsgID} mutilSelect={mutilSelect} msg={msg} imgClick={imgClick} selfID={merID ?? selfID} curCve={curCve} clickItem={clickItem} />;
+            return <MsgItem audio={audioRef} key={msg.clientMsgID} mutilSelect={mutilSelect} msg={msg} imgClick={imgClick} selfID={merID ?? selfID} curCve={curCve!} clickItem={clickItem} />;
           }
         })}
       </ScrollView>

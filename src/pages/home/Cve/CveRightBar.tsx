@@ -11,7 +11,7 @@ import { FC, useEffect, useState } from "react";
 import { Cve, FriendItem, GroupItem, GroupMember } from "../../../@types/open_im";
 import { events, im, isSingleCve } from "../../../utils";
 import { OPENSINGLEMODAL, TOASSIGNCVE } from "../../../constants/events";
-import CveRightDrawer from "./CveRightDrawer";
+import CveRightDrawer from "./CveRightDrawer/CveRightDrawer";
 
 const { Sider } = Layout;
 

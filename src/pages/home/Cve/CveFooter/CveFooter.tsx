@@ -1,22 +1,16 @@
-import { CloseCircleFilled, CloseCircleOutlined, CloseOutlined, PlusCircleOutlined, SmileOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Image as AntdImage, Input, Layout, Menu, message, Tooltip, Upload } from "antd";
-import { debounce, throttle } from "throttle-debounce";
+import { CloseCircleFilled, CloseOutlined } from "@ant-design/icons";
+import { Button, Layout, message } from "antd";
 import { FC, useEffect, useRef, useState } from "react";
-import { cosUpload, events, im, isSingleCve } from "../../../utils";
-import { Cve, FriendItem, Message, StringMapType } from "../../../@types/open_im";
-import { UploadRequestOption } from "rc-upload/lib/interface";
-import { RcFile } from "antd/lib/upload";
-import { PICMESSAGETHUMOPTION } from "../../../config";
-import { messageTypes } from "../../../constants/messageContentType";
-import { ATSTATEUPDATE, FORWARDANDMERMSG, ISSETDRAFT, MUTILMSG, MUTILMSGCHANGE, REPLAYMSG } from "../../../constants/events";
-import CardMsgModal from "./components/CardMsgModal";
-import { faceMap } from "../../../constants/faceType";
+import { events, im, isSingleCve } from "../../../../utils";
+import { Cve, FriendItem, Message, StringMapType } from "../../../../@types/open_im";
+import { messageTypes } from "../../../../constants/messageContentType";
+import { ATSTATEUPDATE, FORWARDANDMERMSG, ISSETDRAFT, MUTILMSG, MUTILMSGCHANGE, REPLAYMSG } from "../../../../constants/events";
+import CardMsgModal from "../components/CardMsgModal";
+import { faceMap } from "../../../../constants/faceType";
 
-import send_id_card from "@/assets/images/send_id_card.png";
-import send_pic from "@/assets/images/send_pic.png";
-import send_video from "@/assets/images/send_video.png";
 import { useSelector, shallowEqual } from "react-redux";
-import { RootState } from "../../../store";
+import { RootState } from "../../../../store";
+import MsgTypeSuffix from "./MsgTypeSuffix";
 
 const { Footer } = Layout;
 
@@ -127,16 +121,18 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
         setUid2name({ ...uid2name, [hln]: member.userId });
       }
     });
-    console.log(text);
-    
+
     return text;
   };
 
   const parseDrft = (text: string) => {
     text = reParseEmojiFace(reParseAt(text));
+
     inputRef.current.innerHTML = text;
+    console.log(inputRef.current.innerHTML);
     move2end();
     setFoceUpdate((v) => !v);
+    console.log(inputRef.current.innerHTML);
   };
 
   const move2end = () => {
@@ -181,8 +177,6 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   };
 
   const replyHandler = (msg: Message) => {
-    console.log(msg);
-    
     setReplyMsg(msg);
   };
 
@@ -192,33 +186,12 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
         conversationID: cve.conversationID,
         draftText: atList.length > 0 ? parseEmojiFace(parseAt()) : parseEmojiFace(inputRef.current.innerHTML),
       };
-      
+
       im.setConversationDraft(option)
         .then((res) => {})
         .catch((err) => {})
         .finally(() => (inputRef.current.innerHTML = ""));
     }
-  };
-
-  const getPicInfo = (file: RcFile): Promise<HTMLImageElement> => {
-    return new Promise((resolve, reject) => {
-      const _URL = window.URL || window.webkitURL;
-      const img = new Image();
-      img.onload = function () {
-        resolve(img);
-      };
-      img.src = _URL.createObjectURL(file);
-    });
-  };
-
-  const getVideoInfo = (file: RcFile): Promise<number> => {
-    return new Promise((resolve, reject) => {
-      const Url = URL.createObjectURL(file);
-      const vel = new Audio(Url);
-      vel.onloadedmetadata = function () {
-        resolve(vel.duration);
-      };
-    });
   };
 
   const parseMsg = (msg: Message) => {
@@ -246,157 +219,13 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     }
   };
 
-  const sendCosMsg = async (uploadData: UploadRequestOption, type: string) => {
-    cosUpload(uploadData)
-      .then((res) => {
-        if (type === "pic") {
-          imgMsg(uploadData.file as RcFile, res.url);
-        } else if (type === "video") {
-          videoMsg(uploadData.file as RcFile, res.url);
-        }
-      })
-      .catch((err) => message.error("上传失败！"));
-  };
-
-  const ChoseCard = () => {
-    setCrardSeVis(true);
-  };
-
-  const imgMsg = async (file: RcFile, url: string) => {
-    const { width, height } = await getPicInfo(file);
-    const sourcePicture = {
-      uuid: file.uid,
-      type: file.type,
-      size: file.size,
-      width,
-      height,
-      url,
-    };
-    const snapshotPicture = {
-      uuid: file.uid,
-      type: file.type,
-      size: file.size,
-      width: 200,
-      height: 200,
-      url: url + PICMESSAGETHUMOPTION,
-    };
-    const imgInfo = {
-      sourcePicture,
-      snapshotPicture,
-      bigPicture: sourcePicture,
-    };
-    const { data } = await im.createImageMessage(imgInfo);
-    sendMsg(data, messageTypes.PICTUREMESSAGE);
-  };
-
-  const videoMsg = async (file: RcFile, url: string) => {
-    const snp = "https://echat-1302656840.cos.ap-chengdu.myqcloud.com/rc-upload-1638518718431-15video_cover.png?imageView2/1/w/200/h/200/rq/80";
-    const duration = await getVideoInfo(file);
-    const videoInfo = {
-      videoPath: url,
-      duration,
-      videoType: file.type,
-      snapshotPath: snp,
-      videoUUID: file.uid,
-      videoUrl: url,
-      videoSize: file.size,
-      snapshotUUID: file.uid,
-      snapshotSize: 117882,
-      snapshotUrl: snp,
-      snapshotWidth: 1024,
-      snapshotHeight: 1024,
-    };
-    const { data } = await im.createVideoMessage(videoInfo);
-    sendMsg(data, messageTypes.VIDEOMESSAGE);
-  };
-
   const quoteMsg = async () => {
     const { data } = await im.createQuoteMessage({ text: parseEmojiFace(inputRef.current.innerHTML), message: JSON.stringify(replyMsg) });
     sendMsg(data, messageTypes.QUOTEMESSAGE);
     reSet();
   };
 
-  const menus = [
-    {
-      title: "发送名片",
-      icon: send_id_card,
-      method: ChoseCard,
-      type: "card",
-    },
-    {
-      title: "发送视频",
-      icon: send_video,
-      method: sendCosMsg,
-      type: "video",
-    },
-    {
-      title: "发送图片",
-      icon: send_pic,
-      method: sendCosMsg,
-      type: "pic",
-    },
-  ];
-
-  const MsgType = () => (
-    <Menu className="input_menu">
-      {menus.map((m: any) => {
-        if (m.type === "card") {
-          return (
-            <Menu.Item key={m.title} onClick={m.method} icon={<img src={m.icon} />}>
-              {m.title}
-            </Menu.Item>
-          );
-        } else {
-          return (
-            <Menu.Item key={m.title} icon={<img src={m.icon} />}>
-              <Upload
-                key={m.title}
-                action={""}
-                // beforeUpload={(data) => m.method(data, m.type)}
-                customRequest={(data) => m.method(data, m.type)}
-                showUploadList={false}
-              >
-                {m.title}
-              </Upload>
-            </Menu.Item>
-          );
-        }
-      })}
-    </Menu>
-  );
-
-  const faceClick = (face: typeof faceMap[0]) => {
-    const faceEl = `<img alt="${face.context}" style="padding-right:2px" width="24px" src="${face.src}">`;
-    setFace2str({ ...face2str, [faceEl]: face.context });
-    inputRef.current.innerHTML += faceEl;
-    setFoceUpdate((v) => !v);
-  };
-
-  const FaceType = () => (
-    <div style={{ boxShadow: "0px 4px 25px rgb(0 0 0 / 16%)" }} className="face_container">
-      {faceMap.map((face) => (
-        <div key={face.context} onClick={() => faceClick(face)} className="face_item">
-          <AntdImage preview={false} width={24} src={face.src} />
-        </div>
-      ))}
-    </div>
-  );
-
-  const Suffix = () => (
-    <div className="suffix_container">
-      <Dropdown overlayClassName="face_type_drop" overlay={FaceType} placement="topLeft" arrow>
-        {/* <Tooltip title="表情"> */}
-        <SmileOutlined style={{ paddingRight: "8px" }} />
-        {/* </Tooltip> */}
-      </Dropdown>
-
-      <Dropdown overlayClassName="msg_type_drop" overlay={MsgType} placement="topCenter" arrow>
-        <PlusCircleOutlined />
-      </Dropdown>
-    </div>
-  );
-
-  const Prefix = () =>
+  const ReplyPrefix = () =>
     replyMsg ? (
       <div className="reply">
         <CloseCircleFilled onClick={() => setReplyMsg(undefined)} />
@@ -428,6 +257,14 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     setUid2name({});
     setAtList([]);
     setFlag(false);
+  };
+
+  const faceClick = (face: typeof faceMap[0]) => {
+    const faceEl = `<img alt="${face.context}" style="padding-right:2px" width="24px" src="${face.src}">`;
+    setFace2str({ ...face2str, [faceEl]: face.context });
+    inputRef.current.innerHTML += faceEl;
+
+    setFoceUpdate((v) => !v);
   };
 
   const parseAt = () => {
@@ -480,9 +317,7 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   };
 
   const updateTypeing = (receiver: string, msgTip: string) => {
-    im.typingStatusUpdate({ receiver, msgTip })
-      .then((res) => {})
-      .catch((err) => {});
+    im.typingStatusUpdate({ receiver, msgTip });
   };
 
   const keyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -514,9 +349,8 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
 
       switchMessage(replyMsg ? "quote" : atList.length > 0 ? "at" : "text");
     }
+    typing();
   };
-
-  // const keyDownDebounce = debounce(150,keyDown)
 
   const cancelMutil = () => {
     setMutilMsg([]);
@@ -556,20 +390,28 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     sendMsg(data, messageTypes.CARDMESSAGE);
   };
 
+  const choseCard = () => {
+    setCrardSeVis(true);
+  };
+
+  const MutilAction = () => (
+    <div className="footer_mutil">
+      <CloseOutlined onClick={cancelMutil} />
+      <Button onClick={selectRec} type="primary" shape="round">
+        合并转发
+      </Button>
+    </div>
+  );
+
   return (
     <Footer className="chat_footer">
       {mutilSelect ? (
-        <div className="footer_mutil">
-          <CloseOutlined onClick={cancelMutil} />
-          <Button onClick={selectRec} type="primary" shape="round">
-            合并转发
-          </Button>
-        </div>
+        <MutilAction />
       ) : (
         <div style={{ position: "relative" }}>
           <div style={{ paddingTop: replyMsg ? "32px" : "4px" }} ref={inputRef} data-pl={`发送给 ${curCve.showName}`} onKeyDown={keyDown} className="input_div" contentEditable />
-          <Prefix />
-          <Suffix />
+          <ReplyPrefix />
+          <MsgTypeSuffix choseCard={choseCard} faceClick={faceClick} sendMsg={sendMsg} />
         </div>
       )}
       {crardSeVis && <CardMsgModal cb={sendCardMsg} visible={crardSeVis} close={close} />}

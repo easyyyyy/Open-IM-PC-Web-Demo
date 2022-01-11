@@ -7,17 +7,17 @@ import {
   Typography,
 } from "antd";
 import { FC, useEffect, useState } from "react";
-import { Cve, FriendItem, GroupItem, GroupMember } from "../../../@types/open_im";
-import { OPENGROUPMODAL, RESETCVE } from "../../../constants/events";
-import { events, im, isSingleCve } from "../../../utils";
-import SingleDrawer from "./components/SingleDrawer";
-import GroupDrawer from "./components/GroupDrawer";
-import EditDrawer from "./components/EditDrawer";
-import MemberDrawer from "./components/MemberDrawer";
+import { Cve, FriendItem, GroupItem, GroupMember } from "../../../../@types/open_im";
+import { OPENGROUPMODAL, RESETCVE } from "../../../../constants/events";
+import { events, im, isSingleCve } from "../../../../utils";
+import SingleDrawer from "./SingleDrawer";
+import GroupDrawer from "./GroupDrawer/GroupDrawer";
+import EditDrawer from "./GroupDrawer/EditDrawer";
+import MemberDrawer from "./GroupDrawer/MemberDrawer";
 import { shallowEqual, useSelector } from "react-redux";
-import { RootState } from "../../../store";
-import GroupManage from "./components/GroupManage";
-import { GroupNotice } from "./components/GroupNotice";
+import { RootState } from "../../../../store";
+import GroupManage from "./GroupDrawer/GroupManage";
+import { GroupNotice } from "./GroupDrawer/GroupNotice";
 
 
 type CveRightDrawerProps = {

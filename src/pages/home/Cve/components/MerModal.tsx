@@ -3,7 +3,7 @@ import { FC } from "react"
 import { Cve } from "../../../../@types/open_im"
 import { MergeElem, PictureElem } from "../../../../utils/open_im_sdk/im"
 import ChatContent from "../ChatContent"
-import MsgItem from "./MsgItem"
+import MsgItem from "../MsgItem/MsgItem"
 
 type MerModalProps = {
     close:()=>void;

@@ -5,6 +5,7 @@ import file_unknow from "@/assets/images/file_unknow.png"
 import file_world from "@/assets/images/file_world.png"
 import file_xslx from "@/assets/images/file_xslx.png"
 import file_zip from "@/assets/images/file_zip.png"
+import { RcFile } from "antd/lib/upload"
 
 export const findEmptyValue = (obj: any) => {
   let flag = true;
@@ -176,3 +177,24 @@ export const switchFileIcon = (suffix:string) => {
     return file_unknow
   }
 }
+
+export const getPicInfo = (file: RcFile): Promise<HTMLImageElement> => {
+  return new Promise((resolve, reject) => {
+    const _URL = window.URL || window.webkitURL;
+    const img = new Image();
+    img.onload = function () {
+      resolve(img);
+    };
+    img.src = _URL.createObjectURL(file);
+  });
+};
+
+export const getVideoInfo = (file: RcFile): Promise<number> => {
+  return new Promise((resolve, reject) => {
+    const Url = URL.createObjectURL(file);
+    const vel = new Audio(Url);
+    vel.onloadedmetadata = function () {
+      resolve(vel.duration);
+    };
+  });
+};

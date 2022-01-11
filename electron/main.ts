@@ -1,7 +1,9 @@
 import { app, BrowserWindow, Menu } from "electron";
 import * as path from "path";
 import * as isDev from "electron-is-dev";
-import { initLocalWs } from "./utils"
+import { initLocalWs, killLocalWs } from "./utils"
+import './utils/ipcMain'
+import { getApiAddress, getWsAddress, getWsPort } from "./store";
 
 let win: BrowserWindow | null = null;
 
@@ -50,6 +52,12 @@ async function createWindow() {
     });
   }
 
+  console.log(getApiAddress());
+  console.log(getWsAddress());
+  console.log(getWsPort());
+  
+  
+
   // localWs
   await initLocalWs()
 }
@@ -70,4 +78,9 @@ app.on("activate", () => {
   if (win === null) {
     createWindow();
   }
+
+app.on("will-quit",()=>{
+  killLocalWs()
+})
+
 });

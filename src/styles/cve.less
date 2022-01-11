@@ -51,7 +51,6 @@
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 1;
         overflow: hidden;
-        //notice
         word-break: break-all;
       }
     }
@@ -148,7 +147,6 @@
           padding-left: 12px;
           font-size: 13px;
           padding: 10px 14px;
-          // padding-right: 48px;
           .title{
             border-bottom: 2px solid #428BE5;
             margin-bottom: 4px;
@@ -446,27 +444,6 @@
           }
         }
       }
-      // .cur_cve_info {
-      //   padding: 0 12px;
-      //   font-weight: 500;
-      //   font-size: 16px;
-      //   position: relative;
-      //   max-width: 80%;
-      //   text-overflow: ellipsis;
-      //   white-space: nowrap;
-      //   word-break: break-all;
-      //   overflow: hidden;
-      //   &:after {
-      //     content: attr(attr-data);
-      //     position: absolute;
-      //     bottom: 2px;
-      //     left: 12px;
-      //     font-size: 12px;
-      //     color: #606872;
-      //     line-height: 18px;
-      //     width: 100px;
-      //   }
-      // }
     }
     &_right {
       display: flex;
@@ -486,44 +463,6 @@
 .chat_footer {
   background-color: #fff !important;
   padding: 22px !important;
-  // .ant-input-affix-wrapper {
-  //   border-radius: 6px;
-  //   // padding-top: 32px;
-  //   position: relative;
-  //   .ant-input-prefix{
-  //     line-height: 24px;
-  //     height: 24px;
-  //     font-size: 12px;
-  //     color: #999;
-  //     position: absolute;
-  //     top: 5px;
-  //     left: 11px;
-  //     right: 11px;
-  //     background-color: #F5F5F5;
-  //     padding: 0px 4px;
-  //     border-radius: 4px;
-  //     .reply{
-  //       display: flex;
-  //       align-items: center;
-  //       width: 100%;
-  //       .reply_text{
-  //         text-overflow: ellipsis;
-  //         white-space: nowrap;
-  //         word-break: break-all;
-  //         overflow: hidden;
-  //       }
-  //       .anticon{
-  //         color: #ddd;
-  //         font-size: 12px;
-  //         margin-right: 4px;
-  //       }
-  //     }
-  //   }
-  //   .anticon {
-  //     font-size: 18px;
-  //     color: #999;
-  //   }
-  // }
   .input_div{
     width: 100%;
     min-width: 0;
@@ -542,6 +481,7 @@
     white-space: pre;
     overflow: auto;
     cursor: text;
+    max-height: 20vh;
     &::-webkit-scrollbar {
       display: none;
     }

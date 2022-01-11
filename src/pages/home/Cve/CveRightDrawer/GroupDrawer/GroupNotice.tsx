@@ -1,8 +1,8 @@
 import { EllipsisOutlined } from "@ant-design/icons"
 import { FC, useEffect, useState } from "react"
-import { GroupItem, UserInfo } from "../../../../@types/open_im"
-import { MyAvatar } from "../../../../components/MyAvatar"
-import { im } from "../../../../utils"
+import { GroupItem, UserInfo } from "../../../../../@types/open_im"
+import { MyAvatar } from "../../../../../components/MyAvatar"
+import { im } from "../../../../../utils"
 
 type GruopNoticeProps = {
     groupInfo?:GroupItem

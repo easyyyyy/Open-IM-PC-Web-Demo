@@ -8,8 +8,9 @@ import { FriendItem, GroupItem, GroupMember } from "../../../@types/open_im";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { useReactive } from "ahooks";
 import { ModalType } from "./GroupOpModal";
+import { useTranslation } from "react-i18next";
 
-type InviteMemberBoxProps = {
+type MultipleSelectBoxProps = {
   modalType:ModalType;
   memberList?: SelectMemberItem[];
   friendList: SelectFriendItem[];
@@ -35,7 +36,7 @@ type RSType = {
   groupList: SelectGroupItem[];
 };
 
-const InviteMemberBox: FC<InviteMemberBoxProps> = ({ modalType,memberList, friendList, groupList,onSelectedChange }) => {
+const MultipleSelectBox: FC<MultipleSelectBoxProps> = ({ modalType,memberList, friendList, groupList,onSelectedChange }) => {
   const [type, setType] = useState<"friend" | "group" | undefined>();
   const rs = useReactive<RSType>({
     searchText: "",
@@ -45,6 +46,7 @@ const InviteMemberBox: FC<InviteMemberBoxProps> = ({ modalType,memberList, frien
     memberList: [],
     groupList: [],
   });
+  const { t } = useTranslation();
 
   useEffect(() => {
     rs.friendList = [...friendList];
@@ -92,14 +94,14 @@ const InviteMemberBox: FC<InviteMemberBoxProps> = ({ modalType,memberList, frien
       <div onClick={() => setType("friend")} className="select_box_left_item">
         <div className="left_title">
           <img style={{ width: "20px" }} src={user_select} />
-          <span>我的好友</span>
+          <span>{t("MyFriends")}</span>
         </div>
         <RightOutlined />
       </div>
       <div onClick={() => setType("group")} className="select_box_left_item">
         <div className="left_title">
           <img style={{ width: "20px" }} src={group_select} />
-          <span>我的群组</span>
+          <span>{t("MyGruops")}</span>
         </div>
         <RightOutlined />
       </div>
@@ -123,9 +125,9 @@ const InviteMemberBox: FC<InviteMemberBoxProps> = ({ modalType,memberList, frien
       <div className="select_box_left_title">
         <div>
           <span className="index_tab" onClick={() => setType(undefined)}>
-            联系人 &gt;{" "}
+            {t("Contact")} &gt;{" "}
           </span>
-          <span>{type==="friend"?'我的好友':'我的群组'}</span>
+          <span>{type==="friend"?t("MyFriends"):t("MyGruops")}</span>
         </div>
       </div>
       {type === "friend" ? (
@@ -133,7 +135,7 @@ const InviteMemberBox: FC<InviteMemberBoxProps> = ({ modalType,memberList, frien
       ) : modalType==="forward" ? (
         rs.groupList.map((g) => <LeftSelectItem item={g} key={g.groupID} />)
       ) : (
-        <div>暂不支持</div>
+        <div>{t("NotSupport")}</div>
       )}
     </>
   );
@@ -150,17 +152,17 @@ const InviteMemberBox: FC<InviteMemberBoxProps> = ({ modalType,memberList, frien
 
   return (
     <div className="group_info_item">
-      <div className="group_info_label">邀请</div>
+      <div className="group_info_label">{t("Invite")}</div>
       <div className="select_box">
         <div className="select_box_left">
-          <Input onChange={(e) => searchUser(e.target.value)} placeholder="搜索我的好友、群组" prefix={<SearchOutlined />} />
+          <Input onChange={(e) => searchUser(e.target.value)} placeholder={t("SearchFriendGroup")} prefix={<SearchOutlined />} />
           {rs.memberList && rs.memberList.length > 0 ? (
             rs.memberList.map((m) => <LeftSelectItem key={m.userId} item={m} />)
           ) : rs.searchList.length > 0 ? (
             //@ts-ignore
             rs.searchList.map((s) => <LeftSelectItem key={s.uid ?? s.userId ?? s.groupID} item={s} />)
           ) : rs.searchText !== "" ? (
-            <Empty description="无搜索结果" />
+            <Empty description={t("SearchEmpty")} />
           ) : type ? (
             <LeftSelect />
           ) : (
@@ -168,7 +170,7 @@ const InviteMemberBox: FC<InviteMemberBoxProps> = ({ modalType,memberList, frien
           )}
         </div>
         <div className="select_box_right">
-          <div className="select_box_right_title">{`已选：${rs.selectedList.length}人`}</div>
+          <div className="select_box_right_title">{`${t("Selected")}：${rs.selectedList.length+t("People")}`}</div>
           {rs.selectedList.map((s) => (
             <RightSelectItem key={(s as SelectFriendItem).uid || (s as SelectMemberItem).userId || (s as SelectGroupItem).groupID} item={s} />
           ))}
@@ -178,4 +180,4 @@ const InviteMemberBox: FC<InviteMemberBoxProps> = ({ modalType,memberList, frien
   );
 };
 
-export default InviteMemberBox;
+export default MultipleSelectBox;

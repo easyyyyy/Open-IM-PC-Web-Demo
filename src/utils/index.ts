@@ -1,7 +1,7 @@
 import {im,isSingleCve} from './im'
 import request from './request'
 import { cosUpload,cos } from './cos'
-import { findEmptyValue,pySegSort,formatDate,sleep, getUserIP,bytesToSize, switchFileIcon } from './common'
+import { findEmptyValue,pySegSort,formatDate,sleep, getUserIP,bytesToSize, switchFileIcon, getPicInfo, getVideoInfo } from './common'
 import events from './events'
 
 export {
@@ -17,5 +17,7 @@ export {
     sleep,
     getUserIP,
     bytesToSize,
-    switchFileIcon
+    switchFileIcon,
+    getPicInfo,
+    getVideoInfo
 }

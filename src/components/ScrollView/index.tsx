@@ -30,7 +30,7 @@ const ScrollView: FC<ScrollViewProps> = (
     }
   };
 
-  const throttleScroll = throttle(150,onScroll)
+  const throttleScroll = throttle(250,onScroll)
 
   return (
     <div onScroll={throttleScroll} id="scr_container" style={{height:height??"100%"}} className={styles.con}>

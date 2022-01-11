@@ -1,3 +1,5 @@
+@import '@/styles/extends.less';
+
 .msg_type_drop {
   .ant-dropdown-arrow {
     border-color: #353940 !important;
@@ -51,12 +53,6 @@
   }
 }
 
-.home_sider{
-  border-right: 1px solid #DEDFE0;
-  overflow: auto;
-  resize: horizontal;
-}
-
 .profile{
   &_header{
     background-color: #fff;
@@ -96,5 +92,119 @@
         }
       }
     }
+  }
+}
+
+.login_wapper:extend(.center_box){
+  padding: 20vh 10vw;
+  .center_container{
+      display: flex;
+      .left_container{
+          text-align: center;
+          width: 354px;
+          margin-right: 72px;
+          .title{
+              font-size: 22px;
+              font-weight: 500;
+              padding-top: 43px;
+          }
+          .sub_title{
+              font-size: 12px;
+              color: #777;
+          }
+          img{
+              width: 100%;
+          }
+      }
+  }
+  &:after{
+      content: '';
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      border: 15px solid @primary-color;
+  }
+}
+
+.login_form {
+  border-radius: 10px;
+  box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+  padding: 47px 44px;
+  position: relative;
+  width: 325px;
+  .form_title {
+    font-size: 16px;
+    font-weight: 500;
+    padding-top: 0;
+    padding-bottom: 24px;
+    .sub_title{
+      font-size: 12px;
+      color: #428be5;
+    }
+  }
+  .sub_tip{
+    font-size: 13px;
+    span{
+      color: #428be5;
+    }
+  }
+  .name_input{
+    display: flex;
+    margin-top: 24px;
+    .name_lable{
+      font-size: 13px;
+      font-weight: 500;
+      width: 110px;
+      height: 32px;
+      line-height: 32px;
+      border-bottom: 1px solid #bbbfc3;
+      margin-right: -1px;
+    }
+  }
+  .loading_spin{
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+    .ant-input-group.ant-input-group-compact {
+      display: flex;
+    }
+    .ant-input,
+    .ant-select,
+    .ant-input-password,
+    .ant-input-suffix {
+      font-size: 13px;
+      height: 32px;
+      border-bottom: 1px solid #bbbfc3 !important;
+    }
+    .ant-input-suffix{
+      margin-left: -1px;
+    }
+    .ant-input-affix-wrapper {
+      padding: 0;
+    }
+    .ant-btn-primary {
+      width: 100%;
+    }
+    .ant-form-item-label > label {
+      font-size: 13px;
+    }
+    .ant-btn-primary {
+      border-radius: 4px;
+    }
+    .ant-checkbox-wrapper {
+      font-size: 12px;
+    }
+  .diver {
+    border-right: 1px solid #bbbfc3;
+    margin: 12px 0;
+  }
+  .no_mb {
+    margin-bottom: 0;
+  }
+  .primary {
+    color: #428be5;
+    cursor: "pointer";
   }
 }

@@ -1,12 +1,12 @@
 const { contextBridge } = require('electron')
+import { ipcRenderer } from 'electron';
 import { networkInterfaces } from 'os';
 import type { API, APIKey } from '../../src/@types/api';
+import { getWsPort } from '../store';
 
 export const apiKey:APIKey = 'electron';
 
-const inElectron = true
-
-const getIP = () => {
+const getLocalWsAddress = () => {
     let ips = [];
     const intf = networkInterfaces();
     for (let devName in intf) {
@@ -20,12 +20,21 @@ const getIP = () => {
         }
         }
     }
-    return ips[0];
+    return `ws://${ips[0]}:${getWsPort()}`;
+}
+
+const getIMConfig = () => {
+    return ipcRenderer.sendSync("GetIMConfig")
+}
+
+const setIMConfig = (config:any) => {
+    ipcRenderer.send("SetIMConfig",config)
 }
 
 export const api:API = {
-    inElectron,
-    getIP,
+    getLocalWsAddress,
+    getIMConfig,
+    setIMConfig
 };
 
 

@@ -393,16 +393,17 @@ export default class OpenIMSDK extends Emitter {
       const onClose = () => {
         console.log("ws close:::"+this.ws?.readyState);
 
-        errData.errCode = 111;
-        errData.errMsg = "ws connect failed...";
-        if (!this.logoutFlag) this.reconnect();
-        reject(errData);
+        // errData.errCode = 111;
+        // errData.errMsg = "ws connect failed...";
+        // if (!this.logoutFlag) this.reconnect();
+        // reject(errData);
       }
 
       const onError = (err: Error | Event) => {
         console.log(err);
         errData.errCode = 111;
         errData.errMsg = "ws connect failed...";
+        if (!this.logoutFlag) this.reconnect();
         reject(errData);
       }
 
@@ -1408,7 +1409,7 @@ export default class OpenIMSDK extends Emitter {
     }
 
     if (this.platform === "web") {
-      this.ws = new WebSocket(this.wsUrl);
+      this.ws = this.ws??new WebSocket(this.wsUrl);
       this.ws.onclose = onClose;
       this.ws.onopen = onOpen;
       this.ws.onerror = onError

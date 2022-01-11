@@ -1,56 +1,37 @@
 import { message } from "antd";
-import styles from "./login.module.less";
 import login_bg from "@/assets/images/login_bg.png";
 import LoginForm, { FormField, InfoField } from "./components/LoginForm";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Itype } from "../../@types/open_im";
 import { useHistoryTravel } from "ahooks";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import md5 from "md5";
-import {
-  login as loginApi,
-  register,
-  sendSms,
-  verifyCode,
-} from "../../api/login";
+import { login as loginApi, register, sendSms, verifyCode } from "../../api/login";
 import { im } from "../../utils";
 import { InitConfig } from "open-im-sdk/im";
-import { IMURL } from "../../config";
+import { getIMUrl, IMURL } from "../../config";
 import { useDispatch } from "react-redux";
 import { getSelfInfo, getAdminToken, setSelfInfo } from "../../store/actions/user";
 import { getCveList } from "../../store/actions/cve";
-import {
-  getBlackList,
-  getFriendApplicationList,
-  getFriendList,
-  getGroupApplicationList,
-  getGroupList,
-  getUnReadCount,
-} from "../../store/actions/contacts";
-
+import { getBlackList, getFriendApplicationList, getFriendList, getGroupApplicationList, getGroupList, getUnReadCount } from "../../store/actions/contacts";
+import IMConfigModal from "./components/IMConfigModal";
 
 const Login = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [num, setNum] = useState("");
   const [code, setCode] = useState("");
-  const {
-    value: type,
-    setValue: setType,
-    back,
-  } = useHistoryTravel<Itype>("login");
-
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const { value: type, setValue: setType, back } = useHistoryTravel<Itype>("login");
 
   const finish = (values?: FormField | string | InfoField) => {
     switch (type) {
       case "login":
         if (values) {
-          if (
-            (values as FormField).phoneNo == undefined ||
-            (values as FormField).password == undefined
-          )
-            return false;
+          if ((values as FormField).phoneNo == undefined || (values as FormField).password == undefined) return false;
           toggle("success");
           login(values as FormField);
         } else {
@@ -61,11 +42,11 @@ const Login = () => {
         // TODO: send msg
         sendSms((values as FormField)?.phoneNo as string).then((res: any) => {
           if (res.errCode === 0) {
-            message.success("验证码已发送！");
+            message.success(t("SendSuccessTip"));
             setNum((values as FormField)?.phoneNo);
             toggle("vericode");
           } else if (res.errCode === 10007) {
-            message.info("后台未正确配置短信服务，请使用超级验证码注册！");
+            message.info(t("SendDefaultTip"));
             setNum((values as FormField)?.phoneNo);
             toggle("vericode");
           } else {
@@ -80,24 +61,22 @@ const Login = () => {
             setCode(values as string);
             toggle("setPwd");
           } else if (res.errCode === 10003) {
-            message.error("验证码过期！");
+            message.error(t("CodeExpired"));
           } else {
-            message.error("验证错误！");
+            message.error(t("CodeError"));
           }
         });
         break;
       case "setPwd":
         // TODO: set pwd and im login
-        register(num, code, md5((values as FormField).password as string)).then(
-          (res: any) => {
-            if (res.errCode === 0) {
-              imLogin(res.data.uid, res.data.token);
-              toggle("setInfo");
-            } else if (res.errCode === 10005) {
-              message.warning("该账号已被注册！");
-            }
+        register(num, code, md5((values as FormField).password as string)).then((res: any) => {
+          if (res.errCode === 0) {
+            imLogin(res.data.uid, res.data.token);
+            toggle("setInfo");
+          } else if (res.errCode === 10005) {
+            message.warning(t("AccountRegistered"));
           }
-        );
+        });
         break;
       case "setInfo":
         // TODO: set & get info
@@ -117,7 +96,7 @@ const Login = () => {
       })
       .catch((err) => {
         toggle("setInfo");
-        message.error("设置个人信息失败，请稍后再试！");
+        message.error(t("SetInfoFailed"));
       });
   };
 
@@ -138,11 +117,10 @@ const Login = () => {
     //pc
     localStorage.setItem(`lastimuid`, uid);
 
-    let url = IMURL;
+    let url = getIMUrl();
     let platformID = 5;
-    if(window.electron){
-      const ip = await window.electron.getIP()
-      url = `ws://${ip}:7788`
+    if (window.electron) {
+      url = await window.electron.getLocalWsAddress();
       // if(window.process.platform==="darwin"){
       //   platformID = 4
       // }else if(window.process.platform==="win32"){
@@ -153,7 +131,7 @@ const Login = () => {
       uid,
       token,
       url,
-      platformID
+      platformID,
     };
     im.login(config)
       .then((res) => {
@@ -164,8 +142,8 @@ const Login = () => {
         dispatch(getGroupList());
         dispatch(getGroupApplicationList());
         dispatch(getUnReadCount());
-        dispatch(getBlackList())
-        dispatch(getAdminToken())
+        dispatch(getBlackList());
+        dispatch(getAdminToken());
         if (type === "login") {
           navigate("/", { replace: true });
         }
@@ -175,30 +153,32 @@ const Login = () => {
 
   const loginFailed = (msg?: any) => {
     toggle("login");
-    if (msg) message.error(msg || "操作失败，请稍后再试！");
+    if (msg) message.error(msg || t("AccessFailed"));
   };
 
   const toggle = (mtype: Itype) => {
     setType(mtype);
   };
 
+  const closeModal = () => {
+    setIsModalVisible(false);
+  };
+
   return (
-    <div className={styles.wapper}>
-      <div className={styles.center_container}>
-        <div className={styles.left_container}>
-          <div className={styles.title}>在线化办公</div>
-          <span className={styles.sub_title}>多人协作，打造高效办公方式</span>
+    <div className="login_wapper">
+      <div className="center_container">
+        <div className="left_container">
+          <div onDoubleClick={() => setIsModalVisible(true)} className="title">
+            {t("LoginTitle")}
+          </div>
+          <span className="sub_title">{t("LoginSubTitle")}</span>
           <img src={login_bg} />
         </div>
-        <LoginForm
-          loading={loading}
-          back={back}
-          toggle={toggle}
-          type={type}
-          finish={finish}
-          num={num}
-        />
+        <LoginForm loading={loading} back={back} toggle={toggle} type={type} finish={finish} num={num} />
       </div>
+      {
+        isModalVisible && <IMConfigModal visible={isModalVisible} close={closeModal}/>
+      }
     </div>
   );
 };

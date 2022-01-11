@@ -7,9 +7,9 @@ import {
 } from "@ant-design/icons";
 import { Col, Input, message, Modal, Row } from "antd";
 import { FC, useState } from "react";
-import { GroupMember } from "../../../../@types/open_im";
-import { MyAvatar } from "../../../../components/MyAvatar";
-import { im } from "../../../../utils";
+import { GroupMember } from "../../../../../@types/open_im";
+import { MyAvatar } from "../../../../../components/MyAvatar";
+import { im } from "../../../../../utils";
 
 type GroupManageProps = {
   adminList: GroupMember[];

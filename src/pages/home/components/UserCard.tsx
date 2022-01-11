@@ -1,6 +1,5 @@
 import { LeftOutlined, UserOutlined } from "@ant-design/icons";
 import {
-  Avatar,
   Descriptions,
   Button,
   Input,
@@ -8,10 +7,9 @@ import {
   Typography,
   Form,
   message,
-  Tooltip,
   Upload,
 } from "antd";
-import { FC, useState, useRef, LegacyRef, useEffect } from "react";
+import { FC, useState, useRef, useEffect } from "react";
 import Draggable, { DraggableEvent, DraggableData } from "react-draggable";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { FriendItem, UserInfo } from "../../../@types/open_im";
@@ -25,7 +23,7 @@ import { getSelfInfo } from "../../../store/actions/user";
 import { getFriendList } from "../../../store/actions/contacts";
 import { TOASSIGNCVE, UPDATEFRIENDCARD } from "../../../constants/events";
 import { sessionType } from "../../../constants/messageContentType";
-import { RcFile } from "antd/lib/upload";
+import { useTranslation } from "react-i18next";
 
 const { Paragraph } = Typography;
 
@@ -61,6 +59,7 @@ const UserCard: FC<UserCardProps> = ({
   );
   const dispatch = useDispatch();
   const [form] = Form.useForm();
+  const { t } = useTranslation();
 
   let selfInfo: UserInfo = {};
   let drft = "";
@@ -104,11 +103,11 @@ const UserCard: FC<UserCardProps> = ({
     im.addFriend(param)
       .then((res) => {
         console.log(res);
-        message.success("发送好友请求成功！");
+        message.success(t("SendFriendSuc"));
         close();
       })
       .catch((err) => {
-        message.error("发送好友请求失败！");
+        message.error(t("SendFriendFailed"));
       });
   };
 
@@ -128,9 +127,9 @@ const UserCard: FC<UserCardProps> = ({
     im.setSelfInfo(selfInfo)
       .then((res) => {
         dispatch(getSelfInfo(selfID!));
-        message.success("修改成功！");
+        message.success(t("ModifySuc"));
       })
-      .catch((err) => message.error("修改失败！"));
+      .catch((err) => message.error(t("ModifyFailed")));
   };
 
   const updateComment = () => {
@@ -140,9 +139,9 @@ const UserCard: FC<UserCardProps> = ({
         dispatch(getFriendList());
         (info as FriendItem).comment = drft;
         events.emit(UPDATEFRIENDCARD,info);
-        message.success("修改成功！");
+        message.success(t("ModifySuc"));
       })
-      .catch((err) => message.error("修改失败！"));
+      .catch((err) => message.error(t("ModifyFailed")));
   };
 
   const uploadIcon = (uploadData: UploadRequestOption) => {
@@ -154,7 +153,7 @@ const UserCard: FC<UserCardProps> = ({
         selfInfo.icon = res.url;
         updateSelfInfo();
       })
-      .catch((err) => message.error("图片上传失败！"));
+      .catch((err) => message.error(t("UploadFailed")));
   };
 
 
@@ -174,14 +173,14 @@ const UserCard: FC<UserCardProps> = ({
   const genderEnd = () => {
     console.log(drft);
 
-    if (drft === "男") {
+    if (drft === t("Man")) {
       selfInfo.gender = 1;
       updateSelfInfo();
-    } else if (drft === "女") {
+    } else if (drft === t("Woman")) {
       selfInfo.gender = 2;
       updateSelfInfo();
     } else {
-      message.warning("请输入正确格式！");
+      message.warning(t("FormatTip"));
     }
   };
 
@@ -195,9 +194,9 @@ const UserCard: FC<UserCardProps> = ({
 
   const delContact = () => {
     im.deleteFromFriendList(info.uid!).then(res=>{
-      message.success("解除好友关系成功！")
+      message.success(t("UnfriendingSuc"))
       close()
-    }).catch(err=>message.error("解除好友关系失败！"))
+    }).catch(err=>message.error(t("UnfriendingFailed")))
   }
 
   const InfoTitle = () => (
@@ -212,6 +211,7 @@ const UserCard: FC<UserCardProps> = ({
         </div>
       </div>
       <Upload
+        accept="image/*"
         openFileDialogOnClick={type ? true : false}
         action=""
         customRequest={(data) => uploadIcon(data)}
@@ -233,15 +233,15 @@ const UserCard: FC<UserCardProps> = ({
           onClick={goBack}
           style={{ fontSize: "12px", marginRight: "12px" }}
         />
-        <div className="send_msg_title_text">好友验证</div>
+        <div className="send_msg_title_text">{t("FriendVerification")}</div>
       </div>
     </>
   );
 
   const SelfBody = () => (
     <>
-      <Descriptions column={1} title="个人信息">
-        <Descriptions.Item label="昵称">
+      <Descriptions column={1} title={t("SelfInfo")}>
+        <Descriptions.Item label={t("Nickname")}>
           <Paragraph
             editable={{
               maxLength: 15,
@@ -257,7 +257,7 @@ const UserCard: FC<UserCardProps> = ({
             {info.name}
           </Paragraph>
         </Descriptions.Item>
-        <Descriptions.Item label="性别">
+        <Descriptions.Item label={t("Sex")}>
           <Paragraph
             editable={{
               maxLength: 1,
@@ -266,20 +266,20 @@ const UserCard: FC<UserCardProps> = ({
               onCancel: ()=>drft = "",
             }}
           >
-            {info.gender === 1 ? "男" : "女"}
+            {info.gender === 1 ? t("Man") : t("Woman")}
           </Paragraph>
         </Descriptions.Item>
         <Descriptions.Item label="ID">{info.uid}</Descriptions.Item>
-        <Descriptions.Item label="手机号">{info.mobile}</Descriptions.Item>
+        <Descriptions.Item label={t("PhoneNumber")}>{info.mobile}</Descriptions.Item>
       </Descriptions>
     </>
   );
 
   const InfoBody = () => (
     <>
-      <Descriptions column={1} title="个人信息">
-        <Descriptions.Item label="昵称">{info.name}</Descriptions.Item>
-        <Descriptions.Item label="备注">
+      <Descriptions column={1} title={t("UserInfo")}>
+        <Descriptions.Item label={t("Nickname")}>{info.name}</Descriptions.Item>
+        <Descriptions.Item label={t("Note")}>
           <Paragraph editable={isFriend ? infoEditConfig : false}>
             {(info as FriendItem).comment}
           </Paragraph>
@@ -288,7 +288,7 @@ const UserCard: FC<UserCardProps> = ({
         {/* <Descriptions.Item label="手机号">{info.mobile}</Descriptions.Item> */}
       </Descriptions>
       <Button onClick={clickBtn} className="add_con_btn" type="primary">
-        {isFriend ? "发送消息" : "添加好友"}
+        {isFriend ? t("SendMessage") : t("AddFriend")}
       </Button>
     </>
   );
@@ -299,10 +299,8 @@ const UserCard: FC<UserCardProps> = ({
         <div className="send_card_info_row1">
           <div>{info.name}</div>
           <MyAvatar
-            shape="square"
             src={info.icon}
             size={42}
-            icon={<UserOutlined />}
           />
         </div>
         <Form
@@ -312,7 +310,7 @@ const UserCard: FC<UserCardProps> = ({
           autoComplete="off"
         >
           <Form.Item name="reqMessage">
-            <Input placeholder="请输入验证信息" />
+            <Input placeholder={t("VerficationTip")} />
           </Form.Item>
         </Form>
       </div>
@@ -321,7 +319,7 @@ const UserCard: FC<UserCardProps> = ({
         className="add_con_btn"
         type="primary"
       >
-        发送
+        {t("Send")}
       </Button>
     </>
   );
@@ -337,6 +335,8 @@ const UserCard: FC<UserCardProps> = ({
         return null;
     }
   };
+
+  const ignoreClasses = `.cancel_drag, .cancel_input, .ant-upload,.left_info_icon,.ant-modal-body,.ant-upload`
 
   return (
     <Modal
@@ -371,7 +371,7 @@ const UserCard: FC<UserCardProps> = ({
           disabled={draggDisable}
           bounds={bounds}
           onStart={(event, uiData) => onStart(event, uiData)}
-          cancel={`.cancel_drag, .cancel_input, .ant-upload,.left_info_icon,.ant-modal-body,.ant-upload`}
+          cancel={ignoreClasses}
           enableUserSelectHack={false}
         >
           <div ref={draRef}>{modal}</div>

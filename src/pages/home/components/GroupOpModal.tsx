@@ -1,44 +1,40 @@
-import { CloseOutlined, RightOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Empty, Input, message, Modal, Upload } from "antd";
-import { FC, useEffect, useState } from "react";
+import { Button, Input, message, Modal, Upload } from "antd";
+import { FC, useEffect } from "react";
 import { MyAvatar } from "../../../components/MyAvatar";
-
-import user_select from "@/assets/images/select_user.png";
-import group_select from "@/assets/images/select_group.png";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store";
 import { shallowEqual } from "@babel/types";
 import { GroupMember, Message } from "../../../@types/open_im";
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { useReactive } from "ahooks";
 import { UploadRequestOption } from "rc-upload/lib/interface";
 import { cosUpload, events, im } from "../../../utils";
-import InviteMemberBox, { SelectFriendItem, SelectGroupItem, SelectMemberItem, SelectType } from "./InviteMemberBox";
 import { SENDFORWARDMSG } from "../../../constants/events";
 import { messageTypes } from "../../../constants/messageContentType";
 import { Member } from "../../../utils/open_im_sdk/im";
+import MultipleSelectBox, { SelectFriendItem, SelectGroupItem, SelectType, SelectMemberItem } from "./MultipleSelectBox";
+import { useTranslation } from "react-i18next";
 
 type GroupOpModalProps = {
   visible: boolean;
   modalType: ModalType;
   groupId?: string;
   groupMembers?: GroupMember[];
-  options?:string;
+  options?: string;
   close: () => void;
 };
 
-export type ModalType = "create"|"invite"|"remove"|"forward"
+export type ModalType = "create" | "invite" | "remove" | "forward";
 
 type RsType = {
   groupName: string;
   groupIcon: string;
   friendList: SelectFriendItem[];
-  groupList: SelectGroupItem[]
+  groupList: SelectGroupItem[];
   selectedList: SelectType[];
   memberList: SelectMemberItem[];
 };
 
-const GroupOpModal: FC<GroupOpModalProps> = ({ visible,options, modalType, groupId, groupMembers, close }) => {
+const GroupOpModal: FC<GroupOpModalProps> = ({ visible, options, modalType, groupId, groupMembers, close }) => {
   const selfID = useSelector((state: RootState) => state.user.selfInfo.uid);
   const originFriendList = useSelector((state: RootState) => state.contacts.friendList, shallowEqual);
   const originGroupList = useSelector((state: RootState) => state.contacts.groupList, shallowEqual);
@@ -50,6 +46,7 @@ const GroupOpModal: FC<GroupOpModalProps> = ({ visible,options, modalType, group
     selectedList: [],
     memberList: [],
   });
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (modalType === "remove") return;
@@ -91,7 +88,7 @@ const GroupOpModal: FC<GroupOpModalProps> = ({ visible,options, modalType, group
       .then((res) => {
         rs.groupIcon = res.url;
       })
-      .catch((err) => message.error("图片上传失败！"));
+      .catch((err) => message.error(t("UploadFailed")));
   };
 
   const modalOperation = () => {
@@ -114,14 +111,14 @@ const GroupOpModal: FC<GroupOpModalProps> = ({ visible,options, modalType, group
   };
 
   const forwardMsg = () => {
-    const parseMsg = JSON.parse(options!)
-    events.emit(SENDFORWARDMSG,parseMsg.contentType?options:parseMsg,parseMsg.contentType??messageTypes.MERGERMESSAGE,rs.selectedList)
-    close()
-  }
+    const parseMsg = JSON.parse(options!);
+    events.emit(SENDFORWARDMSG, parseMsg.contentType ? options : parseMsg, parseMsg.contentType ?? messageTypes.MERGERMESSAGE, rs.selectedList);
+    close();
+  };
 
   const createGroup = () => {
     if (!rs.groupIcon || !rs.groupName || rs.selectedList.length == 0) {
-      message.warning("请先完成信息填写！");
+      message.warning(t("CompleteTip"));
       return;
     }
 
@@ -144,18 +141,18 @@ const GroupOpModal: FC<GroupOpModalProps> = ({ visible,options, modalType, group
 
     im.createGroup(options)
       .then((res) => {
-        message.success("创建群聊成功！");
+        message.success(t("GruopCreateSuc"));
         close();
       })
       .catch((err) => {
-        message.error("创建群聊失败！");
+        message.error(t("GruopCreateFailed"));
         close();
       });
   };
 
   const inviteToGroup = () => {
     if (rs.selectedList.length === 0) {
-      message.warning("请先选择邀请成员！");
+      message.warning(t("SelectMemberTip"));
       return;
     }
     let userList: string[] = [];
@@ -167,18 +164,18 @@ const GroupOpModal: FC<GroupOpModalProps> = ({ visible,options, modalType, group
     };
     im.inviteUserToGroup(options)
       .then((res) => {
-        message.success("邀请成功");
+        message.success(t("InviteSuc"));
         close();
       })
       .catch((err) => {
-        message.error("邀请失败！");
+        message.error(t("InviteFailed"));
         close();
       });
   };
 
   const kickFromGroup = () => {
     if (rs.selectedList.length === 0) {
-      message.warning("请先选择要踢出的成员！");
+      message.warning(t("KickMemberTip"));
       return;
     }
     let userList: string[] = [];
@@ -190,11 +187,11 @@ const GroupOpModal: FC<GroupOpModalProps> = ({ visible,options, modalType, group
     };
     im.kickGroupMember(options)
       .then((res) => {
-        message.success("踢出成功！");
+        message.success(t("KickSuc"));
         close();
       })
       .catch((err) => {
-        message.error("踢出失败！");
+        message.error(t("KickFailed"));
         close();
       });
   };
@@ -206,17 +203,17 @@ const GroupOpModal: FC<GroupOpModalProps> = ({ visible,options, modalType, group
   const switchTitle = () => {
     switch (modalType) {
       case "create":
-        return "创建群聊"
+        return t("CreateGroup");
       case "invite":
-        return "添加成员"
+        return t("AddMembers");
       case "remove":
-        return "移除成员"
+        return t("RemoveMembers");
       case "forward":
-        return "转发消息"      
+        return t("ForwardedMessage");
       default:
-        return ""
+        return "";
     }
-  }
+  };
 
   return (
     <Modal width="60%" className="group_modal" title={switchTitle()} visible={visible} onCancel={close} footer={null} centered>
@@ -224,29 +221,29 @@ const GroupOpModal: FC<GroupOpModalProps> = ({ visible,options, modalType, group
         {modalType === "create" ? (
           <>
             <div className="group_info_item">
-              <div className="group_info_label">群名称</div>
+              <div className="group_info_label">{t("GroupName")}</div>
               <div style={{ width: "100%" }}>
-                <Input placeholder="输入群名称" value={rs.groupName} onChange={(e) => (rs.groupName = e.target.value)} />
+                <Input placeholder={t("GroupNameTip")} value={rs.groupName} onChange={(e) => (rs.groupName = e.target.value)} />
               </div>
             </div>
             <div className="group_info_item">
-              <div className="group_info_label">群头像</div>
+              <div className="group_info_label">{t("GroupAvatar")}</div>
               <div>
                 <MyAvatar src={rs.groupIcon} size={32} />
-                <Upload action={""} customRequest={(data) => uploadIcon(data)} showUploadList={false}>
-                  <span className="group_info_icon">点击修改</span>
+                <Upload accept="image/*" action={""} customRequest={(data) => uploadIcon(data)} showUploadList={false}>
+                  <span className="group_info_icon">{t("ClickUpload")}</span>
                 </Upload>
               </div>
             </div>
-            <InviteMemberBox modalType={modalType} friendList={rs.friendList} onSelectedChange={selectChange} />
+            <MultipleSelectBox modalType={modalType} friendList={rs.friendList} onSelectedChange={selectChange} />
           </>
         ) : (
-          <InviteMemberBox modalType={modalType} memberList={rs.memberList} friendList={rs.friendList} groupList={rs.groupList} onSelectedChange={selectChange} />
+          <MultipleSelectBox modalType={modalType} memberList={rs.memberList} friendList={rs.friendList} groupList={rs.groupList} onSelectedChange={selectChange} />
         )}
         <div className="group_info_footer">
-          <Button onClick={close}>取消</Button>
+          <Button onClick={close}>{t("Cancel")}</Button>
           <Button onClick={modalOperation} type="primary">
-            确定
+            {t("Confirm")}
           </Button>
         </div>
       </div>

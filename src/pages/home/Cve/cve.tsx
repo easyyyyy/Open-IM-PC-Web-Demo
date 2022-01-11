@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Cve, FriendItem, GroupItem, GroupMember, MergeElem, Message, PictureElem } from "../../../@types/open_im";
 import { RootState } from "../../../store";
-import CveList from "./CveList";
-import CveFooter from "./CveFooter";
+import CveList from "./CveList/CveList";
+import CveFooter from "./CveFooter/CveFooter";
 import CveRightBar from "./CveRightBar";
 import HomeSider from "../components/HomeSider";
 import HomeHeader from "../components/HomeHeader";
@@ -15,10 +15,10 @@ import { messageTypes, notOssMessageTypes, sessionType, tipsTypes } from "../../
 import { useReactive, useRequest } from "ahooks";
 import { CbEvents } from "../../../utils/open_im_sdk";
 import { DELETEMESSAGE, ISSETDRAFT, MERMSGMODAL, OPENGROUPMODAL, RESETCVE, REVOKEMSG, SENDFORWARDMSG, TOASSIGNCVE, UPDATEFRIENDCARD } from "../../../constants/events";
-import { scroller, animateScroll } from "react-scroll";
+import { animateScroll } from "react-scroll";
 import { MergerMsgParams, WsResponse } from "../../../utils/open_im_sdk/im";
 import MerModal from "./components/MerModal";
-import { SelectType } from "../components/InviteMemberBox";
+import { SelectType } from "../components/MultipleSelectBox";
 import { getGroupMemberList, setGroupMemberList } from "../../../store/actions/contacts";
 
 const { Content } = Layout;
@@ -67,13 +67,13 @@ const Home = () => {
   const cveList = useSelector(selectCveList, shallowEqual);
   const selectCveLoading = (state: RootState) => state.cve.cveInitLoading;
   const cveLoading = useSelector(selectCveLoading, shallowEqual);
-  const selfID = useSelector((state: RootState) => state.user.selfInfo.uid,shallowEqual);
-  const groupMemberList = useSelector((state: RootState) => state.contacts.groupMemberList,shallowEqual);
+  const selfID = useSelector((state: RootState) => state.user.selfInfo.uid, shallowEqual);
+  const groupMemberList = useSelector((state: RootState) => state.contacts.groupMemberList, shallowEqual);
   const dispatch = useDispatch();
   const rs = useReactive<ReactiveState>({
     historyMsgList: [],
     // groupMemberList: [],
-    groupInfo:{} as GroupItem,
+    groupInfo: {} as GroupItem,
     friendInfo: {} as FriendItem,
     curCve: null,
     typing: false,
@@ -145,14 +145,14 @@ const Home = () => {
   }, []);
 
   //  event hander
-  const updateCardHandler = (info:FriendItem) => {
-    if(info.uid===rs.curCve?.userID){
-      rs.curCve.showName = info.comment
+  const updateCardHandler = (info: FriendItem) => {
+    if (info.uid === rs.curCve?.userID) {
+      rs.curCve.showName = info.comment;
     }
-    if(info.uid === rs.friendInfo.uid){
-      rs.friendInfo = info
+    if (info.uid === rs.friendInfo.uid) {
+      rs.friendInfo = info;
     }
-  }
+  };
 
   const merModalHandler = (el: MergeElem, sender: string) => {
     rs.merData = { ...el, sender };
@@ -223,9 +223,9 @@ const Home = () => {
   };
 
   const memberInviteHandler = (data: WsResponse) => {
-    let tmp = groupMemberList;
+    let tmp = groupMemberList ?? [];
     tmp = [...tmp, ...JSON.parse(JSON.parse(data.data).memberList)];
-    dispatch(setGroupMemberList(tmp))
+    dispatch(setGroupMemberList(tmp));
   };
 
   const memberKickHandler = (data: WsResponse) => {
@@ -240,7 +240,7 @@ const Home = () => {
       });
     });
     idxs.map((i) => tmp.splice(i, 1));
-    dispatch(setGroupMemberList(tmp))
+    dispatch(setGroupMemberList(tmp));
   };
 
   const inCurCve = (newServerMsg: Message): boolean => {
@@ -292,7 +292,7 @@ const Home = () => {
     markCveHasRead(cve);
   };
 
-  const getInfo = (cve:Cve) => {
+  const getInfo = (cve: Cve) => {
     if (!isSingleCve(cve)) {
       getGroupInfo(cve.groupID);
       const options = {
@@ -300,18 +300,17 @@ const Home = () => {
         next: 0,
         filter: 0,
       };
-      dispatch(getGroupMemberList(options))
-    }else{
+      dispatch(getGroupMemberList(options));
+    } else {
       getFriendInfo(cve.userID);
     }
-  }
+  };
 
-  const getGroupInfo = (gid:string) => {
-    im.getGroupsInfo([gid])
-        .then((res) => {
-          rs.groupInfo = JSON.parse(res.data)[0]
-        })
-  }
+  const getGroupInfo = (gid: string) => {
+    im.getGroupsInfo([gid]).then((res) => {
+      rs.groupInfo = JSON.parse(res.data)[0];
+    });
+  };
 
   const markCveHasRead = (cve: Cve, type?: number) => {
     if (cve.unreadCount === 0 && !type) return;
@@ -336,17 +335,6 @@ const Home = () => {
         .catch((err) => reject(err));
     });
   };
-
-  // const getGroupMembers = (gid: string) => {
-  //   const options = {
-  //     groupId: gid,
-  //     next: 0,
-  //     filter: 0,
-  //   };
-  //   im.getGroupMemberList(options).then((res) => {
-  //     rs.groupMemberList = JSON.parse(res.data).data;
-  //   });
-  // };
 
   const getFriendInfo = (fid: string) => {
     im.getFriendsInfo([fid]).then((res) => {
@@ -382,18 +370,7 @@ const Home = () => {
       rs.historyMsgList.pop();
     }
 
-    if (isSingleCve(rs.curCve!)) {
-      let unReads: string[] = [];
-      (JSON.parse(res.data) as Message[]).map((m) => {
-        if (!m.isRead && m.recvID === selfID) {
-          unReads.push(m.clientMsgID);
-        }
-      });
-      markC2CHasRead(rs.curCve?.userID!, unReads);
-    }
-
     rs.historyMsgList = [...rs.historyMsgList, ...JSON.parse(res.data).reverse()];
-    // console.log(rs.historyMsgList);
 
     if (JSON.parse(res.data).length < 20) {
       rs.hasMore = false;
@@ -485,7 +462,6 @@ const Home = () => {
   };
 
   const siderSearch = (value: string) => {
-    console.log(value);
 
     if (value) {
       rs.searchStatus = true;
