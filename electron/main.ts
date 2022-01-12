@@ -1,11 +1,11 @@
 import { app, BrowserWindow, Menu } from "electron";
 import * as path from "path";
 import * as isDev from "electron-is-dev";
-import { initLocalWs, killLocalWs } from "./utils"
-import './utils/ipcMain'
-import { getApiAddress, getWsAddress, getWsPort } from "./store";
+import { initLocalWs, killLocalWs } from "./utils";
+import "./utils/ipcMain";
+import { setAppStatus } from "./store";
 
-let win: BrowserWindow | null = null;
+export let win: BrowserWindow | null = null;
 
 async function createWindow() {
   Menu.setApplicationMenu(null);
@@ -52,16 +52,10 @@ async function createWindow() {
     });
   }
 
-  console.log(getApiAddress());
-  console.log(getWsAddress());
-  console.log(getWsPort());
-  
-  
-
   // localWs
-  await initLocalWs()
+  await initLocalWs();
+  setAppStatus(true);
 }
-
 // ipcMain.on('login-resize',()=>{
 //   win!.setSize(1050, 700)
 // })
@@ -78,9 +72,9 @@ app.on("activate", () => {
   if (win === null) {
     createWindow();
   }
+});
 
-app.on("will-quit",()=>{
-  killLocalWs()
-})
-
+app.on("quit", () => {
+  setAppStatus(false);
+  killLocalWs();
 });

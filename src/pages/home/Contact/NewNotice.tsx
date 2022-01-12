@@ -100,7 +100,7 @@ const NewNotice = ({ type }: { type: number }) => {
       {(type === 1 && friendApplicationList.length === 0) || (type === 2 && groupApplicationList.length === 0) ? (
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("NoNotice")} />
       ) : (
-        (type === 1 ? friendApplicationList : groupApplicationList).map((fp) => <NoticeItem key={(fp as FriendApplication).uid ?? (fp as GroupApplication).groupID} ap={fp} />)
+        (type === 1 ? friendApplicationList : groupApplicationList).map((fp) => <NoticeItem key={(fp as FriendApplication).uid ?? (fp as GroupApplication).id} ap={fp} />)
       )}
     </div>
   );

@@ -38,7 +38,7 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
   const [uid2name, setUid2name] = useState<StringMapType>({});
   const [face2str, setFace2str] = useState<StringMapType>({});
   const groupMemberList = useSelector((state: RootState) => state.contacts.groupMemberList, shallowEqual);
-  const { t,i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     window.addEventListener("paste", textInit);
@@ -324,13 +324,11 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
 
   const keyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     let lastValue: string = inputRef.current.innerHTML;
-
     const secIdx = lastValue.length;
 
     const lastIdx = lastValue.lastIndexOf("<b", secIdx);
     const rmStr = lastValue.slice(lastIdx, secIdx);
     const pattern = /^<b.*?&nbsp;$/;
-
     if (e.key === "Backspace" && lastIdx > -1 && pattern.test(rmStr)) {
       lastValue = lastValue.replace(new RegExp(rmStr), "");
       e.preventDefault();
@@ -343,13 +341,12 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
       setAtList(tmpList);
       setFoceUpdate((v) => !v);
     }
-    if (e.key === "Enter" && lastValue) {
+    if (e.key === "Enter") {
       e.preventDefault();
-
-      if (flag) return;
-      setFlag(true);
-
-      switchMessage(replyMsg ? "quote" : atList.length > 0 ? "at" : "text");
+      if (lastValue && !flag) {
+        setFlag(true);
+        switchMessage(replyMsg ? "quote" : atList.length > 0 ? "at" : "text");
+      }
     }
     typing();
   };
@@ -375,17 +372,17 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
       tmm.push(JSON.stringify(obj));
     });
     let title = "";
-    if(isSingleCve(curCve)){
-      if(i18n.language === "zh"){
-        title = t("With")+curCve.showName+t("ChatRecord")
-      }else{
-        title = t("ChatRecord")+t("With")+curCve.showName
+    if (isSingleCve(curCve)) {
+      if (i18n.language === "zh") {
+        title = t("With") + curCve.showName + t("ChatRecord");
+      } else {
+        title = t("ChatRecord") + t("With") + curCve.showName;
       }
-    }else{
-      if(i18n.language === "zh"){
-        title = t("GroupChat")+curCve.showName+t("ChatRecord")
-      }else{
-        title = t("ChatRecord")+t("In")+curCve.showName
+    } else {
+      if (i18n.language === "zh") {
+        title = t("GroupChat") + curCve.showName + t("ChatRecord");
+      } else {
+        title = t("ChatRecord") + t("In") + curCve.showName;
       }
     }
     const options = {
@@ -425,7 +422,14 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
         <MutilAction />
       ) : (
         <div style={{ position: "relative" }}>
-          <div style={{ paddingTop: replyMsg ? "32px" : "4px" }} ref={inputRef} data-pl={`${t("SendTo")} ${curCve.showName}`} onKeyDown={keyDown} className="input_div" contentEditable />
+          <div
+            style={{ paddingTop: replyMsg ? "32px" : "4px" }}
+            ref={inputRef}
+            data-pl={`${t("SendTo")} ${curCve.showName}`}
+            onKeyDown={keyDown}
+            className="input_div"
+            contentEditable
+          />
           <ReplyPrefix />
           <MsgTypeSuffix choseCard={choseCard} faceClick={faceClick} sendMsg={sendMsg} />
         </div>

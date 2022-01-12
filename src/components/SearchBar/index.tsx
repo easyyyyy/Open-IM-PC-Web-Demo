@@ -4,6 +4,7 @@ import {
 } from "@ant-design/icons";
 import { Input, Dropdown, Button, Menu } from "antd";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import styles from "./index.module.less";
 
 export type SearchBarProps = {
@@ -19,6 +20,7 @@ type menuItem = {
 
 export const SearchBar= ({menus,searchCb}:SearchBarProps) => {
   const [text,setText] = useState("")
+  const { t } = useTranslation();
 
   const addMenu = () => (
     <Menu className={styles.btn_menu}>
@@ -39,7 +41,7 @@ export const SearchBar= ({menus,searchCb}:SearchBarProps) => {
 
   return (
     <div className={styles.top_tools}>
-      <Input allowClear onPressEnter={()=>searchCb(text)} onChange={(v)=>onChanged(v.target.value)} placeholder="search" prefix={<SearchOutlined />} />
+      <Input allowClear onPressEnter={()=>searchCb(text)} onChange={(v)=>onChanged(v.target.value)} placeholder={t("Search")} prefix={<SearchOutlined />} />
       <Dropdown
         overlay={addMenu}
         placement="bottomCenter"

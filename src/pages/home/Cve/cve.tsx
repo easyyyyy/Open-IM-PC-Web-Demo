@@ -8,10 +8,10 @@ import CveFooter from "./CveFooter/CveFooter";
 import CveRightBar from "./CveRightBar";
 import HomeSider from "../components/HomeSider";
 import HomeHeader from "../components/HomeHeader";
-import { events, im, isSingleCve } from "../../../utils";
+import { createNotification, events, getNotification, im, isSingleCve, parseMessageType } from "../../../utils";
 import ChatContent from "./ChatContent";
 import home_bg from "@/assets/images/home_bg.png";
-import { messageTypes, notOssMessageTypes, sessionType, tipsTypes } from "../../../constants/messageContentType";
+import { messageTypes, notOssMessageTypes, SessionType, tipsTypes } from "../../../constants/messageContentType";
 import { useReactive, useRequest } from "ahooks";
 import { CbEvents } from "../../../utils/open_im_sdk";
 import { DELETEMESSAGE, ISSETDRAFT, MERMSGMODAL, OPENGROUPMODAL, RESETCVE, REVOKEMSG, SENDFORWARDMSG, TOASSIGNCVE, UPDATEFRIENDCARD } from "../../../constants/events";
@@ -100,6 +100,10 @@ const Home = () => {
 
   let nMsgMaps: NMsgMap[] = [];
 
+  useEffect(()=>{
+    getNotification()
+  },[])
+
   useEffect(() => {
     im.on(CbEvents.ONRECVNEWMESSAGE, newMsgHandler);
 
@@ -162,7 +166,7 @@ const Home = () => {
     rs.merModal = true;
   };
 
-  const assignHandler = (id: string, type: sessionType) => {
+  const assignHandler = (id: string, type: SessionType) => {
     getOneCve(id, type)
       .then((cve) => clickItem(cve))
       .catch((err) => message.error(t("GetCveFailed")));
@@ -184,8 +188,14 @@ const Home = () => {
 
   //  im hander
   const newMsgHandler = (data: WsResponse) => {
+    const newServerMsg: Message = JSON.parse(data.data);
+    if(newServerMsg.contentType !== messageTypes.TYPINGMESSAGE){
+      createNotification(newServerMsg,(id,sessionType)=>{
+        assignHandler(id,sessionType)
+        window.electron?window.electron.focusHomePage():window.focus()
+      })
+    }
     if (rs.curCve) {
-      const newServerMsg: Message = JSON.parse(data.data);
       if (inCurCve(newServerMsg)) {
         if (newServerMsg.contentType === messageTypes.TYPINGMESSAGE) {
           typingUpdate();
@@ -199,7 +209,6 @@ const Home = () => {
           if (isSingleCve(rs.curCve)) {
             markC2CHasRead(rs.curCve.userID, [newServerMsg.clientMsgID]);
           }
-
           markCveHasRead(rs.curCve, 1);
         }
       }

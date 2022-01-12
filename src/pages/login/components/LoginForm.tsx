@@ -91,7 +91,7 @@ const LoginForm: FC<IProps> = (props) => {
 
   const initialValues = {
     areaCode: "86",
-    phoneNo: props.type === "login" ? localStorage.getItem("lastimuid") : "",
+    phoneNo: props.type === "login" ? localStorage.getItem("lastimuid")??"" : "",
   };
 
   const inputForm = (

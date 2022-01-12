@@ -1,4 +1,4 @@
-import {im,isSingleCve} from './im'
+import {createNotification, getNotification, im,isSingleCve, parseMessageType,} from './im'
 import request from './request'
 import { cosUpload,cos } from './cos'
 import { findEmptyValue,pySegSort,formatDate,sleep, getUserIP,bytesToSize, switchFileIcon, getPicInfo, getVideoInfo } from './common'
@@ -19,5 +19,8 @@ export {
     bytesToSize,
     switchFileIcon,
     getPicInfo,
-    getVideoInfo
+    getVideoInfo,
+    getNotification,
+    createNotification,
+    parseMessageType
 }

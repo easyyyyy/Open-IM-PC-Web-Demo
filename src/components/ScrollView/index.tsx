@@ -1,4 +1,5 @@
 import { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { throttle } from "throttle-debounce";
 import { Loading } from "../Loading";
 import styles from "./index.module.less";
@@ -16,7 +17,7 @@ const ScrollView: FC<ScrollViewProps> = (
   { data, fetchMoreData, hasMore, children,loading,height,holdHeight },
   ref
 ) => {
-
+  const { t } = useTranslation();
   const onScroll = async (e: any) => {
     const loadThreshold = 0 - e.target.scrollHeight + e.target.offsetHeight +(holdHeight??30);
     
@@ -42,7 +43,7 @@ const ScrollView: FC<ScrollViewProps> = (
           height={data.length === 0 ? `${height}px`??"600px" : "60px"}
         />
       ) : (
-        <div className={styles.con_nomore}>No more~</div>
+        <div className={styles.con_nomore}>{t("NoMore")}</div>
       )}
     </div>
   );

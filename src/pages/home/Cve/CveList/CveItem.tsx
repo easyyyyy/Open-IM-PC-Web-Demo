@@ -7,7 +7,7 @@ import { Cve, Message } from "../../../../@types/open_im";
 import { MyAvatar } from "../../../../components/MyAvatar";
 import { messageTypes, tipsTypes } from "../../../../constants/messageContentType";
 import { setCveList } from "../../../../store/actions/cve";
-import { formatDate, im } from "../../../../utils";
+import { formatDate, im, parseMessageType } from "../../../../utils";
 
 type CveItemProps = {
   cve: Cve;
@@ -28,55 +28,7 @@ const CveItem: FC<CveItemProps> = ({ cve, onClick, curCve, curUid, cveList }) =>
     if (cve.draftText !== "") {
       return t("Draft")+" " + cve.draftText;
     }
-    switch (pmsg.contentType) {
-      case messageTypes.TEXTMESSAGE:
-        return pmsg.content;
-      case messageTypes.ATTEXTMESSAGE:
-        return `${pmsg.senderNickName + " " + pmsg.atElem.text}`;
-      case messageTypes.PICTUREMESSAGE:
-        return t("PictureMessage");
-      case messageTypes.VIDEOMESSAGE:
-        return t("VideoMessage");
-      case messageTypes.VOICEMESSAGE:
-        return t("VoiceMessage");
-      case messageTypes.LOCATIONMESSAGE:
-        return t("LocationMessage");
-      case messageTypes.CARDMESSAGE:
-        return t("CardMessage");
-      case messageTypes.MERGERMESSAGE:
-        return t("MergeMessage");
-      case messageTypes.FILEMESSAGE:
-        return t("FileMessage");
-      case messageTypes.REVOKEMESSAGE:
-        return `${pmsg.sendID === curUid ? t("You") : pmsg.senderNickName} ${t("RevokeMessage")}`;
-      case messageTypes.CUSTOMMESSAGE:
-        return t("CustomMessage");
-      case messageTypes.QUOTEMESSAGE:
-        return t("QuoteMessage");
-      case tipsTypes.ACCEPTFRIENDNOTICE:
-        return t("AlreadyFriend");
-      case tipsTypes.ACCEPTGROUPAPPLICATIONNOTICE:
-        const jointip = JSON.parse(pmsg.content).defaultTips;
-        const joinIdx = jointip.indexOf(" join the group");
-        return jointip.slice(0, joinIdx) + " "+  t("JoinedGroup");
-      case tipsTypes.CREATEGROUPNOTICE:
-        return t("AlreadyGroup");
-      case tipsTypes.INVITETOGROUPNOTICE:
-        const invitetip = JSON.parse(pmsg.content).defaultTips;
-        const inviteIdx = invitetip.indexOf(" invited into the group chat by ");
-        return invitetip.slice(32 + inviteIdx)+t("Invited") +invitetip.slice(0, inviteIdx)+ t("IntoGroup");
-      case tipsTypes.QUITGROUPNOTICE:
-        const quitTip = JSON.parse(pmsg.content).defaultTips;
-        const quitIdx = quitTip.indexOf(" have quit group chat");
-        return quitTip.slice(6, quitIdx) + t("QuitedGroup");
-      default:
-        const tip = JSON.parse(pmsg.content);
-        if (tip.isDisplay === 1) {
-          return tip.defaultTips;
-        } else {
-          return "tips";
-        }
-    }
+    return parseMessageType(pmsg,curUid);
   };
 
   const parseLatestTime = (ltime: number): string => {

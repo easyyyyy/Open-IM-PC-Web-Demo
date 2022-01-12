@@ -221,5 +221,6 @@
     "LogOut":"退出登录",
     "LogOutTip":"您确定要退出登录吗？",
     "MyInformation":"我的信息",
-    "SelectLanguage":"选择语言"
+    "SelectLanguage":"选择语言",
+    "NoMore":"没有更多啦~"
 }

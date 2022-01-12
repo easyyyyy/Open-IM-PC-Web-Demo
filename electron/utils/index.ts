@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as isDev from "electron-is-dev";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import { platform } from "process";
-import { getApiAddress, getWsAddress, getWsPort } from "../store";
+import { getApiAddress, getAppStatus, getWsAddress, getWsPort } from "../store";
 
 const appPath = app.getAppPath();
 const userDataPath = app.getPath("userData");
@@ -35,8 +35,6 @@ export const initLocalWs = async () => {
   }
   const exPath = isDev ? `${__dirname}/../../../electron/exec/${exeType}` : `${appPath}/../exec/${exeType}`;
   const dbDir = isDev ? "./" : dbDataPath;
-
-  console.log("init...");
   
   localWs = spawn(exPath, ["-openIMApiAddress", getApiAddress(), "-openIMWsAddress", getWsAddress(), "-sdkWsPort", getWsPort(), "-openIMDbDir", dbDir]);
 
@@ -51,12 +49,20 @@ export const initLocalWs = async () => {
   localWs.on("close", (code: number) => {
     console.log("close:::::");
     setTimeout(() => {
-      localWs = spawn(exPath, ["-openIMApiAddress", getApiAddress(), "-openIMWsAddress", getWsAddress(), "-sdkWsPort", getWsPort(), "-openIMDbDir", dbDir]);
+      if(getAppStatus()){
+        localWs = spawn(exPath, ["-openIMApiAddress", getApiAddress(), "-openIMWsAddress", getWsAddress(), "-sdkWsPort", getWsPort(), "-openIMDbDir", dbDir]);
+      }
     }, 2000);
   });
 };
 
 export const killLocalWs = () => {
+  console.log("kill:::::::");
+  console.log(localWs);
+  if(localWs){
+    console.log(localWs.killed);
+  }
+  
   if(localWs&&!localWs.killed){
     localWs.kill();
   }

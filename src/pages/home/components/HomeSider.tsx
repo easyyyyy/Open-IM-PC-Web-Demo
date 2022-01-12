@@ -42,7 +42,7 @@ const AddConModal: FC<AddConModalProps> = ({ isAddConsVisible, loading, searchCo
         </Button>,
       ]}
     >
-      <Input allowClear placeholder={`${t("PleaseInput")}${type === "friend" ? t("User") : t("Gruop")}ID`} onChange={(v) => getNo(v.target.value)} />
+      <Input allowClear placeholder={`${t("PleaseInput")}${type === "friend" ? t("User") : t("Group")}ID`} onChange={(v) => getNo(v.target.value)} />
     </Modal>
   );
 }

@@ -31,10 +31,15 @@ const setIMConfig = (config:any) => {
     ipcRenderer.send("SetIMConfig",config)
 }
 
+const focusHomePage = () => {
+    ipcRenderer.send("FocusHomePage")
+}
+
 export const api:API = {
     getLocalWsAddress,
     getIMConfig,
-    setIMConfig
+    setIMConfig,
+    focusHomePage
 };
 
 

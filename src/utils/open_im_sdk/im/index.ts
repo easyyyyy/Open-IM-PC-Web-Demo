@@ -83,23 +83,19 @@ export default class OpenIMSDK extends Emitter {
       const onOpen = () => {
         this.uid = uid;
         this.token = token;
-        // console.log("once open:::");
-        console.log(this.ws?.readyState);
         this.iLogin(loginData, operationID)
           .then((res) => {
             this.logoutFlag = false;
             resolve(res);
           })
-          .catch(() => {
-            errData.errCode = 111;
-            errData.errMsg = "ws connect failed...";
+          .catch((err) => {
+            errData.errCode = err.errCode;
+            errData.errMsg = err.errMsg;
             reject(errData);
           });
       };
 
       const onClose = () => {
-        console.log("ws close:::" + this.ws?.readyState);
-
         // errData.errCode = 111;
         // errData.errMsg = "ws connect failed...";
         // if (!this.logoutFlag) this.reconnect();
@@ -1102,7 +1098,7 @@ export default class OpenIMSDK extends Emitter {
     }
 
     if (this.platform === "web") {
-      this.ws = this.ws ?? new WebSocket(this.wsUrl);
+      this.ws = new WebSocket(this.wsUrl);
       this.ws.onclose = onClose;
       this.ws.onopen = onOpen;
       this.ws.onerror = onError;

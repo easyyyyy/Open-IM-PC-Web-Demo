@@ -240,7 +240,7 @@ const MyRoute = () => {
 
   window.onbeforeunload = function () {
     localStorage.removeItem("curimuid");
-    localStorage.setItem("lastimuid", rootState.user.selfInfo.uid!);
+    localStorage.setItem("lastimuid", rootState.user.selfInfo.uid??"");
     localStorage.setItem(`${rootState.user.selfInfo.uid}userStore`, JSON.stringify(rootState.user));
     localStorage.setItem(`${rootState.user.selfInfo.uid}cveStore`, JSON.stringify(rootState.cve));
     localStorage.setItem(`${rootState.user.selfInfo.uid}consStore`, JSON.stringify(rootState.contacts));

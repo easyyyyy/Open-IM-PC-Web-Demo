@@ -14,7 +14,7 @@ import { RootState } from "../../../store";
 import { events, im } from "../../../utils";
 import { MyAvatar } from "../../../components/MyAvatar";
 import { TOASSIGNCVE } from "../../../constants/events";
-import { sessionType } from "../../../constants/messageContentType";
+import { SessionType } from "../../../constants/messageContentType";
 import { useTranslation } from "react-i18next";
 
 type GroupCardProps = {
@@ -97,7 +97,7 @@ const GroupCard: FC<GroupCardProps> = ({
 
   const nextStep = () => {
     if(inGroup){
-      events.emit(TOASSIGNCVE,info.groupID,sessionType.GROUPCVE)
+      events.emit(TOASSIGNCVE,info.groupID,SessionType.GROUPCVE)
     }else{
       setStep("send")
     }

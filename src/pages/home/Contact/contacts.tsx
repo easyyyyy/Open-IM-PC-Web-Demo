@@ -8,15 +8,16 @@ import new_friend from "@/assets/images/new_friend.png";
 import new_group from "@/assets/images/new_group.png";
 import nomal_cons from "@/assets/images/nomal_cons.png";
 import { RootState } from "../../../store";
-import { shallowEqual, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import HomeHeader from "../components/HomeHeader";
 import { ContactContent } from "./ContactContent";
 import { FriendItem, GroupItem } from "../../../@types/open_im";
-import { sessionType } from "../../../constants/messageContentType";
+import { SessionType } from "../../../constants/messageContentType";
 import { events } from "../../../utils";
 import { TOASSIGNCVE } from "../../../constants/events";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
+import { setGroupMemberLoading } from "../../../store/actions/contacts";
 
 const { Content } = Layout;
 
@@ -62,27 +63,27 @@ const Contacts = () => {
   const [menu, setMenu] = useState(consMenuList[3]);
   const selectValue = (state: RootState) => state.contacts.friendList;
   const cons = useSelector(selectValue, shallowEqual);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const clickMenuItem = (item: MenuItem) => {
-    setMenu(item)
+    setMenu(item);
   };
 
-  const clickListItem = (item:FriendItem|GroupItem,type:sessionType) => {
-    navigate('/')
-    setTimeout(()=>{
-      events.emit(TOASSIGNCVE,type===sessionType.SINGLECVE?(item as FriendItem).uid:(item as GroupItem).groupID,type)
-    },0)
-  }
+  const clickListItem = (item: FriendItem | GroupItem, type: SessionType) => {
+    if (type === SessionType.GROUPCVE) {
+      dispatch(setGroupMemberLoading(true));
+    }
+    navigate("/");
+    setTimeout(() => {
+      events.emit(TOASSIGNCVE, type === SessionType.SINGLECVE ? (item as FriendItem).uid : (item as GroupItem).groupID, type);
+    }, 0);
+  };
 
   return (
     <>
-      <HomeSider searchCb={()=>{}}>
-        <ContactMenuList
-          curTab={menu.title}
-          menusClick={clickMenuItem}
-          menus={consMenuList}
-        />
+      <HomeSider searchCb={() => {}}>
+        <ContactMenuList curTab={menu.title} menusClick={clickMenuItem} menus={consMenuList} />
       </HomeSider>
       <Layout>
         <HomeHeader title={menu.title} isShowBt={menu.idx !== 3 && menu.idx !== 0} type="contact" />

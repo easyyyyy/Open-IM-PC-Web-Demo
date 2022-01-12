@@ -57,7 +57,7 @@ export const notOssMessageTypes = [
   messageTypes.FILEMESSAGE
 ]
 
-export enum sessionType {
+export enum SessionType {
   SINGLECVE = 1,
   GROUPCVE = 2
 }

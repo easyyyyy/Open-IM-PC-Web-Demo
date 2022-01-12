@@ -22,7 +22,7 @@ import { UploadRequestOption } from "rc-upload/lib/interface";
 import { getSelfInfo } from "../../../store/actions/user";
 import { getFriendList } from "../../../store/actions/contacts";
 import { TOASSIGNCVE, UPDATEFRIENDCARD } from "../../../constants/events";
-import { sessionType } from "../../../constants/messageContentType";
+import { SessionType } from "../../../constants/messageContentType";
 import { useTranslation } from "react-i18next";
 
 const { Paragraph } = Typography;
@@ -114,7 +114,7 @@ const UserCard: FC<UserCardProps> = ({
   const clickBtn = () => {
     if (isFriend) {
       //TODO to cve
-      events.emit(TOASSIGNCVE, info.uid, sessionType.SINGLECVE);
+      events.emit(TOASSIGNCVE, info.uid, SessionType.SINGLECVE);
       close()
     } else {
       setStep("send");

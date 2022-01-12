@@ -1,5 +1,6 @@
 import { ipcMain } from "electron";
 import { initLocalWs, killLocalWs } from ".";
+import { win } from "../main";
 import { getApiAddress, getWsAddress, getWsPort, setApiAddress, setWsAddress, setWsPort } from '../store'
 
 ipcMain.on("GetIMConfig",(e)=>{
@@ -17,4 +18,8 @@ ipcMain.on("SetIMConfig",(e,config)=>{
     setWsPort(config.IMWsPort);
     killLocalWs();
     initLocalWs();
+})
+
+ipcMain.on("FocusHomePage",(e)=>{
+    win?.focus();
 })

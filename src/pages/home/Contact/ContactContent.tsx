@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { FriendItem, GroupItem } from "../../../@types/open_im";
 import ContactList from "../../../components/ContactList";
-import { sessionType } from "../../../constants/messageContentType";
+import { SessionType } from "../../../constants/messageContentType";
 import { MenuItem } from "./ContactMenuList";
 import GroupList from "./GroupList";
 import NewNotice from "./NewNotice";
@@ -9,7 +9,7 @@ import NewNotice from "./NewNotice";
 type ContactContentProps = {
   menu: MenuItem;
   contactList: FriendItem[];
-  clickItem: (item:FriendItem | GroupItem,type:sessionType)=>void
+  clickItem: (item:FriendItem | GroupItem,type:SessionType)=>void
 };
 
 export const ContactContent: FC<ContactContentProps> = (props) => {

@@ -1,8 +1,9 @@
 import { UserOutlined } from "@ant-design/icons";
 import { Anchor, Avatar, Empty } from "antd";
 import { FC, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FriendItem } from "../../@types/open_im";
-import { sessionType } from "../../constants/messageContentType";
+import { SessionType } from "../../constants/messageContentType";
 import { pySegSort } from "../../utils/common";
 import { MyAvatar } from "../MyAvatar";
 import styles from "./contact.module.less";
@@ -12,12 +13,12 @@ const { Link } = Anchor;
 type ConSectionProps = {
   section: string;
   items: FriendItem[];
-  clickItem: (item:FriendItem,type:sessionType)=>void
+  clickItem: (item:FriendItem,type:SessionType)=>void
 };
 
 type SectionItemProps = {
   item: FriendItem;
-  clickItem: (item:FriendItem,type:sessionType)=>void
+  clickItem: (item:FriendItem,type:SessionType)=>void
 };
 
 const ConSection: FC<ConSectionProps> = (props) => (
@@ -31,7 +32,7 @@ const ConSection: FC<ConSectionProps> = (props) => (
 );
 
 const SectionItemComp: FC<SectionItemProps> = (props) => (
-  <div onDoubleClick={()=>props.clickItem(props.item,sessionType.SINGLECVE)} className={styles.cons_section_item}>
+  <div onDoubleClick={()=>props.clickItem(props.item,SessionType.SINGLECVE)} className={styles.cons_section_item}>
     <MyAvatar
       shape="square"
       size={36}
@@ -44,7 +45,7 @@ const SectionItemComp: FC<SectionItemProps> = (props) => (
 
 type ContactListProps = {
   contactList: FriendItem[];
-  clickItem: (item:FriendItem,type:sessionType)=>void
+  clickItem: (item:FriendItem,type:SessionType)=>void
 };
 
 type Cons = {
@@ -55,6 +56,7 @@ type Cons = {
 const ContactList: FC<ContactListProps> = ({ contactList,clickItem }) => {
   const [sections, setSections] = useState<Array<string>>([]);
   const [cons, setCons] = useState<Cons[]>();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (contactList.length > 0) {
@@ -89,7 +91,7 @@ const ContactList: FC<ContactListProps> = ({ contactList,clickItem }) => {
       {contactList.length > 0 ? (
         <ListView />
       ) : (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无数据" />
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("NoData")} />
       )}
     </div>
   );
