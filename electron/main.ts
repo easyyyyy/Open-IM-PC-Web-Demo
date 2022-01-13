@@ -1,7 +1,7 @@
 import { app, BrowserWindow, Menu } from "electron";
 import * as path from "path";
 import * as isDev from "electron-is-dev";
-import { initLocalWs, killLocalWs } from "./utils";
+import { initLocalWs, killLocalWs, setTray } from "./utils";
 import "./utils/ipcMain";
 import { setAppStatus } from "./store";
 
@@ -24,6 +24,8 @@ async function createWindow() {
     titleBarStyle: "hidden",
   });
 
+  setTray(win);
+  
   if (isDev) {
     win.loadURL("http://localhost:3000");
   } else {
