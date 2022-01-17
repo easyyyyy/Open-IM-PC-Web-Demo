@@ -284,6 +284,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
     &_item {
       width: 100%;
       padding: 10px 16px;
@@ -356,6 +357,8 @@
   }
 
   .group_bg {
+    height: 100%;
+    overflow-y: auto;
     .group_item {
       display: flex;
       align-items: center;
@@ -397,6 +400,7 @@
 .chat_header {
   background-color: #fff !important;
   padding: 0 35px 0 22px !important;
+  position: relative;
   &_box {
     display: flex;
     justify-content: space-between;

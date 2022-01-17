@@ -1,6 +1,6 @@
 import { shallowEqual } from "@babel/types";
 import { Button, Empty, Layout, message, Radio, RadioChangeEvent } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
@@ -10,25 +10,46 @@ import { im } from "../../../utils";
 
 const { Header, Sider, Content } = Layout;
 
-type LanguageType = "zh"|"en"
+type LanguageType = "zh" | "en";
 
 const PersonalSetting = () => {
   const { i18n, t } = useTranslation();
+  const [closeAction, setCloseAction] = useState<boolean | undefined>(undefined);
 
-  const onChange = (e: RadioChangeEvent) => {
-    i18n.changeLanguage(e.target.value)
-    localStorage.setItem("IMLanguage",e.target.value)
+  useEffect(() => {
+    if (window.electron) {
+      setCloseAction(window.electron.getAppCloseAction());
+    }
+  }, []);
+
+  const onLanguageChange = (e: RadioChangeEvent) => {
+    i18n.changeLanguage(e.target.value);
+    localStorage.setItem("IMLanguage", e.target.value);
+  };
+
+  const onCloseActionChange = (e: RadioChangeEvent) => {
+    window.electron.setAppCloseAction(e.target.value);
+    setCloseAction((v) => !v);
   };
 
   return (
     <div className="personal_setting">
       <div className="personal_setting_item">
-      <div className="title">{t("SelectLanguage")}</div>
-      <Radio.Group onChange={onChange} value={i18n.language}>
-        <Radio value="zh">简体中文</Radio>
-        <Radio value="en">English</Radio>
-      </Radio.Group>
+        <div className="title">{t("SelectLanguage")}</div>
+        <Radio.Group onChange={onLanguageChange} value={i18n.language}>
+          <Radio value="zh">简体中文</Radio>
+          <Radio value="en">English</Radio>
+        </Radio.Group>
       </div>
+      {window.electron && (
+        <div className="personal_setting_item">
+          <div className="title">{t("CloseAction")}</div>
+          <Radio.Group onChange={onCloseActionChange} value={closeAction}>
+            <Radio value={true}>{t("QuitApp")}</Radio>
+            <Radio value={false}>{t("MiniSizeApp")}</Radio>
+          </Radio.Group>
+        </div>
+      )}
     </div>
   );
 };
@@ -121,13 +142,13 @@ const Profile = () => {
   const switchContent = () => {
     switch (curMenu) {
       case "bl":
-        return <Blacklist />
+        return <Blacklist />;
       case "ps":
-        return <PersonalSetting/>
+        return <PersonalSetting />;
       default:
-        return <div>...</div>
+        return <div>...</div>;
     }
-  }
+  };
   return (
     <Layout className="profile">
       <Header className="profile_header">{type === "about" ? t("AboutUs") : t("AccountSettings")}</Header>

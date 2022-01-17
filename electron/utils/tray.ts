@@ -1,5 +1,6 @@
 import { app, BrowserWindow, Menu, Tray } from "electron";
 import * as path from "path";
+import { getAppCloseAction } from "../store";
 
 let appTray: Tray;
 let timer: NodeJS.Timeout | null = null;
@@ -22,6 +23,7 @@ export const setTray = (win: BrowserWindow|null) => {
 
   appTray.on("click", function () {
     win?.show();
+    win?.focus();
   });
 
   appTray.on("double-click", function () {
@@ -29,8 +31,9 @@ export const setTray = (win: BrowserWindow|null) => {
   });
 
   win?.on("close",(e)=>{
-    if(!win?.isVisible()){
+    if(!win?.isVisible()||getAppCloseAction()){
 			win = null;
+      appTray.destroy();
 		}else{
 			e.preventDefault();
       win?.hide()
@@ -51,3 +54,7 @@ export const flickerTray = () => {
     }
   }, 500);
 };
+
+export const setTrayTitle = (num:number) => {
+  appTray.setTitle(num===0?"":num+'')
+}

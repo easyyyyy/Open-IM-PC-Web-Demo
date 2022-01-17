@@ -58,6 +58,12 @@ const ToolIcon = ({ tool }: { tool: ToolItem }) => {
     });
     setApplications(fan + gan);
   }, [friendApplicationList, groupApplicationList]);
+
+  useEffect(()=>{
+    if(window.electron){
+      window.electron.unReadChange(unReadCount+applications)
+    }   
+   },[applications,unReadCount])
   
 
   return (

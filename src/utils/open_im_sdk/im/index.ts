@@ -98,7 +98,7 @@ export default class OpenIMSDK extends Emitter {
       const onClose = () => {
         // errData.errCode = 111;
         // errData.errMsg = "ws connect failed...";
-        // if (!this.logoutFlag) this.reconnect();
+        if (!this.logoutFlag) this.reconnect();
         // reject(errData);
       };
 

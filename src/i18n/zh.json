@@ -222,5 +222,8 @@
     "LogOutTip":"您确定要退出登录吗？",
     "MyInformation":"我的信息",
     "SelectLanguage":"选择语言",
-    "NoMore":"没有更多啦~"
+    "NoMore":"没有更多啦~",
+    "CloseAction":"点击关闭按钮时事件",
+    "QuitApp":"退出应用",
+    "MiniSizeApp":"最小化到托盘"
 }

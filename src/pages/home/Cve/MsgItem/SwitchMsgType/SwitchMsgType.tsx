@@ -90,6 +90,15 @@ const SwitchMsgType: FC<SwitchMsgTypeProps> = ({ msg, audio, curCve, selfID, img
     return mstr;
   };
 
+  const parseUrl = (mstr: string) => {
+    const pattern = /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:._\+-~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:_\+.~#?&\/\/=]*)/g
+    const arr = mstr.match(pattern);
+    arr?.map(a=>{
+      mstr = mstr.replace(a,`<a onclick="urlClick('${a}')" href="javascript:;">${a}</a>`)
+    })
+    return mstr;
+  }
+
   const playVoice = (url: string) => {
     audio.current!.src = url;
     audio.current?.play();
@@ -100,6 +109,7 @@ const SwitchMsgType: FC<SwitchMsgTypeProps> = ({ msg, audio, curCve, selfID, img
       case messageTypes.TEXTMESSAGE:
         let mstr = msg.content;
         mstr = parseEmojiFace(mstr);
+        mstr = parseUrl(mstr);
         return (
           <>
             <div ref={textRef} style={sty} className={`chat_bg_msg_content_text ${!isSingle ? "nick_magin" : ""}`}>
@@ -112,6 +122,7 @@ const SwitchMsgType: FC<SwitchMsgTypeProps> = ({ msg, audio, curCve, selfID, img
         let atMsg = msg.atElem.text;
         atMsg = parseEmojiFace(atMsg);
         atMsg = parseAt(atMsg);
+        atMsg = parseUrl(atMsg);
         return (
           <div style={sty} className={`chat_bg_msg_content_text ${!isSingle ? "nick_magin" : ""}`}>
             <div style={{ display: "inline-block" }} dangerouslySetInnerHTML={{ __html: atMsg }}></div>

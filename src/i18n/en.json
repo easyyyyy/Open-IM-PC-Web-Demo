@@ -222,5 +222,8 @@
     "LogOutTip":"Are you sure you want to log out?",
     "MyInformation":"My information",
     "SelectLanguage":"Select language",
-    "NoMore":"No more~"
+    "NoMore":"No more~",
+    "CloseAction":"Event when the close button is clicked",
+    "QuitApp":"Quit app",
+    "MiniSizeApp":"Minimize to tray"
 }

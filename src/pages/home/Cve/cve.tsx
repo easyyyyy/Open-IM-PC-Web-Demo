@@ -191,6 +191,7 @@ const Home = () => {
     const newServerMsg: Message = JSON.parse(data.data);
     if(newServerMsg.contentType !== messageTypes.TYPINGMESSAGE){
       createNotification(newServerMsg,(id,sessionType)=>{
+        console.log(id,sessionType);
         assignHandler(id,sessionType)
         window.electron?window.electron.focusHomePage():window.focus()
       })
@@ -383,7 +384,8 @@ const Home = () => {
     }
 
     rs.historyMsgList = [...rs.historyMsgList, ...JSON.parse(res.data).reverse()];
-
+    console.log(rs.historyMsgList);
+    
     if (JSON.parse(res.data).length < 20) {
       rs.hasMore = false;
     } else {

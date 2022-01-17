@@ -101,7 +101,7 @@ const MultipleSelectBox: FC<MultipleSelectBoxProps> = ({ modalType,memberList, f
       <div onClick={() => setType("group")} className="select_box_left_item">
         <div className="left_title">
           <img style={{ width: "20px" }} src={group_select} />
-          <span>{t("MyGruops")}</span>
+          <span>{t("MyGroups")}</span>
         </div>
         <RightOutlined />
       </div>

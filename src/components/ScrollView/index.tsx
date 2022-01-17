@@ -14,8 +14,7 @@ type ScrollViewProps = {
 };
 
 const ScrollView: FC<ScrollViewProps> = (
-  { data, fetchMoreData, hasMore, children,loading,height,holdHeight },
-  ref
+  { data, fetchMoreData, hasMore, children,loading,height,holdHeight }
 ) => {
   const { t } = useTranslation();
   const onScroll = async (e: any) => {
@@ -31,7 +30,7 @@ const ScrollView: FC<ScrollViewProps> = (
     }
   };
 
-  const throttleScroll = throttle(250,onScroll)
+  const throttleScroll = throttle(500,onScroll)
 
   return (
     <div onScroll={throttleScroll} id="scr_container" style={{height:height??"100%"}} className={styles.con}>

@@ -1,10 +1,13 @@
 const { contextBridge } = require('electron')
 import { ipcRenderer } from 'electron';
 import { networkInterfaces } from 'os';
+import { platform } from 'process';
 import type { API, APIKey } from '../../src/@types/api';
-import { getWsPort } from '../store';
+import { getAppCloseAction, getWsPort, setAppCloseAction } from '../store';
 
 export const apiKey:APIKey = 'electron';
+
+const isMac = platform === "darwin"
 
 const getLocalWsAddress = () => {
     let ips = [];
@@ -35,11 +38,34 @@ const focusHomePage = () => {
     ipcRenderer.send("FocusHomePage")
 }
 
+const unReadChange = (num:number) => {
+    ipcRenderer.send("UnReadChange",num)
+}
+
+const miniSizeApp = () => {
+    ipcRenderer.send("MiniSizeApp")
+}
+
+const maxSizeApp = () => {
+    ipcRenderer.send("MaxSizeApp")
+}
+
+const closeApp = () => {
+    ipcRenderer.send("CloseApp")
+}
+
 export const api:API = {
+    isMac,
     getLocalWsAddress,
     getIMConfig,
     setIMConfig,
-    focusHomePage
+    focusHomePage,
+    unReadChange,
+    miniSizeApp,
+    maxSizeApp,
+    closeApp,
+    getAppCloseAction,
+    setAppCloseAction
 };
 
 

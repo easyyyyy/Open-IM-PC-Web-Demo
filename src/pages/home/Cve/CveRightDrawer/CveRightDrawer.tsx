@@ -1,10 +1,5 @@
-import {
-  LeftOutlined,
-} from "@ant-design/icons";
-import {
-  Drawer,
-  message
-} from "antd";
+import { LeftOutlined } from "@ant-design/icons";
+import { Drawer, message } from "antd";
 import { FC, useEffect, useState } from "react";
 import { Cve, FriendItem, GroupItem, GroupMember } from "../../../../@types/open_im";
 import { OPENGROUPMODAL, RESETCVE } from "../../../../constants/events";
@@ -13,28 +8,23 @@ import SingleDrawer from "./SingleDrawer";
 import GroupDrawer from "./GroupDrawer/GroupDrawer";
 import EditDrawer from "./GroupDrawer/EditDrawer";
 import MemberDrawer from "./GroupDrawer/MemberDrawer";
-import { shallowEqual, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../store";
 import GroupManage from "./GroupDrawer/GroupManage";
 import { GroupNotice } from "./GroupDrawer/GroupNotice";
 import { useTranslation } from "react-i18next";
-
+import { setCveList } from "../../../../store/actions/cve";
 
 type CveRightDrawerProps = {
   curCve: Cve;
   visible: boolean;
-  friendInfo?:FriendItem;
+  friendInfo?: FriendItem;
   curTool?: number;
   onClose: () => void;
   openCard: () => void;
 };
 
-export type DrawerType =
-  | "set"
-  | "edit_group_info"
-  | "member_list"
-  | "group_manage"
-  | "group_notice_list";
+export type DrawerType = "set" | "edit_group_info" | "member_list" | "group_manage" | "group_notice_list";
 
 export enum GroupRole {
   NOMAL = 0,
@@ -42,32 +32,27 @@ export enum GroupRole {
   ADMIN = 2,
 }
 
-const CveRightDrawer: FC<CveRightDrawerProps> = ({
-  curCve,
-  visible,
-  friendInfo,
-  curTool,
-  onClose,
-  openCard,
-}) => {
+const CveRightDrawer: FC<CveRightDrawerProps> = ({ curCve, visible, friendInfo, curTool, onClose, openCard }) => {
   const [groupInfo, setGroupInfo] = useState<GroupItem>();
   const [type, setType] = useState<DrawerType>("set");
-  const selfID = useSelector((state: RootState) => state.user.selfInfo.uid,shallowEqual);
-  const groupMembers = useSelector((state: RootState) => state.contacts.groupMemberList,shallowEqual);
+  const selfID = useSelector((state: RootState) => state.user.selfInfo.uid, shallowEqual);
+  const groupMembers = useSelector((state: RootState) => state.contacts.groupMemberList, shallowEqual);
+  const cveList = useSelector((state: RootState) => state.cve.cves, shallowEqual);
   const [adminList, setAdminList] = useState<GroupMember[]>([]);
   const [role, setRole] = useState<GroupRole>(GroupRole.NOMAL);
+  const dispatch = useDispatch();
   const { t } = useTranslation();
 
-  useEffect(()=>{
+  useEffect(() => {
     switch (curTool) {
       case 0:
-        setType("group_notice_list")
+        setType("group_notice_list");
         break;
       default:
-        setType("set")
+        setType("set");
         break;
     }
-  },[curTool])
+  }, [curTool]);
 
   useEffect(() => {
     if (!isSingleCve(curCve)) {
@@ -107,8 +92,20 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
       .then((res) => {
         events.emit(RESETCVE);
         message.success(t("UnfriendingSuc"));
+        delCve()
       })
       .catch((err) => message.error(t("UnfriendingFailed")));
+  };
+
+  const delCve = () => {
+    im.deleteConversation(curCve.conversationID)
+      .then((res) => {
+        const tarray = [...cveList];
+        const farray = tarray.filter((c) => c.conversationID !== curCve.conversationID);
+        dispatch(setCveList(farray));
+        curCve = null as unknown as Cve
+      })
+      .catch((err) => message.error(t("AccessFailed")));
   };
 
   const updatePin = () => {
@@ -119,7 +116,7 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
     im.pinConversation(options)
       .then((res) => {
         message.success(curCve.isPinned === 0 ? t("PinSuc") : t("CancelPinSuc"));
-        curCve.isPinned = curCve.isPinned === 0 ? 1 : 0
+        curCve.isPinned = curCve.isPinned === 0 ? 1 : 0;
       })
       .catch((err) => {});
   };
@@ -176,15 +173,7 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
   const switchContent = () => {
     if (type === "set") {
       if (isSingleCve(curCve)) {
-        return (
-          <SingleDrawer
-            curCve={curCve}
-            info={friendInfo!}
-            openCard={openCard}
-            updatePin={updatePin}
-            delFriend={delFriend}
-          />
-        );
+        return <SingleDrawer curCve={curCve} info={friendInfo!} openCard={openCard} updatePin={updatePin} delFriend={delFriend} />;
       } else {
         return (
           <GroupDrawer
@@ -202,34 +191,13 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
     } else {
       switch (type) {
         case "edit_group_info":
-          return (
-            <EditDrawer
-              groupInfo={groupInfo!}
-              changeGroupInfo={changeGroupInfo}
-              updateGroupInfo={updateGroupInfo}
-            />
-          );
+          return <EditDrawer groupInfo={groupInfo!} changeGroupInfo={changeGroupInfo} updateGroupInfo={updateGroupInfo} />;
         case "member_list":
-          return (
-            <MemberDrawer
-              gid={curCve.groupID}
-              groupMembers={groupMembers!}
-              role={role!}
-              selfID={selfID!}
-            />
-          );
+          return <MemberDrawer gid={curCve.groupID} groupMembers={groupMembers!} role={role!} selfID={selfID!} />;
         case "group_manage":
-          return (
-            <GroupManage
-              gid={curCve.groupID}
-              groupMembers={groupMembers}
-              adminList={adminList}
-            />
-          );
+          return <GroupManage gid={curCve.groupID} groupMembers={groupMembers} adminList={adminList} />;
         case "group_notice_list":
-          return (
-            <GroupNotice groupInfo={groupInfo}/>
-          )
+          return <GroupNotice groupInfo={groupInfo} />;
         default:
           break;
       }
@@ -272,7 +240,7 @@ const CveRightDrawer: FC<CveRightDrawerProps> = ({
         setType("set");
         onClose();
       }}
-      closable={type==="set"}
+      closable={type === "set"}
       visible={visible}
       getContainer={document.getElementById("chat_main")!}
     >

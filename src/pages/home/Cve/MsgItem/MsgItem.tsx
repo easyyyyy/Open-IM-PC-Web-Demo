@@ -1,7 +1,7 @@
 import { LoadingOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { Spin, Checkbox } from "antd";
 import { FC, useEffect, useRef, useState } from "react";
-import { Message, PictureElem, Cve, MergeElem } from "../../../../@types/open_im";
+import { Message, PictureElem, Cve } from "../../../../@types/open_im";
 import { MyAvatar } from "../../../../components/MyAvatar";
 import { messageTypes } from "../../../../constants/messageContentType";
 import { events, im, isSingleCve } from "../../../../utils";
@@ -9,7 +9,7 @@ import { events, im, isSingleCve } from "../../../../utils";
 import { ATSTATEUPDATE, MUTILMSGCHANGE, OPENSINGLEMODAL } from "../../../../constants/events";
 import { useInViewport, useLongPress } from "ahooks";
 
-import MsgType from "./SwitchMsgType/SwitchMsgType";
+import SwitchMsgType from "./SwitchMsgType/SwitchMsgType";
 import MsgMenu from "./MsgMenu/MsgMenu";
 import { useTranslation } from "react-i18next";
 
@@ -41,6 +41,13 @@ const MsgItem: FC<MsgItemProps> = (props) => {
       const { data } = await im.getUsersInfo([id]);
       events.emit(OPENSINGLEMODAL, JSON.parse(data)[0]);
     };
+    //@ts-ignore
+    window.urlClick = (url:string) => {
+      if(url.indexOf('http')===-1&&url.indexOf("https")===-1){
+        url = `http://${url}`
+      }
+      window.open(url,'_blank')
+    }
   }, []);
 
   useEffect(() => {
@@ -128,7 +135,7 @@ const MsgItem: FC<MsgItemProps> = (props) => {
       <div className="chat_bg_msg_content">
         {(!curCve || !isSingleCve(curCve)) && <span className="nick">{msg.senderNickName}</span>}
         <MsgMenu key={msg.clientMsgID} visible={contextMenuVisible} msg={msg} isSelf={isSelf(msg.sendID)} visibleChange={(v) => setContextMenuVisible(v)}>
-          <MsgType {...props} />
+          <SwitchMsgType {...props} />
         </MsgMenu>
       </div>
 
