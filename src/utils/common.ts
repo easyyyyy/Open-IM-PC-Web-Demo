@@ -1,11 +1,11 @@
-import file_pdf from "@/assets/images/file_pdf.png"
-import file_pic from "@/assets/images/file_pic.png"
-import file_ppt from "@/assets/images/file_ppt.png"
-import file_unknow from "@/assets/images/file_unknow.png"
-import file_world from "@/assets/images/file_world.png"
-import file_xslx from "@/assets/images/file_xslx.png"
-import file_zip from "@/assets/images/file_zip.png"
-import { RcFile } from "antd/lib/upload"
+import file_pdf from "@/assets/images/file_pdf.png";
+import file_pic from "@/assets/images/file_pic.png";
+import file_ppt from "@/assets/images/file_ppt.png";
+import file_unknow from "@/assets/images/file_unknow.png";
+import file_world from "@/assets/images/file_world.png";
+import file_xslx from "@/assets/images/file_xslx.png";
+import file_zip from "@/assets/images/file_zip.png";
+import { RcFile } from "antd/lib/upload";
 
 export const findEmptyValue = (obj: any) => {
   let flag = true;
@@ -145,38 +145,38 @@ export const getUserIP = (): Promise<string> => {
   });
 };
 
-export const bytesToSize = (bytes:number) => {
-  if (bytes === 0) return '0 B';
+export const bytesToSize = (bytes: number) => {
+  if (bytes === 0) return "0 B";
   var k = 1024,
-      sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-      i = Math.floor(Math.log(bytes) / Math.log(k));
+    sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
+    i = Math.floor(Math.log(bytes) / Math.log(k));
 
- return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
-}
+  return (bytes / Math.pow(k, i)).toPrecision(3) + " " + sizes[i];
+};
 
-export const switchFileIcon = (suffix:string) => {
-  const imageSuffixs = ["jpeg","tiff","png","gif","jpg","gif"]
-  const pptSuffixs = ["ppt","pptx"]
-  const exelceSuffixs = ["xlsx","xls"]
-  const worldSuffixs = ["doc","docx"]
-  const zipSuffixs = ["rar","zip"]
+export const switchFileIcon = (suffix: string) => {
+  const imageSuffixs = ["jpeg", "tiff", "png", "gif", "jpg", "gif"];
+  const pptSuffixs = ["ppt", "pptx"];
+  const exelceSuffixs = ["xlsx", "xls"];
+  const worldSuffixs = ["doc", "docx"];
+  const zipSuffixs = ["rar", "zip"];
 
-  if(imageSuffixs.includes(suffix)){
-    return file_pic
-  }else if(pptSuffixs.includes(suffix)){
-    return file_ppt
-  }else if(exelceSuffixs.includes(suffix)){
-    return file_xslx
-  }else if(worldSuffixs.includes(suffix)){
-    return file_world
-  }else if(zipSuffixs.includes(suffix)){
-    return file_zip
-  }else if(suffix === "pdf"){
-    return file_pdf
-  }else{
-    return file_unknow
+  if (imageSuffixs.includes(suffix)) {
+    return file_pic;
+  } else if (pptSuffixs.includes(suffix)) {
+    return file_ppt;
+  } else if (exelceSuffixs.includes(suffix)) {
+    return file_xslx;
+  } else if (worldSuffixs.includes(suffix)) {
+    return file_world;
+  } else if (zipSuffixs.includes(suffix)) {
+    return file_zip;
+  } else if (suffix === "pdf") {
+    return file_pdf;
+  } else {
+    return file_unknow;
   }
-}
+};
 
 export const getPicInfo = (file: RcFile): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
@@ -197,4 +197,44 @@ export const getVideoInfo = (file: RcFile): Promise<number> => {
       resolve(vel.duration);
     };
   });
+};
+
+export const base64toFile = (base64Str:string) => {
+  var arr = base64Str.split(","),
+    fileType = arr[0].match(/:(.*?);/)![1],
+    bstr = atob(arr[1]),
+    n = bstr.length,
+    u8arr = new Uint8Array(n);
+
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+
+  return new File([u8arr], `screenshot${Date.now()}.png`, {
+    type: fileType,
+  });
+};
+
+export const contenteditableDivRange = () => {
+  const selection = window.getSelection(),
+    range = selection!.getRangeAt(0),
+    br = document.createElement("br"),
+    textNode = document.createTextNode("\u00a0"); //Passing " " directly will not end up being shown correctly
+  range.deleteContents(); //required or not?
+  range.insertNode(br);
+  range.collapse(false);
+  range.insertNode(textNode);
+  range.selectNodeContents(textNode);
+  selection!.removeAllRanges();
+  selection!.addRange(range);
+  document.execCommand("delete");
+};
+
+export const move2end = (ref:React.RefObject<HTMLDivElement>) => {
+  const sel = window.getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(ref.current!);
+  range.collapse(false);
+  sel?.removeAllRanges();
+  sel?.addRange(range);
 };

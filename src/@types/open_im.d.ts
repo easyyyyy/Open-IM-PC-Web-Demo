@@ -219,6 +219,10 @@ export type StringMapType = {
   [name: string]: string;
 };
 
+export type String2IMGType = {
+  [name: string]: File;
+};
+
 export type MemberMapType = {
   [userID: string]: ResItemType;
 };
@@ -239,3 +243,5 @@ export type DetailType = {
   platform: string;
   status: string;
 };
+
+export type LanguageType = "zh-cn" | "en";

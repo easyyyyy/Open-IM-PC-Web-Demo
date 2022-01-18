@@ -1,16 +1,16 @@
 import { shallowEqual } from "@babel/types";
 import { Button, Empty, Layout, message, Radio, RadioChangeEvent } from "antd";
+import moment from "moment";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { MyAvatar } from "../../../components/MyAvatar";
+import { ANTDLOCALCHANGE } from "../../../constants/events";
 import { RootState } from "../../../store";
-import { im } from "../../../utils";
+import { events, im } from "../../../utils";
 
 const { Header, Sider, Content } = Layout;
-
-type LanguageType = "zh" | "en";
 
 const PersonalSetting = () => {
   const { i18n, t } = useTranslation();
@@ -24,6 +24,8 @@ const PersonalSetting = () => {
 
   const onLanguageChange = (e: RadioChangeEvent) => {
     i18n.changeLanguage(e.target.value);
+    moment.locale(e.target.value);
+    events.emit(ANTDLOCALCHANGE,e.target.value)
     localStorage.setItem("IMLanguage", e.target.value);
   };
 
@@ -37,7 +39,7 @@ const PersonalSetting = () => {
       <div className="personal_setting_item">
         <div className="title">{t("SelectLanguage")}</div>
         <Radio.Group onChange={onLanguageChange} value={i18n.language}>
-          <Radio value="zh">简体中文</Radio>
+          <Radio value="zh-cn">简体中文</Radio>
           <Radio value="en">English</Radio>
         </Radio.Group>
       </div>

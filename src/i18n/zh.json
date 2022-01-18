@@ -145,6 +145,7 @@
     "SendVideo":"发送视频",
     "SendPicture":"发送图片",
     "Draft":"[草稿]",
+    "Picture":"[图片]",
     "You":"你",
     "RevokeMessage":"撤回了一条消息",
     "AlreadyFriend":"你们已经是好友啦，开始聊天吧~",
@@ -225,5 +226,6 @@
     "NoMore":"没有更多啦~",
     "CloseAction":"点击关闭按钮时事件",
     "QuitApp":"退出应用",
-    "MiniSizeApp":"最小化到托盘"
+    "MiniSizeApp":"最小化到托盘",
+    "Download":"下载"
 }

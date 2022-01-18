@@ -406,6 +406,7 @@
     justify-content: space-between;
     align-items: center;
     height: 100%;
+    -webkit-app-region: drag;
     &_left {
       display: flex;
       align-items: center;
@@ -462,6 +463,9 @@
       }
     }
   }
+  &_cons{
+    max-width: 90%;
+  }
 }
 
 .chat_footer {
@@ -478,19 +482,21 @@
     background-image: none;
     border: 1px solid #d9d9d9;
     transition: all 0.3s;
-    display: inline-flex;
+    // display: inline-flex;
     border-radius: 6px;
     position: relative;
     outline:none;
-    white-space: pre;
+    white-space: pre-wrap;
+    word-break: break-all;
     overflow: auto;
+    padding-right: 60px;
     cursor: text;
     max-height: 20vh;
     &::-webkit-scrollbar {
       display: none;
     }
     &:empty:before{
-      content: attr(data-pl);
+      content: attr(placeholder);
       color: rgb(169, 169, 169);
     }
   }

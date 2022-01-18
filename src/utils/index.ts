@@ -1,16 +1,9 @@
 import {createNotification, getNotification, im,isSingleCve, parseMessageType,} from './im'
 import request from './request'
-import { cosUpload,cos } from './cos'
-import { findEmptyValue,pySegSort,formatDate,sleep, getUserIP,bytesToSize, switchFileIcon, getPicInfo, getVideoInfo } from './common'
+import { cosUpload,cosUploadNomal,cos } from './cos'
 import events from './events'
 
-export {
-    im,
-    request,
-    cos,
-    events,
-    isSingleCve,
-    cosUpload,
+export { 
     findEmptyValue,
     pySegSort,
     formatDate,
@@ -20,6 +13,20 @@ export {
     switchFileIcon,
     getPicInfo,
     getVideoInfo,
+    base64toFile,
+    contenteditableDivRange,
+    move2end 
+    } from './common'
+
+
+export {
+    im,
+    request,
+    cos,
+    events,
+    isSingleCve,
+    cosUpload,
+    cosUploadNomal,
     getNotification,
     createNotification,
     parseMessageType

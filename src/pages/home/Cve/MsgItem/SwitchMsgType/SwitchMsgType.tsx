@@ -78,23 +78,27 @@ const SwitchMsgType: FC<SwitchMsgTypeProps> = ({ msg, audio, curCve, selfID, img
   const parseAt = (mstr: string) => {
     const pattern = /@\S+\s/g;
     const arr = mstr.match(pattern);
-
     arr?.map((a) => {
       const member = groupMemberList.find((gm) => gm.userId === a.slice(1, -1));
       if (member) {
-        mstr = mstr.replace(a, `<span onclick="spanClick('${member.userId}')" style="color:#428be5;cursor: pointer;"> @${member.nickName} </span>`);
+        mstr = mstr.replaceAll(a, `<span onclick='spanClick("${member.userId.replace('.','-')}")' style="color:#428be5;cursor: pointer;"> @${member.nickName} </span>`);
       } else {
-        mstr = mstr.replace(a, `<span onclick="spanClick('${a.slice(1, -1)}')" style="color:#428be5;cursor: pointer;"> ${a}</span>`);
+        mstr = mstr.replaceAll(a, `<span onclick="spanClick('${a.slice(1, -1)}')" style="color:#428be5;cursor: pointer;"> ${a}</span>`);
       }
     });
     return mstr;
   };
 
+  const parseBr = (mstr: string) => {
+    const text = mstr.replaceAll("\\n","<br>")
+    return text.replaceAll("\n","<br>")
+  }
+
   const parseUrl = (mstr: string) => {
     const pattern = /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:._\+-~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:_\+.~#?&\/\/=]*)/g
     const arr = mstr.match(pattern);
     arr?.map(a=>{
-      mstr = mstr.replace(a,`<a onclick="urlClick('${a}')" href="javascript:;">${a}</a>`)
+      mstr = mstr.replaceAll(a,`<a onclick="urlClick('${a}')" href="javascript:;">${a}</a>`)
     })
     return mstr;
   }
@@ -110,6 +114,7 @@ const SwitchMsgType: FC<SwitchMsgTypeProps> = ({ msg, audio, curCve, selfID, img
         let mstr = msg.content;
         mstr = parseEmojiFace(mstr);
         mstr = parseUrl(mstr);
+        mstr = parseBr(mstr);
         return (
           <>
             <div ref={textRef} style={sty} className={`chat_bg_msg_content_text ${!isSingle ? "nick_magin" : ""}`}>
@@ -123,6 +128,7 @@ const SwitchMsgType: FC<SwitchMsgTypeProps> = ({ msg, audio, curCve, selfID, img
         atMsg = parseEmojiFace(atMsg);
         atMsg = parseAt(atMsg);
         atMsg = parseUrl(atMsg);
+        atMsg = parseBr(atMsg);
         return (
           <div style={sty} className={`chat_bg_msg_content_text ${!isSingle ? "nick_magin" : ""}`}>
             <div style={{ display: "inline-block" }} dangerouslySetInnerHTML={{ __html: atMsg }}></div>

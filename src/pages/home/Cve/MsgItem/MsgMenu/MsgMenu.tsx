@@ -111,6 +111,12 @@ const MsgMenu: FC<MsgMenuProps> = ({ visible, msg, isSelf, visibleChange, childr
       method: delComfirm,
       hidden: false,
     },
+    // {
+    //   title: t("Download"),
+    //   icon: del_msg,
+    //   method: downloadFile,
+    //   hidden: false,
+    // },
   ];
 
   const switchMenu = (menu: typeof menus[0]) => {

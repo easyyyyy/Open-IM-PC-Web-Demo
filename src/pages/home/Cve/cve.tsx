@@ -189,9 +189,8 @@ const Home = () => {
   //  im hander
   const newMsgHandler = (data: WsResponse) => {
     const newServerMsg: Message = JSON.parse(data.data);
-    if(newServerMsg.contentType !== messageTypes.TYPINGMESSAGE){
+    if(newServerMsg.contentType !== messageTypes.TYPINGMESSAGE && newServerMsg.sendID !== selfID){
       createNotification(newServerMsg,(id,sessionType)=>{
-        console.log(id,sessionType);
         assignHandler(id,sessionType)
         window.electron?window.electron.focusHomePage():window.focus()
       })

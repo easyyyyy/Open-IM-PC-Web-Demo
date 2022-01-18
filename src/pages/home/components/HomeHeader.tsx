@@ -25,23 +25,23 @@ type HeaderProps = {
 
 const HomeHeader: FC<HeaderProps> = ({ isShowBt, type, title, curCve, typing, ginfo }) => {
   const { t } = useTranslation();
-  const [isFriend, setIsFriend] = useState(false);
+  // const [isFriend, setIsFriend] = useState(false);
   const [onlineStatus, setOnlineStatus] = useState<string>(t("Offline"));
   const [onlineNo, setOnlineNo] = useState(0);
-  const friendList = useSelector((state: RootState) => state.contacts.friendList, shallowEqual);
+  // const friendList = useSelector((state: RootState) => state.contacts.friendList, shallowEqual);
   const groupMemberList = useSelector((state: RootState) => state.contacts.groupMemberList, shallowEqual);
   const groupMemberLoading = useSelector((state: RootState) => state.contacts.groupMemberLoading, shallowEqual);
   const adminToken = useSelector((state: RootState) => state.user.adminToken, shallowEqual);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const idx = friendList.findIndex((f) => f.uid == curCve?.userID);
-    if (idx > -1) {
-      setIsFriend(true);
-    } else {
-      setIsFriend(false);
-    }
-  }, [friendList]);
+  // useEffect(() => {
+  //   const idx = friendList.findIndex((f) => f.uid == curCve?.userID);
+  //   if (idx > -1) {
+  //     setIsFriend(true);
+  //   } else {
+  //     setIsFriend(false);
+  //   }
+  // }, [friendList]);
 
   useEffect(() => {
     if (type === "chat") {
@@ -142,14 +142,14 @@ const HomeHeader: FC<HeaderProps> = ({ isShowBt, type, title, curCve, typing, gi
       <div className="chat_header_box_right">
         <AudioOutlined />
         <PlayCircleOutlined />
-        {!isFriend && isSingleCve(curCve!) && <UserAddOutlined />}
+        {/* {!isFriend && isSingleCve(curCve!) && <UserAddOutlined />} */}
       </div>
     </div>
   );
 
   return (
     <Header className="chat_header" style={{ borderBottom: isShowBt ? "1px solid #dedfe0" : "none" }}>
-      {type === "chat" ? <ChatHeader /> : <div className="chat_header_box">{title}</div>}
+      {type === "chat" ? <ChatHeader /> : <div className="chat_header_box chat_header_cons">{title}</div>}
     </Header>
   );
 };

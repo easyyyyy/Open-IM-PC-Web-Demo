@@ -1,6 +1,6 @@
 import { PlusCircleOutlined, SmileOutlined } from "@ant-design/icons";
 import { Dropdown, Menu, message,Image as AntdImage } from "antd";
-import { FC } from "react";
+import { FC, forwardRef, useImperativeHandle } from "react";
 import { UploadRequestOption } from "rc-upload/lib/interface";
 import { cosUpload, getPicInfo, getVideoInfo, im } from "../../../../utils";
 import Upload, { RcFile } from "antd/lib/upload";
@@ -18,8 +18,9 @@ type MsgTypeSuffixProps = {
     sendMsg: (nMsg: string, type: messageTypes) => void;
 }
 
-const MsgTypeSuffix:FC<MsgTypeSuffixProps> = ({choseCard,faceClick,sendMsg}) => {
+const MsgTypeSuffix:FC<MsgTypeSuffixProps> = ({choseCard,faceClick,sendMsg},ref) => {
   const { t } = useTranslation();
+
   const imgMsg = async (file: RcFile, url: string) => {
     const { width, height } = await getPicInfo(file);
     const sourcePicture = {
@@ -102,6 +103,10 @@ const MsgTypeSuffix:FC<MsgTypeSuffixProps> = ({choseCard,faceClick,sendMsg}) => 
     },
   ];
 
+  useImperativeHandle(ref,()=>({
+    sendImageMsg:imgMsg
+  }))
+
   const FaceType = () => (
     <div style={{ boxShadow: "0px 4px 25px rgb(0 0 0 / 16%)" }} className="face_container">
       {faceMap.map((face) => (
@@ -168,4 +173,5 @@ const MsgTypeSuffix:FC<MsgTypeSuffixProps> = ({choseCard,faceClick,sendMsg}) => 
   );
 };
 
-export default MsgTypeSuffix;
+// @ts-ignore
+export default forwardRef(MsgTypeSuffix);

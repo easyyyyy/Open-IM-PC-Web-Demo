@@ -16,7 +16,7 @@ export const parseMessageType = (pmsg: Message, curUid?: string): string => {
     case messageTypes.TEXTMESSAGE:
       return pmsg.content;
     case messageTypes.ATTEXTMESSAGE:
-      return `${pmsg.senderNickName + " " + pmsg.atElem.text}`;
+      return pmsg.atElem.text;
     case messageTypes.PICTUREMESSAGE:
       return t("PictureMessage");
     case messageTypes.VIDEOMESSAGE:
@@ -86,7 +86,11 @@ export const createNotification = (message: Message, click?: (id: string, type: 
       requireInteraction: true,
     });
     notification.onclick = () => {
-      click && click(message.sessionType === SessionType.SINGLECVE ? message.sendID : message.recvID, message.sessionType);
+      click &&
+        click(
+          message.sessionType === SessionType.SINGLECVE ? (message.contentType === tipsTypes.ACCEPTFRIENDNOTICE ? message.recvID : message.sendID) : message.recvID,
+          message.sessionType
+        );
       notification.close();
     };
   }

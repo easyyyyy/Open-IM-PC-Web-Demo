@@ -12,7 +12,7 @@ export const ADMINURL = "http://121.37.25.71:10000"
 export const COSBUCKET = "echat-1302656840"
 export const COSREGION = "ap-chengdu"
 export const PICMESSAGETHUMOPTION = "?imageView2/1/w/200/h/200/rq/80"
-export const LANGUAGE = "zh"
+export const LANGUAGE = "zh-cn"
 
 export const getIMUrl = () => localStorage.getItem("IMUrl")?localStorage.getItem("IMUrl")!:IMURL
 export const getAxiosUrl = () => localStorage.getItem("IMAxiosUrl")?localStorage.getItem("IMAxiosUrl")!:AXIOSURL

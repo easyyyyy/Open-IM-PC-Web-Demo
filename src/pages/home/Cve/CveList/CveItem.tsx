@@ -26,7 +26,15 @@ const CveItem: FC<CveItemProps> = ({ cve, onClick, curCve, curUid, cveList }) =>
     const pmsg: Message = JSON.parse(lmsg);
 
     if (cve.draftText !== "") {
-      return t("Draft")+" " + cve.draftText;
+      let text = cve.draftText
+      const pattern = /\<img.*?\">/g
+      const matchArr = text.match(pattern)
+      if(matchArr&&matchArr.length > 0) {
+        matchArr.map(matchRes=>{
+          text = text.replaceAll(matchRes,t("Picture"))
+        })
+      }
+      return t("Draft")+" " + text
     }
     return parseMessageType(pmsg,curUid);
   };

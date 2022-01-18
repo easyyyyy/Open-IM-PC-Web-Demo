@@ -38,6 +38,9 @@ const MsgItem: FC<MsgItemProps> = (props) => {
   useEffect(() => {
     //@ts-ignore
     window.spanClick = async (id: string) => {
+      if(id.indexOf('-')>-1){
+        id = id.replace('-', '.');
+      }
       const { data } = await im.getUsersInfo([id]);
       events.emit(OPENSINGLEMODAL, JSON.parse(data)[0]);
     };

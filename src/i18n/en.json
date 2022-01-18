@@ -145,6 +145,7 @@
     "SendVideo":"Send video",
     "SendPicture":"Send picture",
     "Draft":"[Draft]",
+    "Picture":"[图片]",
     "You":"You",
     "RevokeMessage":"Revoke a message",
     "AlreadyFriend":"You're already friends, so start chatting~",
@@ -225,5 +226,6 @@
     "NoMore":"No more~",
     "CloseAction":"Event when the close button is clicked",
     "QuitApp":"Quit app",
-    "MiniSizeApp":"Minimize to tray"
+    "MiniSizeApp":"Minimize to tray",
+    "Download":"Download"
 }
