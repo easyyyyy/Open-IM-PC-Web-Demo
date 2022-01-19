@@ -1,5 +1,5 @@
 import { message, Modal, Popover } from "antd";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 
 import ts_msg from "@/assets/images/ts_msg.png";
 import re_msg from "@/assets/images/re_msg.png";
@@ -8,7 +8,8 @@ import mc_msg from "@/assets/images/mc_msg.png";
 import sh_msg from "@/assets/images/sh_msg.png";
 import del_msg from "@/assets/images/del_msg.png";
 import cp_msg from "@/assets/images/cp_msg.png";
-import { events, im } from "../../../../../utils";
+import download_msg from "@/assets/images/download_msg.png";
+import { downloadFileUtil, events, im } from "../../../../../utils";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { FORWARDANDMERMSG, MUTILMSG, REPLAYMSG, REVOKEMSG, DELETEMESSAGE } from "../../../../../constants/events";
 import { messageTypes } from "../../../../../constants/messageContentType";
@@ -16,6 +17,7 @@ import { Message } from "../../../../../@types/open_im";
 import { useTranslation } from "react-i18next";
 
 const canCpTypes = [messageTypes.TEXTMESSAGE, messageTypes.ATTEXTMESSAGE];
+const canDownloadTypes = [messageTypes.PICTUREMESSAGE, messageTypes.VIDEOMESSAGE, messageTypes.FILEMESSAGE];
 
 type MsgMenuProps = {
   visible: boolean;
@@ -68,6 +70,26 @@ const MsgMenu: FC<MsgMenuProps> = ({ visible, msg, isSelf, visibleChange, childr
       .catch((err) => message.error(t("DeleteMessageFailed")));
   };
 
+  const downloadFile = () => {
+    let downloadUrl = "";
+    switch (msg.contentType) {
+      case messageTypes.PICTUREMESSAGE:
+        downloadUrl = msg.pictureElem.sourcePicture.url
+        break;
+      case messageTypes.VIDEOMESSAGE:
+        downloadUrl = msg.videoElem.videoUrl
+        break;
+      case messageTypes.FILEMESSAGE:
+        downloadUrl = msg.fileElem.sourceUrl
+        break;
+      default:
+        break;
+    }
+    const idx = downloadUrl.lastIndexOf("/");
+    const fileName = downloadUrl.slice(idx + 1);
+    downloadFileUtil(downloadUrl, fileName);
+  };
+
   const menus = [
     // {
     //   title: t("Translate"),
@@ -111,16 +133,20 @@ const MsgMenu: FC<MsgMenuProps> = ({ visible, msg, isSelf, visibleChange, childr
       method: delComfirm,
       hidden: false,
     },
-    // {
-    //   title: t("Download"),
-    //   icon: del_msg,
-    //   method: downloadFile,
-    //   hidden: false,
-    // },
+    {
+      title: t("Download"),
+      icon: download_msg,
+      method: downloadFile,
+      hidden: false,
+    },
   ];
 
   const switchMenu = (menu: typeof menus[0]) => {
     if (!canCpTypes.includes(msg.contentType) && canHiddenTypes.includes(menu.title)) {
+      menu.hidden = true;
+    }
+
+    if( menu.title === t("Download") && !canDownloadTypes.includes(msg.contentType)){
       menu.hidden = true;
     }
 

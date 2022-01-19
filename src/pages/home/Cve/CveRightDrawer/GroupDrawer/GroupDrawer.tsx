@@ -45,7 +45,7 @@ const GroupDrawer: FC<GroupDrawerProps> = ({ curCve, role, groupMembers, changeT
       </div>
       <div className="group_drawer_row">
         <div onClick={() => changeType("member_list")} className="group_drawer_row_title">
-          <div>{t("GruopMembers")}</div>
+          <div>{t("GroupMembers")}</div>
           <div>
             <span className="num_tip">{groupMembers.length}</span>
             <RightOutlined />
@@ -85,7 +85,7 @@ const GroupDrawer: FC<GroupDrawerProps> = ({ curCve, role, groupMembers, changeT
       <div className="group_drawer_item group_drawer_item_nbtm">
         <div>{t("Group")}ID</div>
         <Paragraph copyable ellipsis>
-          {curCve.groupID + curCve.groupID}
+          {curCve.groupID}
         </Paragraph>
         {/* <div className="group_id"></div> */}
       </div>

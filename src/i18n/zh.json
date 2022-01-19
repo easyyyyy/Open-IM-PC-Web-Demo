@@ -142,6 +142,7 @@
     "MergerAndForward":"合并转发",
     "SendTo":"发送给",
     "SendCard":"发送名片",
+    "SendFile":"发送文件",
     "SendVideo":"发送视频",
     "SendPicture":"发送图片",
     "Draft":"[草稿]",

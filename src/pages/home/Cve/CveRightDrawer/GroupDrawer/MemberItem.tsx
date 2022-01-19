@@ -101,7 +101,7 @@ const MemberItem: FC<MemberItemProps> = ({ idx, item, member2Status, role, gid, 
   return (
     <div ref={memberItemRef} className="group_members_list_item">
       <div style={{ display: "flex" }}>
-          <LayLoad forceLoad={idx>20?false:true} targetRef={memberItemRef} skeletonCmp={<Skeleton.Avatar active={true} size={36} shape="square" />}>
+          <LayLoad forceLoad={idx<20} targetRef={memberItemRef} skeletonCmp={<Skeleton.Avatar active={true} size={36} shape="square" />}>
             <MyAvatar size={36} src={item.faceUrl} />
           </LayLoad>
         <div className="member_info">

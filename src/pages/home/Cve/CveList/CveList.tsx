@@ -30,7 +30,7 @@ const CveList: FC<CveListProps> = ({ cveList, clickItem, loading, marginTop, cur
           dataSource={cveList}
           split={false}
           loading={loading}
-          renderItem={(item) => <CveItem cveList={cveList} curUid={curUid!} curCve={curCve} key={item.conversationID} onClick={clickItem} cve={item} />}
+          renderItem={(item,idx) => <CveItem idx={idx} cveList={cveList} curUid={curUid!} curCve={curCve} key={item.conversationID} onClick={clickItem} cve={item} />}
         />
       ) : (
         <Empty description={t("NoCve")} image={Empty.PRESENTED_IMAGE_SIMPLE} />

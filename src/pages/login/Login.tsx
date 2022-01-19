@@ -16,6 +16,7 @@ import { getSelfInfo, getAdminToken, setSelfInfo } from "../../store/actions/use
 import { getCveList } from "../../store/actions/cve";
 import { getBlackList, getFriendApplicationList, getFriendList, getGroupApplicationList, getGroupList, getUnReadCount } from "../../store/actions/contacts";
 import IMConfigModal from "./components/IMConfigModal";
+import TopBar from "../../components/TopBar";
 
 const Login = () => {
   const { t } = useTranslation();
@@ -165,20 +166,22 @@ const Login = () => {
   };
 
   return (
-    <div className="login_wapper">
-      <div className="center_container">
-        <div className="left_container">
-          <div onDoubleClick={() => setIsModalVisible(true)} className="title">
-            {t("LoginTitle")}
+    <div className="login_container">
+      <TopBar />
+      <div className="login_wapper">
+        <div className="center_container">
+          <div className="left_container">
+            <div onDoubleClick={() => setIsModalVisible(true)} className="title">
+              {t("LoginTitle")}
+            </div>
+            <span className="sub_title">{t("LoginSubTitle")}</span>
+            <img src={login_bg} />
           </div>
-          <span className="sub_title">{t("LoginSubTitle")}</span>
-          <img src={login_bg} />
+          <LoginForm loading={loading} back={back} toggle={toggle} type={type} finish={finish} num={num} />
         </div>
-        <LoginForm loading={loading} back={back} toggle={toggle} type={type} finish={finish} num={num} />
+        {isModalVisible && <IMConfigModal visible={isModalVisible} close={closeModal} />}
       </div>
-      {
-        isModalVisible && <IMConfigModal visible={isModalVisible} close={closeModal}/>
-      }
+      <div className="login_bottom"></div>
     </div>
   );
 };

@@ -15,7 +15,8 @@ export {
     getVideoInfo,
     base64toFile,
     contenteditableDivRange,
-    move2end 
+    move2end,
+    downloadFileUtil 
     } from './common'
 
 

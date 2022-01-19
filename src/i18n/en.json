@@ -142,6 +142,7 @@
     "MergerAndForward":"Merger of forwarding",
     "SendTo":"Send to",
     "SendCard":"Send card",
+    "SendFile":"Send File",
     "SendVideo":"Send video",
     "SendPicture":"Send picture",
     "Draft":"[Draft]",

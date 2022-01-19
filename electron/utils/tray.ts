@@ -1,11 +1,12 @@
 import { app, BrowserWindow, Menu, Tray } from "electron";
 import * as path from "path";
 import { getAppCloseAction } from "../store";
+import * as isDev from "electron-is-dev";
 
 let appTray: Tray;
 let timer: NodeJS.Timeout | null = null;
-const emptyPic = path.join(__dirname, "../../icons/empty_tray.png");
-const trayPic = path.join(__dirname, "../../icons/tray.png");
+const emptyPic = path.join(__dirname, isDev?"../../../public/icons/empty_tray.png":"../../icons/empty_tray.png");
+const trayPic = path.join(__dirname, isDev? "../../../public/icons/tray.png":"../../icons/tray.png");
 
 export const setTray = (win: BrowserWindow|null) => {
   const trayMenu = Menu.buildFromTemplate([

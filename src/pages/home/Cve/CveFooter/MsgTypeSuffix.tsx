@@ -10,6 +10,7 @@ import { messageTypes } from "../../../../constants/messageContentType";
 import send_id_card from "@/assets/images/send_id_card.png";
 import send_pic from "@/assets/images/send_pic.png";
 import send_video from "@/assets/images/send_video.png";
+import send_file from "@/assets/images/send_file.png";
 import { useTranslation } from "react-i18next";
 
 type MsgTypeSuffixProps = {
@@ -69,14 +70,34 @@ const MsgTypeSuffix:FC<MsgTypeSuffixProps> = ({choseCard,faceClick,sendMsg},ref)
     sendMsg(data, messageTypes.VIDEOMESSAGE);
   };
 
+  const fileMsg = async (file: RcFile, url: string) => {
+    const fileInfo = {
+      filePath: url,
+      fileName: file.name,
+      uuid: file.uid,
+      sourceUrl: url,
+      fileSize: file.size
+    }
+    const { data } = await im.createFileMessage(fileInfo)
+    sendMsg(data, messageTypes.FILEMESSAGE);
+  }
+
 
   const sendCosMsg = async (uploadData: UploadRequestOption, type: string) => {
     cosUpload(uploadData)
       .then((res) => {
-        if (type === "pic") {
-          imgMsg(uploadData.file as RcFile, res.url);
-        } else if (type === "video") {
-          videoMsg(uploadData.file as RcFile, res.url);
+        switch (type) {
+          case "pic":
+            imgMsg(uploadData.file as RcFile, res.url);
+            break;
+          case "video":
+            videoMsg(uploadData.file as RcFile, res.url);
+            break;
+          case "file":
+            fileMsg(uploadData.file as RcFile, res.url);
+            break;
+          default:
+            break;
         }
       })
       .catch((err) => message.error(t("UploadFailed")));
@@ -88,6 +109,12 @@ const MsgTypeSuffix:FC<MsgTypeSuffixProps> = ({choseCard,faceClick,sendMsg},ref)
       icon: send_id_card,
       method: choseCard,
       type: "card",
+    },
+    {
+      title: t("SendFile"),
+      icon: send_file,
+      method: sendCosMsg,
+      type: "file",
     },
     {
       title: t("SendVideo"),

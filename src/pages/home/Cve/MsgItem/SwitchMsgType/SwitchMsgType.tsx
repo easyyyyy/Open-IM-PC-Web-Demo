@@ -188,8 +188,8 @@ const SwitchMsgType: FC<SwitchMsgTypeProps> = ({ msg, audio, curCve, selfID, img
         const quMsg = msg.quoteElem.quoteMessage;
         let replyMsg = msg.quoteElem.text;
         let quoteMsg = quMsg.contentType === messageTypes.ATTEXTMESSAGE ? parseAt(quMsg.atElem.text) : quMsg.content;
-        replyMsg = parseEmojiFace(replyMsg);
-        quoteMsg = parseEmojiFace(quoteMsg);
+        replyMsg = parseBr(parseUrl(parseEmojiFace(replyMsg)));
+        quoteMsg = parseBr(parseUrl(parseAt(parseEmojiFace(quoteMsg))));
         return (
           <div style={sty} className={`chat_bg_msg_content_text chat_bg_msg_content_qute ${!isSingle ? "nick_magin" : ""}`}>
             <div className="qute_content">

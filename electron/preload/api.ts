@@ -9,6 +9,8 @@ export const apiKey:APIKey = 'electron';
 
 const isMac = platform === "darwin"
 
+let listeners:any = {};
+
 const getLocalWsAddress = () => {
     let ips = [];
     const intf = networkInterfaces();
@@ -54,6 +56,16 @@ const closeApp = () => {
     ipcRenderer.send("CloseApp")
 }
 
+const addIpcRendererListener = (event:string, listener:(...args:any[]) => void, flag:string) => {
+    listeners[flag] = {event,listener}
+    ipcRenderer.addListener(event,listener)
+}
+
+const removeIpcRendererListener = (flag:string) => {
+    ipcRenderer.removeListener(listeners[flag].event,listeners[flag].listener);
+    delete listeners[flag]
+}
+
 export const api:API = {
     isMac,
     getLocalWsAddress,
@@ -65,7 +77,9 @@ export const api:API = {
     maxSizeApp,
     closeApp,
     getAppCloseAction,
-    setAppCloseAction
+    setAppCloseAction,
+    addIpcRendererListener,
+    removeIpcRendererListener
 };
 
 

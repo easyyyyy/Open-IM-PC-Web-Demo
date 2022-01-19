@@ -6,6 +6,7 @@ import file_world from "@/assets/images/file_world.png";
 import file_xslx from "@/assets/images/file_xslx.png";
 import file_zip from "@/assets/images/file_zip.png";
 import { RcFile } from "antd/lib/upload";
+import axios from "axios";
 
 export const findEmptyValue = (obj: any) => {
   let flag = true;
@@ -238,3 +239,25 @@ export const move2end = (ref:React.RefObject<HTMLDivElement>) => {
   sel?.removeAllRanges();
   sel?.addRange(range);
 };
+
+export const downloadFileUtil = (filePath: string, filename:string) =>{
+  axios.get(filePath, {
+      headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      'responseType': 'blob'
+  }).then(function (response) {
+      const blob = new Blob([response.data]);
+      const fileName = filename;
+      const linkNode = document.createElement('a');
+      linkNode.download = fileName;
+      linkNode.style.display = 'none';
+      linkNode.href = URL.createObjectURL(blob);
+      document.body.appendChild(linkNode);
+      linkNode.click();
+      URL.revokeObjectURL(linkNode.href);
+      document.body.removeChild(linkNode);
+  }).catch(function (error) {
+      console.log(error);
+  });
+}

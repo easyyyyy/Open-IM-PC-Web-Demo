@@ -123,40 +123,41 @@
   }
 }
 
-.login_wapper:extend(.center_box) {
-  padding: 20vh 10vw;
-
-  .center_container {
-    display: flex;
-
-    .left_container {
-      text-align: center;
-      width: 354px;
-      margin-right: 72px;
-
-      .title {
-        font-size: 22px;
-        font-weight: 500;
-        padding-top: 43px;
-      }
-
-      .sub_title {
-        font-size: 12px;
-        color: #777;
-      }
-
-      img {
-        width: 100%;
+.login_container{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height:100vh;
+  .login_wapper:extend(.center_box) {
+    .center_container {
+      display: flex;
+      min-height: 420px;
+      .left_container {
+        text-align: center;
+        width: 354px;
+        margin-right: 72px;
+  
+        .title {
+          font-size: 22px;
+          font-weight: 500;
+          padding-top: 43px;
+        }
+  
+        .sub_title {
+          font-size: 12px;
+          color: #777;
+        }
+  
+        img {
+          width: 100%;
+        }
       }
     }
   }
-
-  &::after {
-    content: "";
-    position: fixed;
-    bottom: 0;
+  .login_bottom {
+    height:30px;
     width: 100%;
-    border: 15px solid @primary-color;
+    background-color: #438be5;
   }
 }
 
@@ -258,16 +259,17 @@
   }
 }
 
-.right_win_btn{
-  position: absolute;
-  right: 6px;
-  top: 4px;
-  z-index: 99;
-  -webkit-app-region: no-drag;
-  .anticon{
-    padding: 0 6px;
-    color: #777;
+.top_bar{
+  max-height:28px;
+  min-height: 28px;
+  display:flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  padding-right: 12px;
+  -webkit-app-region: drag;
+  // background-color: #f7f7f7;
+  img{
+    padding-left: 12px;
     cursor: pointer;
-    -webkit-app-region: no-drag;
   }
 }

@@ -1,25 +1,27 @@
 import { UserOutlined } from "@ant-design/icons";
-import { message, Popover, Badge } from "antd";
-import React, { FC, useState } from "react";
+import { message, Popover, Badge, Skeleton } from "antd";
+import { FC, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { Cve, Message } from "../../../../@types/open_im";
+import LayLoad from "../../../../components/LayLoad";
 import { MyAvatar } from "../../../../components/MyAvatar";
-import { messageTypes, tipsTypes } from "../../../../constants/messageContentType";
 import { setCveList } from "../../../../store/actions/cve";
 import { formatDate, im, parseMessageType } from "../../../../utils";
 
 type CveItemProps = {
   cve: Cve;
+  idx: number;
   onClick: (cve: Cve) => void;
   curCve: Cve | null;
   curUid: string;
   cveList: Cve[];
 };
 
-const CveItem: FC<CveItemProps> = ({ cve, onClick, curCve, curUid, cveList }) => {
+const CveItem: FC<CveItemProps> = ({ cve, onClick, curCve, curUid, cveList,idx }) => {
   const [popVis, setPopVis] = useState(false);
   const dispatch = useDispatch();
+  const itemRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
 
   const parseLatestMsg = (lmsg: string): string => {
@@ -110,10 +112,12 @@ const CveItem: FC<CveItemProps> = ({ cve, onClick, curCve, curUid, cveList }) =>
       title={null}
       trigger="contextMenu"
     >
-      <div onClick={() => onClick(cve)} className={`cve_item ${curCve?.conversationID === cve.conversationID || cve.isPinned === 1 ? "cve_item_focus" : ""}`}>
-        <Badge size="small" count={cve.unreadCount}>
+      <div ref={itemRef} onClick={() => onClick(cve)} className={`cve_item ${curCve?.conversationID === cve.conversationID || cve.isPinned === 1 ? "cve_item_focus" : ""}`}>
+        <LayLoad forceLoad={idx<15} targetRef={itemRef} skeletonCmp={<Skeleton.Avatar active={true} size={36} shape="square" />} >
+          <Badge size="small" count={cve.unreadCount}>
           <MyAvatar shape="square" style={{ minWidth: "36px" }} size={36} icon={<UserOutlined />} src={cve.faceUrl} />
         </Badge>
+        </LayLoad>
 
         <div className="cve_info">
           <div data-time={parseLatestTime(cve.latestMsgSendTime)} className="cve_title">

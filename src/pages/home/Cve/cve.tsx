@@ -122,7 +122,6 @@ const Home = () => {
     im.on(CbEvents.ONMEMBERLEAVE, (data) => {
       console.log(JSON.parse(data.data));
     });
-
     return () => {
       im.off(CbEvents.ONRECVNEWMESSAGE, newMsgHandler);
       im.off(CbEvents.ONRECVMESSAGEREVOKED, revokeMsgHandler);
@@ -140,6 +139,7 @@ const Home = () => {
     events.on(REVOKEMSG, revokeMyMsgHandler);
     events.on(MERMSGMODAL, merModalHandler);
     events.on(SENDFORWARDMSG, sendForwardHandler);
+    window.electron&&window.electron.addIpcRendererListener("DownloadFinish",downloadFinishHandler,"downloadListener")
     return () => {
       events.off(UPDATEFRIENDCARD, updateCardHandler);
       events.off(TOASSIGNCVE, assignHandler);
@@ -148,6 +148,7 @@ const Home = () => {
       events.off(REVOKEMSG, revokeMyMsgHandler);
       events.off(MERMSGMODAL, merModalHandler);
       events.off(SENDFORWARDMSG, sendForwardHandler);
+      window.electron&&window.electron.removeIpcRendererListener("downloadListener")
     };
   }, []);
 
@@ -254,6 +255,24 @@ const Home = () => {
     idxs.map((i) => tmp.splice(i, 1));
     dispatch(setGroupMemberList(tmp));
   };
+
+  //  ipc hander
+  const downloadFinishHandler = (ev:any,state:'completed' | 'cancelled' | 'interrupted') => {
+    switch (state) {
+      case "completed":
+        message.success("下载成功！")
+        break;
+      case "cancelled":
+        message.warn("下载已取消！")
+        break;
+      case "interrupted":
+        message.error("下载失败！")
+        break;
+      default:
+        break;
+    }
+    
+  }
 
   const inCurCve = (newServerMsg: Message): boolean => {
     return (
@@ -421,14 +440,25 @@ const Home = () => {
   const sendMsg = (nMsg: string, type: messageTypes, uid?: string, gid?: string) => {
     const operationID = uuid();
     if ((uid && rs.curCve?.userID === uid) || (gid && rs.curCve?.groupID === gid) || (!uid && !gid)) {
+      const parsedMsg = JSON.parse(nMsg);
       const tMsgMap = {
         oid: operationID,
-        mid: JSON.parse(nMsg).clientMsgID,
+        mid: parsedMsg.clientMsgID,
         flag: false,
       };
       nMsgMaps = [...nMsgMaps, tMsgMap];
-
-      rs.historyMsgList = [JSON.parse(nMsg), ...rs.historyMsgList];
+      parsedMsg.status = 2;
+      rs.historyMsgList = [parsedMsg, ...rs.historyMsgList];
+      setTimeout(() => {
+        const item = nMsgMaps.find(n=>n.mid===parsedMsg.clientMsgID)
+        if(item&&!item.flag){
+          rs.historyMsgList.find(h=>{
+            if(h.clientMsgID===item.mid){
+              h.status = 1;
+            }
+          })
+        }
+      },2000)
       scrollToBottom();
     }
     const sendOption = {

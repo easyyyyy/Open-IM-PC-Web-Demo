@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from "electron";
+import { app, BrowserWindow, Menu, session } from "electron";
 import * as path from "path";
 import * as isDev from "electron-is-dev";
 import { initLocalWs, killLocalWs, setTray } from "./utils";
@@ -25,7 +25,7 @@ async function createWindow() {
   });
 
   setTray(win);
-  
+
   if (isDev) {
     win.loadURL("http://localhost:3000");
   } else {
@@ -46,6 +46,13 @@ async function createWindow() {
       });
     } catch (_) {}
   }
+
+  //  Download
+  session.defaultSession.on("will-download", (event, item, webContents) => {
+    item.on("done",(ev,state) => {
+      webContents.send("DownloadFinish",state)
+    })
+  });
 
   // DevTools
   if (isDev) {

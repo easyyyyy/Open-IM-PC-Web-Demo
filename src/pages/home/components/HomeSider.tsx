@@ -211,7 +211,7 @@ const HomeSider: FC<HomeSiderProps> = ({ children,searchCb }) => {
         <SearchBar searchCb={searchCb} menus={menus} />
         {
           //@ts-ignore
-          cloneElement(children, { marginTop: 58 })
+          cloneElement(children, { marginTop: window.electron?86:58 })
         }
       </div>
       {isAddConsVisible && <AddConModal isAddConsVisible={isAddConsVisible} loading={loading} searchCons={searchCons} cancleSearch={cancleSearch} getNo={getNo} type={addType} />}
