@@ -242,10 +242,10 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
 
   const switchMessage = (type: string) => {
     let text = latestContent.current;
-    if (text === "") return;
     text = parseImg(parseEmojiFace(text));
     text = parseBr(text);
     forEachImgMsg(); 
+    if (text === "") return;
     switch (type) {
       case "text":
         sendTextMsg(text);
