@@ -20,8 +20,8 @@ const TopBar = () => {
       {window.electron && !window.electron.isMac && (
         <>
           <img onClick={closeApp} src={top_close} alt="" />
-          <img onClick={miniSizeApp} src={top_max} alt="" />
-          <img onClick={maxSizeApp} src={top_mini} alt="" />
+          <img onClick={maxSizeApp} src={top_max} alt="" />
+          <img onClick={miniSizeApp} src={top_mini} alt="" />
         </>
       )}
     </div>

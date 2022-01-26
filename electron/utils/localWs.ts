@@ -57,11 +57,6 @@ export const initLocalWs = async () => {
 };
 
 export const killLocalWs = () => {
-  console.log("kill:::::::");
-  console.log(localWs);
-  if(localWs){
-    console.log(localWs.killed);
-  }
   
   if(localWs&&!localWs.killed){
     localWs.kill();
