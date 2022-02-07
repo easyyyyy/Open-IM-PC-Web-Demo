@@ -77,7 +77,8 @@ export const getNotification = (cb?: () => void) => {
 
 export const createNotification = (message: Message, click?: (id: string, type: SessionType) => void, tag?: string) => {
   if (document.hidden) {
-    const notification = new Notification(message.senderNickName, {
+    const title = message.contentType === tipsTypes.ACCEPTFRIENDNOTICE ? t("FriendNotice") : message.senderNickName
+    const notification = new Notification(title, {
       dir: "auto",
       tag: tag ?? (message.groupID === "" ? message.sendID : message.groupID),
       renotify: true,
@@ -85,10 +86,11 @@ export const createNotification = (message: Message, click?: (id: string, type: 
       body: parseMessageType(message),
       requireInteraction: true,
     });
+    const id = message.sessionType === SessionType.SINGLECVE ? (message.contentType === tipsTypes.ACCEPTFRIENDNOTICE ? message.recvID : message.sendID) : message.recvID
     notification.onclick = () => {
       click &&
         click(
-          message.sessionType === SessionType.SINGLECVE ? (message.contentType === tipsTypes.ACCEPTFRIENDNOTICE ? message.recvID : message.sendID) : message.recvID,
+          id,
           message.sessionType
         );
       notification.close();

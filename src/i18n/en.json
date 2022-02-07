@@ -228,5 +228,6 @@
     "CloseAction":"Event when the close button is clicked",
     "QuitApp":"Quit app",
     "MiniSizeApp":"Minimize to tray",
-    "Download":"Download"
+    "Download":"Download",
+    "FriendNotice":"New friends!"
 }

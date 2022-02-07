@@ -228,5 +228,6 @@
     "CloseAction":"点击关闭按钮时事件",
     "QuitApp":"退出应用",
     "MiniSizeApp":"最小化到托盘",
-    "Download":"下载"
+    "Download":"下载",
+    "FriendNotice":"新好友通知！"
 }
