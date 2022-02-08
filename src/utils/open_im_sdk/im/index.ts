@@ -46,6 +46,7 @@ export default class OpenIMSDK extends Emitter {
   private logoutFlag: boolean = false;
   private timer: number | undefined;
   private ws2promise: Record<string, Ws2Promise> = {};
+  private onceFlag: boolean = true;
 
   constructor() {
     super();
@@ -1020,7 +1021,11 @@ export default class OpenIMSDK extends Emitter {
 
     if (this.platform == "web") {
       this.ws!.send(JSON.stringify(params));
-      this.ws!.onmessage = handleMessage;
+      if (this.onceFlag) {
+        this.ws!.onmessage = handleMessage;
+        this.onceFlag = false;
+      }
+
     } else {
       this.ws!.send({
         //@ts-ignore
@@ -1039,8 +1044,11 @@ export default class OpenIMSDK extends Emitter {
           }
         },
       });
-      //@ts-ignore
-      this.ws!.onMessage(handleMessage);
+      if (this.onceFlag) {
+        //@ts-ignore
+        this.ws!.onMessage(handleMessage);
+        this.onceFlag = false
+      }
     }
   };
 
@@ -1066,7 +1074,7 @@ export default class OpenIMSDK extends Emitter {
   }
 
   private createWs(_onOpen?: Function, _onClose?: Function, _onError?: Function) {
-    console.log("call createWs:::");
+    // console.log("call createWs:::");
 
     let onOpen: any = () => {
       const loginData = {
@@ -1081,7 +1089,6 @@ export default class OpenIMSDK extends Emitter {
     }
 
     let onClose: any = () => {
-      // console.log("ws onclose");
       console.log("ws close agin:::");
       if (!this.logoutFlag) {
         this.reconnect();
@@ -1092,7 +1099,7 @@ export default class OpenIMSDK extends Emitter {
       onClose = _onClose;
     }
 
-    let onError: any = () => {};
+    let onError: any = () => { };
     if (_onError) {
       onError = _onError;
     }
@@ -1109,7 +1116,7 @@ export default class OpenIMSDK extends Emitter {
     const platformNamespace = this.platform === "uni" ? uni : wx;
     this.ws = platformNamespace.connectSocket({
       url: this.wsUrl,
-      complete: () => {},
+      complete: () => { },
     });
     //@ts-ignore
     this.ws.onClose(onClose);

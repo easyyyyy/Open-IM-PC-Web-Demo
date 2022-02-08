@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next";
 import md5 from "md5";
 import { login as loginApi, register, sendSms, verifyCode } from "../../api/login";
 import { im } from "../../utils";
-import { InitConfig } from "open-im-sdk/im";
 import { getIMUrl, IMURL } from "../../config";
 import { useDispatch } from "react-redux";
 import { getSelfInfo, getAdminToken, setSelfInfo } from "../../store/actions/user";
@@ -17,6 +16,7 @@ import { getCveList } from "../../store/actions/cve";
 import { getBlackList, getFriendApplicationList, getFriendList, getGroupApplicationList, getGroupList, getUnReadCount } from "../../store/actions/contacts";
 import IMConfigModal from "./components/IMConfigModal";
 import TopBar from "../../components/TopBar";
+import { InitConfig } from "../../utils/open_im_sdk/types";
 
 const Login = () => {
   const { t } = useTranslation();

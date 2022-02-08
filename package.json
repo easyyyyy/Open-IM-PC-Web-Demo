@@ -16,7 +16,6 @@
     "i18next": "^21.6.5",
     "i18next-browser-languagedetector": "^6.1.2",
     "md5": "^2.3.0",
-    "open-im-sdk": "^1.0.9",
     "react": "^17.0.2",
     "react-amap": "^1.2.8",
     "react-copy-to-clipboard": "^5.0.4",
@@ -130,4 +129,3 @@
     }
   }
 }
-
