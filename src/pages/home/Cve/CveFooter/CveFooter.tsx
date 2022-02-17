@@ -245,7 +245,10 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
     text = parseImg(parseEmojiFace(text));
     text = parseBr(text);
     forEachImgMsg(); 
-    if (text === "") return;
+    if (text === "") {
+      reSet();
+      return;
+    }
     switch (type) {
       case "text":
         sendTextMsg(text);
@@ -294,14 +297,18 @@ const CveFooter: FC<CveFooterProps> = ({ sendMsg, curCve }) => {
 
   const forEachImgMsg = () => {
     const screenshotEls = [...document.getElementsByClassName("screenshot_el")] as HTMLImageElement[];
-    screenshotEls.map((snel) => {
-      const item = base64toFile(snel.src);
-      cosUploadNomal(item).then((res) => {
-        suffixRef.current.sendImageMsg(item, res.url);
+    if (screenshotEls.length > 0) {
+      screenshotEls[screenshotEls.length - 1].alt = "last";
+      screenshotEls.map(async (snel) => {
+        const item = base64toFile(snel.src);
+        const { url } = await cosUploadNomal(item);
+        await suffixRef.current.sendImageMsg(item, url);
+        if (snel.alt === "last") {
+          reSet();
+        }
       });
-    });
+    }
   };
-
   const parseBr = (mstr: string) => {
     if (mstr.slice(-4) === "<br>") {
       mstr = mstr.slice(0, -4);
