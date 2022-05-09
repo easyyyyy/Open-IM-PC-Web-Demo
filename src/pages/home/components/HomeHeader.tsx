@@ -7,6 +7,8 @@ import { getOnline } from "../../../api/admin";
 import { MyAvatar } from "../../../components/MyAvatar";
 import { RootState } from "../../../store";
 import { isSingleCve } from "../../../utils";
+import { events } from "../../../utils";
+import { VIDEOINVITE } from "../../../constants/events"
 
 import members from "@/assets/images/members.png";
 import { setMember2Status } from "../../../store/actions/contacts";
@@ -141,7 +143,9 @@ const HomeHeader: FC<HeaderProps> = ({ isShowBt, type, title, curCve, typing, gi
       </div>
       <div className="chat_header_box_right">
         <AudioOutlined />
-        <PlayCircleOutlined />
+        <PlayCircleOutlined onClick={(e) => {
+          events.emit(VIDEOINVITE)
+        }}/>
         {/* {!isFriend && isSingleCve(curCve!) && <UserAddOutlined />} */}
       </div>
     </div>

@@ -14,9 +14,11 @@ import home_bg from "@/assets/images/home_bg.png";
 import { messageTypes, notOssMessageTypes, SessionType, tipsTypes } from "../../../constants/messageContentType";
 import { useReactive, useRequest } from "ahooks";
 import { CbEvents } from "../../../utils/open_im_sdk";
-import { DELETEMESSAGE, ISSETDRAFT, MERMSGMODAL, OPENGROUPMODAL, RESETCVE, REVOKEMSG, SENDFORWARDMSG, TOASSIGNCVE, UPDATEFRIENDCARD } from "../../../constants/events";
+import { CustomMsgParams } from "../../../utils/open_im_sdk/types"
+import { DELETEMESSAGE, ISSETDRAFT, MERMSGMODAL, OPENGROUPMODAL, RESETCVE, REVOKEMSG, SENDFORWARDMSG, TOASSIGNCVE, UPDATEFRIENDCARD, VIDEOINVITE } from "../../../constants/events";
 import { animateScroll } from "react-scroll";
 import MerModal from "./components/MerModal";
+import VideoInviteModal from "./components/VideoInviteModal";
 import { SelectType } from "../components/MultipleSelectBox";
 import { getGroupMemberList, setGroupMemberList } from "../../../store/actions/contacts";
 import { MergerMsgParams, WsResponse } from "../../../utils/open_im_sdk/types";
@@ -60,6 +62,7 @@ type ReactiveState = {
   merData: (MergeElem & { sender: string }) | undefined;
   searchStatus: boolean;
   searchCve: Cve[];
+  videoInviteVisable: boolean;
 };
 
 const Home = () => {
@@ -85,6 +88,7 @@ const Home = () => {
     merData: undefined,
     searchStatus: false,
     searchCve: [],
+    videoInviteVisable: false,
   });
   const timer = useRef<NodeJS.Timeout | null>(null);
   const {
@@ -139,6 +143,7 @@ const Home = () => {
     events.on(REVOKEMSG, revokeMyMsgHandler);
     events.on(MERMSGMODAL, merModalHandler);
     events.on(SENDFORWARDMSG, sendForwardHandler);
+    events.on(VIDEOINVITE, setVideoInvite)
     window.electron&&window.electron.addIpcRendererListener("DownloadFinish",downloadFinishHandler,"downloadListener")
     return () => {
       events.off(UPDATEFRIENDCARD, updateCardHandler);
@@ -153,6 +158,17 @@ const Home = () => {
   }, []);
 
   //  event hander
+  const setVideoInvite = async () => {
+    rs.videoInviteVisable = true
+    const CustomData: CustomMsgParams = {
+      data: "",
+      extension:"",
+      description:"test"
+    }
+    const { data } = await im.createCustomMessage(CustomData);
+    sendMsg(data, messageTypes.CUSTOMMESSAGE)
+  }
+
   const updateCardHandler = (info: FriendItem) => {
     if (info.uid === rs.curCve?.userID) {
       rs.curCve.showName = info.comment;
@@ -515,6 +531,10 @@ const Home = () => {
     }
   };
 
+  const handlerVideoInviteCancle = () => {
+    rs.videoInviteVisable = false
+  }
+
   return (
     <>
       <HomeSider searchCb={siderSearch}>
@@ -548,6 +568,7 @@ const Home = () => {
         {rs.curCve && <CveFooter curCve={rs.curCve} sendMsg={sendMsg} />}
       </Layout>
       {rs.curCve && <CveRightBar friendInfo={rs.friendInfo} curCve={rs.curCve} />}
+      {rs.videoInviteVisable && rs.curCve && <VideoInviteModal cancle={handlerVideoInviteCancle} visible={rs.videoInviteVisable} curCve={rs.curCve}></VideoInviteModal>}
     </>
   );
 };
